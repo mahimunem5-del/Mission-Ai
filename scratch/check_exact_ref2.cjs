@@ -1,0 +1,5 @@
+const fs = require('fs');
+const html = fs.readFileSync('index.html', 'utf8');
+
+const s = html.indexOf('id="ideogram-ref-slots-container"');
+console.log(JSON.stringify(html.substring(s - 350, s)));
