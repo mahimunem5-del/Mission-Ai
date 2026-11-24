@@ -3,6 +3,11 @@ import OpenAI from 'openai';
 import config from '../config/env.js';
 import logger from '../utils/logger.js';
 import { resolveMahiEngineConfig } from '../services/mahiEngineResolver.js';
+import { validateImagePreflight } from '../services/imagePreflight.js';
+import { planPreciseEdit, decomposeEditInstruction } from '../services/preciseEditPlanner.js';
+import { getImageModelConfig } from '../config/imageModelRegistry.js';
+import { dispatchModelGeneration, getAdapter, isSafetyRefusal } from '../services/imageAdapters/index.js';
+import { optimizeBase64DataUrl } from '../utils/imageOptimizer.js';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -111,6 +116,162 @@ export function routeAutoImageModel(prompt = '', isEditMode = false) {
 
   // 4. Fallback -> GPT Image 2.5 Sunburst
   return 'openai/gpt-image-2.5-sunburst';
+}
+
+/**
+ * Intelligently routes Auto model selection specifically for the Precise Edit workspace.
+ * 
+ * Capability-based routing matrix:
+ * 
+ * 1. Seedream 5.5 ('bytedance-seed/seedream-5-5'):
+ *    - Capacity: Supports up to 10 reference images (highest in registry).
+ *    - Specialties: Multi-reference editing (> 2 references), reference-guided background
+ *      replacement, style transfers, and global aesthetic transformations.
+ * 
+ * 2. Nano Banana 2 ('google/gemini-3.1-flash-image-preview'):
+ *    - Capacity: Ultra-fast native multimodal flash vision-to-image.
+ *    - Specialties: Lighting adjustments (illumination, shadows, glow, ambient),
+ *      color adjustments / recoloring, and rapid interactive drafting.
+ * 
+ * 3. FLUX.2 Flex ('black-forest-labs/flux.2-flex'):
+ *    - Capacity: Dedicated inpainting diffusion model with 'high' identity preservation.
+ *    - Specialties: Clothing / garment modifications, facial likeness and anatomical locks,
+ *      localized object additions/removals/swaps, and keeping original structure intact.
+ *    - Default: The gold standard for precision inpainting and original preservation.
+ * 
+ * @param {string} prompt - User editing instruction
+ * @param {object} options - Options including referenceImages, editPlan, quality
+ * @returns {{ model: string, modelName: string, reason: string }}
+ */
+export function routeAutoPreciseEditModel(prompt = '', options = {}) {
+  const text = (typeof prompt === 'string' ? prompt : '').toLowerCase().trim();
+  const rawRefs = options.referenceImages || [];
+  const refCount = Array.isArray(rawRefs) ? rawRefs.length : 0;
+  const editPlan = options.editPlan || decomposeEditInstruction(prompt);
+  const category = editPlan?.category;
+  const categories = Array.isArray(editPlan?.categories) ? editPlan.categories : [category];
+
+  // Rule 1: Multi-reference editing (>2 reference images)
+  // Seedream 5.5 is the only available precise edit model supporting up to 10 reference images.
+  if (refCount > 2) {
+    return {
+      model: 'bytedance-seed/seedream-5-5',
+      modelName: 'Seedream 5.5',
+      reason: `Multi-reference editing: ${refCount} references attached (Seedream 5.5 natively supports up to 10)`
+    };
+  }
+
+  // Rule 2: Style transfer & artistic medium transformation
+  // Seedream 5.5 excels at holistic style transfer, aesthetic blending, and medium changes.
+  if (
+    category === 'style_transfer' ||
+    categories.includes('style_transfer') ||
+    /\b(style|anime|cartoon|watercolor|oil painting|sketch|3d render|cel shaded|pixel art|illustration style|comic book|pop art)\b/i.test(text)
+  ) {
+    return {
+      model: 'bytedance-seed/seedream-5-5',
+      modelName: 'Seedream 5.5',
+      reason: 'Style transfer: Seedream 5.5 provides superior artistic re-styling and style blending'
+    };
+  }
+
+  // Rule 3: Background / environment replacement with reference image guidance
+  if (
+    (category === 'background_change' || categories.includes('background_change') || /\b(background|backdrop|setting|scenery|environment|behind|sky|beach|forest|street|city|mountains|room)\b/i.test(text)) &&
+    refCount > 0
+  ) {
+    return {
+      model: 'bytedance-seed/seedream-5-5',
+      modelName: 'Seedream 5.5',
+      reason: 'Reference-guided background change: Seedream 5.5 seamlessly integrates reference environments'
+    };
+  }
+
+  // Rule 4: Lighting & Color adjustments
+  // Nano Banana 2 (Gemini 3.1 Flash Image) delivers ultra-fast, high-fidelity scene illumination and palette tuning.
+  if (
+    !categories.includes('clothing_change') &&
+    !categories.includes('portrait_editing') &&
+    (
+      category === 'lighting_adjustment' ||
+      category === 'color_adjustment' ||
+      categories.includes('lighting_adjustment') ||
+      categories.includes('color_adjustment') ||
+      options.quality === 'Speed' ||
+      options.quality === 'Fast' ||
+      /\b(lighting|light|illumination|shadows?|golden hour|neon glow|spotlight|sunlight|ambient|darken|brighten|brightness|contrast|exposure|recolor|tint|dye|highlights?)\b/i.test(text)
+    )
+  ) {
+    return {
+      model: 'google/gemini-3.1-flash-image-preview',
+      modelName: 'Nano Banana 2',
+      reason: 'Lighting and color adjustment: Nano Banana 2 provides fast, accurate illumination and color tuning'
+    };
+  }
+
+  // Rule 5: Clothing change & identity preservation
+  // FLUX.2 Flex provides highest identity lock, preserving biometric features, anatomy, and unmasked regions.
+  if (
+    category === 'clothing_change' ||
+    category === 'portrait_editing' ||
+    categories.includes('clothing_change') ||
+    categories.includes('portrait_editing') ||
+    /\b(wear|wearing|jacket|coat|shirt|t-shirt|suit|dress|pants|trousers|jeans|skirt|shoes|boots|sneakers|hat|cap|tie|scarf|glasses|sunglasses|outfit|attire|costume|clothes|clothing|uniform|hoodie|sweater|blazer|put on|change clothes)\b/i.test(text) ||
+    /\b(face|facial|haircut|hairstyle|beard|mustache|eyes|skin|posture|person|man|woman|character|identity)\b/i.test(text)
+  ) {
+    return {
+      model: 'black-forest-labs/flux.2-flex',
+      modelName: 'FLUX.2 Flex',
+      reason: 'Identity & clothing lock: FLUX.2 Flex provides maximum identity preservation and localized inpainting'
+    };
+  }
+
+  // Rule 6: Object & Product modification (add, remove, swap, replace)
+  // FLUX.2 Flex strictly constrains modification to the target delta without scene drift.
+  if (
+    category === 'object_modification' ||
+    category === 'product_editing' ||
+    categories.includes('object_modification') ||
+    categories.includes('product_editing') ||
+    /\b(replace|swap|add|remove|delete|eliminate|take off|take away|hold|holding|carry|carrying|put|insert|substitute|cup|mug|bottle|phone|watch|bag|backpack|car|laptop|guitar|weapon)\b/i.test(text)
+  ) {
+    return {
+      model: 'black-forest-labs/flux.2-flex',
+      modelName: 'FLUX.2 Flex',
+      reason: 'Localized object modification: FLUX.2 Flex isolates target delta with strict scene preservation'
+    };
+  }
+
+  // Rule 7: High precision default fallback
+  return {
+    model: 'black-forest-labs/flux.2-flex',
+    modelName: 'FLUX.2 Flex',
+    reason: 'High-precision default: FLUX.2 Flex provides optimal inpainting fidelity and scene preservation'
+  };
+}
+
+/**
+ * Resolves a model identifier for Precise Edit workspace.
+ */
+export function resolvePreciseEditModel(rawModel) {
+  if (!rawModel || typeof rawModel !== 'string') return 'black-forest-labs/flux.2-flex';
+  const clean = rawModel.trim();
+  const lower = clean.toLowerCase();
+  if (lower === 'auto') return 'auto';
+  if (lower === 'black-forest-labs/flux.2-flex' || lower.includes('flux') || lower.includes('flex') || lower === 'krea/k3-edit' || lower.includes('krea') || lower.includes('k3')) return 'black-forest-labs/flux.2-flex';
+  if (lower === 'bytedance-seed/seedream-5-5' || lower.includes('seedream')) return 'bytedance-seed/seedream-5-5';
+  if (lower === 'google/gemini-3.1-flash-image-preview' || lower.includes('nano banana 2') || lower.includes('banana 2') || lower.includes('flash-image')) return 'google/gemini-3.1-flash-image-preview';
+  return resolveOpenRouterImageModel(clean);
+}
+
+/**
+ * Resolves a user-facing display name for Precise Edit results.
+ */
+export function resolvePreciseEditDisplayName(modelId) {
+  if (modelId === 'black-forest-labs/flux.2-flex' || modelId === 'krea/k3-edit') return 'FLUX.2 Flex';
+  if (modelId === 'bytedance-seed/seedream-5-5') return 'Seedream 5.5';
+  if (modelId === 'google/gemini-3.1-flash-image-preview') return 'Nano Banana 2';
+  return resolveModelDisplayName(modelId);
 }
 
 /**
@@ -950,7 +1111,7 @@ export async function handleImageConversation(req, res) {
 
 /**
  * ============================================================================
- * PRECISE EDIT PIPELINE (STUDIO-GRADE ARCHITECTURE: MAHI ENGINE + KREA K3 EDIT)
+ * PRECISE EDIT PIPELINE (STUDIO-GRADE ARCHITECTURE: MAHI ENGINE + FLUX.2 FLEX)
  * ============================================================================
  */
 
@@ -965,7 +1126,8 @@ export async function enhancePreciseEditPromptWithMahiEngine(
   instructionPrompt = '',
   apiKey = '',
   requestId = '',
-  quality = 'Medium'
+  quality = 'Medium',
+  options = {}
 ) {
   const userEditRequest = (instructionPrompt || '').trim();
   if (!userEditRequest) {
@@ -981,6 +1143,14 @@ export async function enhancePreciseEditPromptWithMahiEngine(
   try {
     console.log('[PreciseEdit] Mahi Engine analyzing sourceImage with user instruction:', userEditRequest);
 
+    // Safeguard: Optimize base64 image strings before sending to Gemini 2.5 Flash
+    // so oversized payloads (> 8 MB) are not rejected by OpenRouter chat completions.
+    const optSource = await optimizeBase64DataUrl(sourceImage, { maxDimension: 1536, quality: 85 });
+    const rawRefs = Array.isArray(referenceImages) ? referenceImages : [];
+    const optRefs = await Promise.all(
+      rawRefs.slice(0, 3).map(r => optimizeBase64DataUrl(r, { maxDimension: 1280, quality: 80 }))
+    );
+
     // Multimodal Vision Payload
     const visionContent = [
       {
@@ -989,18 +1159,22 @@ export async function enhancePreciseEditPromptWithMahiEngine(
       },
       {
         type: "image_url",
-        image_url: { url: sourceImage }
+        image_url: { url: optSource }
       },
-      ...(Array.isArray(referenceImages) ? referenceImages : []).map(ref => ({
+      ...optRefs.map(ref => ({
         type: "image_url",
         image_url: { url: ref }
       }))
     ];
 
+    const editPlan = options.editPlan;
+    const targetRegionHint = editPlan?.targetSubjectOrRegion ? `Target Region To Modify: ${editPlan.targetSubjectOrRegion}.` : '';
+
     // Strict System Prompt
     const systemPrompt = `You are an expert Computer Vision & Diffusion Inpainting Director.
 The user is editing the provided SOURCE IMAGE.
 CRITICAL DIRECTIVE: DO NOT GENERATE A NEW SCENE OR REINVENT THE SUBJECT.
+${targetRegionHint}
 
 Detect the exact artistic medium and genre (e.g. 2D cartoon cel animation, 3D animated CGI render, photorealistic portrait). Explicitly forbid changing medium.
 
@@ -1060,12 +1234,15 @@ Return ONLY the refined studio inpainting prompt string without quotes, formatti
  * Implements full 5-stage pipeline:
  * Stage 1: Request Ingestion & Payload Normalization
  * Stage 2: Mahi Engine (Vision Reasoning & Inpainting Prompt Synthesis)
- * Stage 3: Krea K3 Edit Synthesis Dispatch (krea/k3-edit via /api/v1/images)
+ * Stage 3: FLUX.2 Flex Synthesis Dispatch (black-forest-labs/flux.2-flex via /api/v1/images)
  * Stage 4: Response Parsing & Client Feed Ingestion
  * Stage 5: Verification & Terminal Logging
  */
 export async function executePreciseEdit(req, res) {
-  const requestId = req?.id || `pe_${Date.now()}`;
+  const requestId = req?.id || req?.headers?.['x-request-id'] || `pe_${Date.now()}`;
+  if (res?.setHeader) {
+    res.setHeader('X-Request-Id', requestId);
+  }
   try {
     const apiKey = (process.env.OPENROUTER_API_KEY || config?.openrouter?.apiKey || '').trim();
     if (!apiKey) {
@@ -1085,7 +1262,8 @@ export async function executePreciseEdit(req, res) {
       variations,
       count,
       aspectRatio = '1:1',
-      quality = 'Medium'
+      quality = 'Medium',
+      model
     } = req.body || {};
 
     const userEditRequest = (instructionPrompt || prompt || '').trim();
@@ -1120,148 +1298,276 @@ export async function executePreciseEdit(req, res) {
       .map(r => formatImageUrlForVision(r))
       .filter(r => r && typeof r === 'string' && r.length > 50 && r !== sanitizedSource);
 
-    // STAGE 2: MAHI ENGINE (VISION REASONING & INPAINTING PROMPT SYNTHESIS)
+    // Preflight validation
+    const preflight = validateImagePreflight({
+      model: model || 'auto',
+      referenceImages: sanitizedRefs,
+      sourceImage: sanitizedSource,
+      mode: 'precise-edit'
+    });
+    if (!preflight.valid) {
+      return res.status(preflight.statusCode || 422).json({
+        success: false,
+        error: preflight.message,
+        code: preflight.code,
+        details: preflight.details,
+        recommendedModels: preflight.recommendedModels
+      });
+    }
+
+    // STAGE 2: PRECISE EDIT PLANNER & PRESERVATION DIRECTIVES
+    const editPlan = await planPreciseEdit(userEditRequest, {
+      referenceImages: sanitizedRefs,
+      quality
+    });
+
+    // STAGE 3: INTELLIGENT ROUTING OR MANUAL MODEL SELECTION
+    const isAuto = !model || model === 'auto' || (typeof model === 'string' && model.toLowerCase() === 'auto');
+    let targetModelId;
+    let targetModelName;
+    let autoRoutingMeta = null;
+
+    if (isAuto) {
+      const autoRoute = routeAutoPreciseEditModel(userEditRequest, {
+        referenceImages: sanitizedRefs,
+        editPlan,
+        quality
+      });
+      targetModelId = autoRoute.model;
+      targetModelName = autoRoute.modelName;
+      autoRoutingMeta = autoRoute;
+      logger.info('Precise Edit Auto routing selected model', {
+        requestId,
+        selectedModel: targetModelId,
+        modelName: targetModelName,
+        reason: autoRoute.reason
+      });
+    } else {
+      // Respect manual user selection — never silently switch
+      targetModelId = resolvePreciseEditModel(model);
+      targetModelName = resolvePreciseEditDisplayName(targetModelId);
+      logger.info('Precise Edit respecting manual model selection', {
+        requestId,
+        selectedModel: targetModelId,
+        modelName: targetModelName
+      });
+    }
+
+    // STAGE 4: MAHI ENGINE (VISION REASONING & INPAINTING PROMPT SYNTHESIS)
     const refinedPromptFromMahiEngine = await enhancePreciseEditPromptWithMahiEngine(
       sanitizedSource,
       sanitizedRefs,
       userEditRequest,
       apiKey,
       requestId,
-      quality
+      quality,
+      { editPlan }
     );
 
-    // STAGE 3: KREA K3 EDIT SYNTHESIS DISPATCH
-    const imageReferences = [
-      sanitizedSource,
-      ...(Array.isArray(sanitizedRefs) ? sanitizedRefs : [])
-    ].filter(img => typeof img === 'string' && img.length > 50);
+    // Formulate final synthesis prompt incorporating preservation directives
+    let promptForSynthesis = refinedPromptFromMahiEngine || userEditRequest;
+    if (editPlan?.preservationDirectives && !promptForSynthesis.includes('LOCALIZED MODIFICATION ONLY')) {
+      promptForSynthesis = `${promptForSynthesis}. ${editPlan.preservationDirectives}`;
+    }
 
-    console.log('[PreciseEdit] Dispatched to Krea K3 with', imageReferences.length, 'reference images.');
-
-    const promptForSynthesis = refinedPromptFromMahiEngine || userEditRequest;
-    const payload = {
-      model: "krea/k3-edit",
-      prompt: promptForSynthesis,
-      image_references: imageReferences,
-      input_references: imageReferences.map(url => ({
-        type: "image_url",
-        image_url: { url }
-      }))
-    };
-
-    const targetUrl = 'https://openrouter.ai/api/v1/images';
+    // STAGE 5: SYNTHESIS DISPATCH VIA MODEL-SPECIFIC ADAPTER
     const totalVariations = Math.min(Math.max(parseInt(variations || count || 1, 10), 1), 4);
-
-    const generationTasks = Array.from({ length: totalVariations }, async () => {
-      try {
-        const response = await fetch(targetUrl, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'http://localhost:3000',
-            'X-Title': 'Mestrio AI'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const rawText = await response.text();
-        let parsed = null;
-        try {
-          parsed = JSON.parse(rawText);
-        } catch (jsonErr) {
-          console.error('[PreciseEdit] Failed to parse OpenRouter response as JSON:', rawText);
-        }
-
-        return {
-          status: response.status,
-          ok: response.ok,
-          data: parsed,
-          rawText
-        };
-      } catch (fetchErr) {
-        console.error('[PreciseEdit] Network error during Krea K3 fetch:', fetchErr.message);
-        return {
-          status: 500,
-          ok: false,
-          data: null,
-          rawText: fetchErr.message
-        };
-      }
-    });
-
-    const results = await Promise.all(generationTasks);
-    const collectedImages = [];
+    let collectedImages = [];
     let firstError = null;
 
-    // STAGE 4: RESPONSE PARSING & CLIENT FEED INGESTION
-    for (const resItem of results) {
-      if (resItem.ok && resItem.data) {
-        const dataItems = Array.isArray(resItem.data?.data)
-          ? resItem.data.data
-          : (Array.isArray(resItem.data?.images) ? resItem.data.images : [resItem.data]);
+    try {
+      const generationResult = await dispatchModelGeneration({
+        apiKey,
+        rawModel: targetModelId,
+        options: {
+          prompt: userEditRequest,
+          finalPrompt: promptForSynthesis,
+          sourceImage: sanitizedSource,
+          referenceImages: sanitizedRefs,
+          quality,
+          isEditMode: true,
+          mode: 'precise-edit',
+          count: totalVariations,
+          dimensions: resolveDimensions(aspectRatio)
+        },
+        requestId
+      });
+      collectedImages = generationResult.images || [];
+    } catch (dispatchErr) {
+      logger.warn('Adapter dispatch encountered an issue, attempting direct endpoint fallback', {
+        requestId,
+        model: targetModelId,
+        error: dispatchErr.message
+      });
+      firstError = dispatchErr;
+    }
 
-        for (const item of dataItems) {
-          if (!item) continue;
-          let finalImageUrl = null;
-          if (item.b64_json && typeof item.b64_json === 'string') {
-            finalImageUrl = item.b64_json.startsWith('data:')
-              ? item.b64_json
-              : 'data:image/png;base64,' + item.b64_json;
-          } else {
-            finalImageUrl = extractAndFormatImage(item);
+    // Secondary fallback for direct OpenRouter inpainting endpoint if needed
+    // Absolute Rule: NEVER execute fallback if provider rejected for content safety policy
+    if (collectedImages.length === 0 && !isSafetyRefusal(firstError)) {
+      try {
+        const targetModelConfig = getImageModelConfig(targetModelId);
+        const adapter = getAdapter(targetModelConfig);
+        const payload = await adapter.preparePayload({
+          prompt: userEditRequest,
+          finalPrompt: promptForSynthesis,
+          modelConfig: targetModelConfig,
+          sourceImage: sanitizedSource,
+          referenceImages: sanitizedRefs,
+          quality,
+          mode: 'precise-edit',
+          count: totalVariations,
+          dimensions: resolveDimensions(aspectRatio)
+        });
+
+        const targetUrl = adapter.getEndpoint(targetModelConfig).url || 'https://openrouter.ai/api/v1/images';
+        const fallbackTasks = Array.from({ length: totalVariations }, async () => {
+          try {
+            const outboundPayload = { ...payload };
+            if (targetUrl.includes('/chat/completions') && outboundPayload.messages) {
+              delete outboundPayload.prompt;
+            }
+            const response = await fetch(targetUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': config.openrouter?.siteUrl || 'http://localhost:5001',
+                'X-Title': config.openrouter?.siteName || 'Mestrio AI'
+              },
+              body: JSON.stringify(outboundPayload)
+            });
+
+            if (response.ok) {
+              const parsed = await response.json();
+              return { ok: true, data: parsed };
+            } else {
+              const errText = await response.text();
+              let errJson;
+              try { errJson = JSON.parse(errText); } catch (_) {}
+              return { ok: false, error: new Error(errJson?.error?.message || errJson?.message || errText), status: response.status };
+            }
+          } catch (fetchErr) {
+            return { ok: false, error: fetchErr };
           }
+        });
 
-          if (finalImageUrl) {
-            collectedImages.push(finalImageUrl);
+        const fallbackResults = await Promise.all(fallbackTasks);
+        for (const fbItem of fallbackResults) {
+          if (fbItem.ok && fbItem.data) {
+            const extracted = adapter.parseResponse(fbItem.data);
+            for (const imgUrl of extracted) {
+              if (imgUrl && !collectedImages.includes(imgUrl)) {
+                collectedImages.push(imgUrl);
+              }
+            }
+          } else if (!firstError && fbItem.error) {
+            firstError = fbItem.error;
           }
         }
-      } else {
-        if (!firstError) firstError = resItem;
+      } catch (fbErr) {
+        if (!firstError) firstError = fbErr;
       }
     }
 
     if (collectedImages.length === 0) {
-      const errorMsg =
+      const isSafety = isSafetyRefusal(firstError);
+      const statusCode = isSafety ? 422 : (firstError?.status || firstError?.statusCode || 500);
+      let errorMsg =
+        firstError?.response?.data?.error?.message ||
         firstError?.data?.error?.message ||
-        firstError?.data?.message ||
-        firstError?.rawText ||
-        'Krea K3 Edit synthesis failed. Please verify API key limits and image parameters.';
+        firstError?.message ||
+        `${targetModelName} synthesis failed. Please verify API key limits and image parameters.`;
 
-      console.error('[PreciseEdit] All Krea K3 synthesis attempts failed:', errorMsg);
-      return res.status(firstError?.status || 500).json({
+      // Scrub credentials and tokens from user-facing error message
+      if (typeof errorMsg === 'string') {
+        errorMsg = errorMsg
+          .replace(/(?:Bearer\s+|sk-or-v1-|sk-)[a-zA-Z0-9_\-]{16,}/gi, '[REDACTED]')
+          .replace(/data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]{100,}/g, '[BASE64_IMAGE_DATA]');
+      }
+
+      const errorMetadata = firstError?.response?.data?.error?.metadata || firstError?.data?.error?.metadata || null;
+      console.error(`[PreciseEdit] All ${targetModelName} synthesis attempts failed:`, errorMsg);
+      return res.status(statusCode).json({
         success: false,
-        error: errorMsg
+        error: errorMsg,
+        message: errorMsg,
+        code: isSafety ? 'SAFETY_REFUSAL' : (statusCode === 422 ? 'UNSUPPORTED_CAPABILITY' : 'PROVIDER_ERROR'),
+        ...(errorMetadata ? { metadata: errorMetadata } : {}),
+        requestId
       });
     }
 
-    console.log('[PreciseEdit] Server delivers clean base64 image data to the right-hand canvas feed. Count:', collectedImages.length);
+    console.log(`[PreciseEdit] Server delivers clean image data via ${targetModelName}. Count:`, collectedImages.length);
 
     const nowIso = new Date().toISOString();
     const formattedImages = collectedImages.slice(0, totalVariations).map((url, idx) => ({
       id: `img_${Date.now()}_${idx}`,
       url: url,
-      prompt: refinedPromptFromMahiEngine,
+      prompt: promptForSynthesis,
       originalPrompt: userEditRequest,
-      model: "krea/k3-edit",
-      modelName: "Krea K3 Edit",
+      enhancedPrompt: promptForSynthesis,
+      refinedPrompt: promptForSynthesis,
+      model: targetModelId,
+      modelName: targetModelName,
+      actualModelId: targetModelId,
+      actualModelDisplayName: targetModelName,
+      ...(isAuto ? { routedBy: 'Auto', autoRoutingReason: autoRoutingMeta?.reason } : {}),
       aspectRatio: aspectRatio || "1:1",
       isPreciseEdit: true,
       sourceImage: sanitizedSource,
-      createdAt: nowIso
+      referenceImages: sanitizedRefs.length > 0 ? sanitizedRefs : undefined,
+      createdAt: nowIso,
+      editPlan: {
+        category: editPlan.category,
+        targetSubjectOrRegion: editPlan.targetSubjectOrRegion,
+        elementsToPreserve: editPlan.elementsToPreserve,
+        isFaceReplacementRequested: editPlan.isFaceReplacementRequested,
+        capabilityNotes: editPlan.capabilityNotes
+      }
     }));
 
     return res.json({
       success: true,
       images: formattedImages,
-      refinedPrompt: refinedPromptFromMahiEngine
+      imageUrl: formattedImages[0]?.url,
+      data: formattedImages,
+      count: formattedImages.length,
+      model: targetModelId,
+      modelName: targetModelName,
+      actualModelId: targetModelId,
+      actualModelDisplayName: targetModelName,
+      ...(isAuto ? { routedBy: 'Auto', autoRoutingReason: autoRoutingMeta?.reason } : {}),
+      originalPrompt: userEditRequest,
+      enhancedPrompt: promptForSynthesis,
+      refinedPrompt: promptForSynthesis,
+      mode: 'precise-edit',
+      requestId,
+      createdAt: nowIso,
+      aspectRatio: aspectRatio || '1:1',
+      editPlan: {
+        category: editPlan.category,
+        targetSubjectOrRegion: editPlan.targetSubjectOrRegion,
+        elementsToPreserve: editPlan.elementsToPreserve,
+        isFaceReplacementRequested: editPlan.isFaceReplacementRequested,
+        capabilityNotes: editPlan.capabilityNotes
+      }
     });
 
   } catch (error) {
     console.error('[PreciseEdit Fatal Error]:', error);
-    return res.status(500).json({
+    let errorMsg = error.message || 'An unexpected error occurred during Precise Edit execution.';
+    if (typeof errorMsg === 'string') {
+      errorMsg = errorMsg
+        .replace(/(?:Bearer\s+|sk-or-v1-|sk-)[a-zA-Z0-9_\-]{16,}/gi, '[REDACTED]')
+        .replace(/data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]{100,}/g, '[BASE64_IMAGE_DATA]');
+    }
+    return res.status(error.statusCode || error.status || 500).json({
       success: false,
-      error: error.message || 'An unexpected error occurred during Precise Edit execution.'
+      error: errorMsg,
+      message: errorMsg,
+      code: error.code || 'INTERNAL_ERROR',
+      requestId
     });
   }
 }

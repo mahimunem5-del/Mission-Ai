@@ -4,6 +4,14 @@ import config from '../config/env.js';
 import logger from '../utils/logger.js';
 import { resolveModel } from './modelRouter.js';
 import { isMahiEngine } from './mahiEngineResolver.js';
+import {
+  optimizeBase64DataUrl,
+  ensureOpenRouterPayloadLimits,
+  optimizeImageBuffer
+} from '../utils/imageOptimizer.js';
+
+export const optimizeBase64ImageForOpenRouter = optimizeBase64DataUrl;
+export const ensureImagePayloadUnderLimit = ensureOpenRouterPayloadLimits;
 
 /**
  * Aggressive pre-cleaner stripping thinking/reasoning tags, code fences, and extraneous wrappers.
@@ -762,6 +770,8 @@ export async function routeMultimodalIntentAndSynthesizeDelta({
     }
   }
 
+  const safeImageUrl = await optimizeBase64DataUrl(imageUrl);
+
   const messages = [
     { role: 'system', content: MULTIMODAL_INTENT_ROUTER_PROMPT },
     ...recentMessages,
@@ -769,7 +779,7 @@ export async function routeMultimodalIntentAndSynthesizeDelta({
       role: 'user',
       content: [
         { type: 'text', text: trimmedQuery },
-        { type: 'image_url', image_url: { url: imageUrl } }
+        { type: 'image_url', image_url: { url: safeImageUrl } }
       ]
     }
   ];
@@ -1292,11 +1302,12 @@ export async function orchestrateImageWorkspaceTurn({
 
       // If user provided a reference image directly with this turn, pass multimodal payload
       if (referenceImage && isValidImageUrlString(referenceImage)) {
+        const safeRefImage = await optimizeBase64DataUrl(referenceImage);
         messages.push({
           role: 'user',
           content: [
             { type: 'text', text: trimmedPrompt },
-            { type: 'image_url', image_url: { url: referenceImage } }
+            { type: 'image_url', image_url: { url: safeRefImage } }
           ]
         });
       } else {

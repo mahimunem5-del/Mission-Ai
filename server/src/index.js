@@ -13,7 +13,14 @@ import historyRouter from './routes/history.js';
 import healthRouter from './routes/health.js';
 import filesRouter from './routes/files.js';
 import imageRouter from './routes/image.js';
-import { executePreciseEdit, executeUpscaleImage, executeVectorizeImage, executeRemoveBackground } from './controllers/imageController.js';
+import transcribeRouter from './routes/transcribe.js';
+import templatesRouter from './routes/templates.js';
+import { getHealth } from './controllers/healthController.js';
+import { streamChat } from './controllers/chatController.js';
+import { getTemplates, uploadTemplate, editTemplate, removeTemplate } from './controllers/templateController.js';
+import { generateImage, executePreciseEdit, executeUpscaleImage, executeVectorizeImage, executeRemoveBackground } from './controllers/imageController.js';
+import { validateChatRequest } from './middleware/validate.js';
+import { chatRateLimiter } from './middleware/rateLimit.js';
 
 // Validate configuration on initialization
 validateConfig();
@@ -30,7 +37,7 @@ app.use(cors({
       origin === 'null' ||
       (config.cors?.allowedOrigins && config.cors.allowedOrigins.includes(origin)) ||
       (config.cors?.allowNullOrigin && origin === 'null') ||
-      /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin)
+      /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+|172\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin)
     ) {
       callback(null, true);
     } else {
@@ -39,7 +46,8 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID', 'Cache-Control'],
+  exposedHeaders: ['Content-Type', 'Cache-Control', 'X-Request-ID']
 }));
 
 // Explicit preflight handling for all routes
@@ -52,14 +60,44 @@ app.use(express.urlencoded({ limit: '50mb', extended: true })); // express.urlen
 
 // Route Mounts
 app.use('/api', healthRouter);
+app.use('/api/health', healthRouter);
+app.get('/health', getHealth);
+app.get('/api/health', getHealth);
+
 app.use('/api/chat', chatRouter);
 app.use('/api/chat', compareRouter);
+// Explicit aliases for Chat streaming to prevent any 404 path mismatch
+app.post('/api/chat/stream', chatRateLimiter, validateChatRequest, streamChat);
+app.post('/api/chat', chatRateLimiter, validateChatRequest, streamChat);
+
 app.use('/api/history', historyRouter);
 app.use('/api', historyRouter); // Preserves /api/conversations aliases
 app.use('/api/files', filesRouter);
+
 app.use('/api/generate-image', imageRouter);
 app.use('/api/images', imageRouter);
 app.use('/api/image', imageRouter);
+// Explicit aliases for Image Generation to prevent any 404 path mismatch
+app.post('/api/images/generate', generateImage);
+app.post('/api/generate-image', generateImage);
+app.post('/api/generate-image/generate', generateImage);
+app.post('/api/images', generateImage);
+app.post('/api/image', generateImage);
+app.post('/api/image/generate', generateImage);
+
+app.use('/api/transcribe', transcribeRouter);
+app.use('/api/templates', templatesRouter);
+app.use('/api/admin/templates', templatesRouter);
+
+// Explicit aliases for Templates to guarantee zero 404 path mismatch
+app.get('/api/templates', getTemplates);
+app.post('/api/templates', uploadTemplate);
+app.put('/api/templates/:id', editTemplate);
+app.delete('/api/templates/:id', removeTemplate);
+app.get('/api/admin/templates', getTemplates);
+app.post('/api/admin/templates', uploadTemplate);
+app.put('/api/admin/templates/:id', editTemplate);
+app.delete('/api/admin/templates/:id', removeTemplate);
 
 // Explicit aliases for Precise Edit, Smart Edit, and Upscale to prevent any 404 path mismatch
 app.post('/api/images/precise-edit', executePreciseEdit);
@@ -139,13 +177,18 @@ process.on('unhandledRejection', (reason, promise) => {
 
 let server = null;
 if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(PORT, () => {
-    logger.info(`[Mestrio Engine Core] Server listening on port ${PORT} (${config.env})`);
+  const host = process.env.HOST || '0.0.0.0';
+  server = app.listen(PORT, host, () => {
+    logger.info(`[Mestrio Engine Core] Server listening on http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${PORT} (${config.env})`);
   });
 
   server.on('error', (err) => {
-    console.error('Express server error:', err);
-    logger.error('Server error event caught:', { error: err.message, code: err.code });
+    if (err.code === 'EADDRINUSE') {
+      logger.error(`Port ${PORT} is already in use (${host}). Express cannot start a duplicate listener.`);
+    } else {
+      console.error('Express server error:', err);
+      logger.error('Server error event caught:', { error: err.message, code: err.code });
+    }
   });
 
   const handleShutdown = (signal) => {

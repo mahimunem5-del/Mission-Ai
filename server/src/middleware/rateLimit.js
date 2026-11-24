@@ -115,6 +115,11 @@ export const chatRateLimiter = createRateLimiter({
   prefix: 'chat'
 });
 
+export const imageRateLimiter = createRateLimiter({
+  limit: config.rateLimit.maxImageRequests || 30,
+  prefix: 'img'
+});
+
 export const generalRateLimiter = createRateLimiter({
   limit: config.rateLimit.maxGeneralRequests,
   prefix: 'gen'
@@ -123,5 +128,6 @@ export const generalRateLimiter = createRateLimiter({
 export default {
   createRateLimiter,
   chatRateLimiter,
+  imageRateLimiter,
   generalRateLimiter
 };

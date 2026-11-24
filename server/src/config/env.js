@@ -32,6 +32,7 @@ export const config = {
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10), // 1 minute
     maxChatRequests: parseInt(process.env.RATE_LIMIT_MAX_CHAT || '45', 10), // 45 chat requests per minute per IP
+    maxImageRequests: parseInt(process.env.RATE_LIMIT_MAX_IMAGE || '30', 10), // 30 image requests per minute per IP
     maxGeneralRequests: parseInt(process.env.RATE_LIMIT_MAX_GENERAL || '120', 10) // 120 general requests per minute
   },
 

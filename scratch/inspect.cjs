@@ -1,10 +1,19 @@
 const fs = require('fs');
-const lines = fs.readFileSync('index.html', 'utf8').split('\n');
 
-console.log('Searching for panels between 5200 and 7500:');
-for (let i = 5200; i < 7500; i++) {
-  const line = lines[i];
-  if (line.includes('id=') && (line.includes('<aside') || line.includes('<div') || line.includes('<main') || line.includes('<section'))) {
-    console.log(`${i+1}: ${line.trim()}`);
-  }
+const snippet = fs.readFileSync('scratch/mobile_workspace_snippet.html', 'utf8');
+
+const idRegex = /id="([^"]+)"/g;
+let m;
+const ids = [];
+while ((m = idRegex.exec(snippet)) !== null) {
+    ids.push(m[1]);
 }
+console.log('DOM IDs defined (' + ids.length + '):\n', ids);
+
+// Look for functions defined in the script
+const fnRegex = /(?:function\s+([a-zA-Z0-9_$]+)|(?:const|let|var)\s+([a-zA-Z0-9_$]+)\s*=\s*(?:function|\([^)]*\)\s*=>))/g;
+const fns = [];
+while ((m = fnRegex.exec(snippet)) !== null) {
+    fns.push(m[1] || m[2]);
+}
+console.log('\nFunctions defined (' + fns.length + '):\n', fns);

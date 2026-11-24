@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import VectorStudioCanvas from './VectorStudioCanvas';
+import { preprocessImageFile, validatePayloadSize } from '../utils/imagePreprocessing';
 
 export interface ImageAsset {
   id: string;
@@ -127,6 +128,9 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
   const [preciseCount, setPreciseCount] = useState<number>(1);
   const [isPreciseCountOpen, setIsPreciseCountOpen] = useState(false);
   const [preciseRefImages, setPreciseRefImages] = useState<string[]>([]);
+  const [preciseEditModel, setPreciseEditModel] = useState<string>('auto');
+  const [isPreciseModelOpen, setIsPreciseModelOpen] = useState(false);
+  const preciseModelRef = React.useRef<HTMLDivElement>(null);
   const preciseRefInputRef = useRef<HTMLInputElement>(null);
   const [previewModalAsset, setPreviewModalAsset] = useState<ImageAsset | null>(null);
   const [upscaleImage, setUpscaleImage] = useState<string | null>(null);
@@ -203,6 +207,9 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
       }
       if (toolSwitcherRef.current && !toolSwitcherRef.current.contains(event.target as Node)) {
         setIsToolSwitcherOpen(false);
+      }
+      if (preciseModelRef.current && !preciseModelRef.current.contains(event.target as Node)) {
+        setIsPreciseModelOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -283,7 +290,7 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
       if (!finalPrompt.toLowerCase().includes('vector graphic') && !finalPrompt.toLowerCase().includes('flat 2d vector')) {
         finalPrompt = vectorPrefix + finalPrompt;
       }
-      onGenerate?.({
+      const vectorPayload = {
         prompt: finalPrompt,
         model: 'recraft/recraft-v3',
         aspectRatio: vectorRatio,
@@ -292,20 +299,53 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
         referenceImages: vectorRefImages,
         tool: 'vector-illustration',
         seed: vectorSeed
-      });
+      };
+      const check = validatePayloadSize(vectorPayload);
+      if (!check.valid) {
+        alert(check.error || 'Payload size exceeds limit.');
+        return;
+      }
+      onGenerate?.(vectorPayload);
       return;
     }
-    onGenerate?.({
+
+    const generatePayload = {
       prompt: finalPrompt,
       model: selectedModel,
       aspectRatio,
-      count: variationsCount
-    });
+      count: variationsCount,
+      referenceImages: homeRefImage ? [homeRefImage] : undefined
+    };
+    const genCheck = validatePayloadSize(generatePayload);
+    if (!genCheck.valid) {
+      alert(genCheck.error || 'Payload size exceeds limit.');
+      return;
+    }
+    onGenerate?.(generatePayload);
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceImage || !editPrompt.trim() || preciseLoadingStep !== 'idle') return;
+
+    const editPayload = {
+      sourceImage,
+      referenceImages: preciseRefImages,
+      instructionPrompt: editPrompt.trim(),
+      prompt: editPrompt.trim(),
+      variations: preciseCount,
+      count: preciseCount,
+      quality,
+      aspectRatio: '1:1',
+      isPreciseEdit: true,
+      workflowTool: 'precise-edit',
+      model: preciseEditModel
+    };
+    const editCheck = validatePayloadSize(editPayload);
+    if (!editCheck.valid) {
+      alert(editCheck.error || 'Total payload size exceeds server limit.');
+      return;
+    }
 
     setPreciseLoadingStep('refining');
     const stageTimer = setTimeout(() => {
@@ -323,25 +363,24 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
         });
       } else {
         const host = (typeof window !== 'undefined' && window.location.hostname) ? window.location.hostname : 'localhost';
-        const isPort5001 = typeof window !== 'undefined' && window.location.port === '5001';
-        const endpoint = isPort5001 ? '/api/images/precise-edit' : `http://${host}:5001/api/images/precise-edit`;
+        const apiBase = (typeof window !== 'undefined' && (window as any).getApiBaseUrl) ? (window as any).getApiBaseUrl() : (typeof window !== 'undefined' && window.location.port === '3000' ? `http://${host}:5001` : '');
+        const endpoint = `${apiBase}/api/images/precise-edit`;
 
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sourceImage,
-            referenceImages: preciseRefImages,
-            instructionPrompt: editPrompt.trim(),
-            prompt: editPrompt.trim(),
-            variations: preciseCount,
-            count: preciseCount,
-            quality,
-            aspectRatio: '1:1',
-            isPreciseEdit: true,
-            workflowTool: 'precise-edit'
-          })
-        });
+        let res;
+        try {
+          res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editPayload)
+          });
+        } catch (fetchErr) {
+          console.warn('[Precise Edit] Relative endpoint failed, attempting direct host:5001...', fetchErr);
+          res = await fetch(`http://${host}:5001/api/images/precise-edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editPayload)
+          });
+        }
         const data = await res.json();
         if (res.ok && data.success && Array.isArray(data.images) && data.images.length > 0) {
           data.images.forEach((img: any, idx: number) => {
@@ -351,7 +390,7 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
               prompt: img.prompt || editPrompt.trim(),
               originalPrompt: editPrompt.trim(),
               model: img.model || data.model || 'black-forest-labs/flux.2-flex',
-              modelName: img.modelName || data.modelName || 'FLUX.2 Flex',
+              modelName: img.modelName || img.actualModelDisplayName || data.modelName || data.actualModelDisplayName || 'FLUX.2 Flex',
               aspectRatio: '1:1',
               isPreciseEdit: true,
               variations: preciseCount,
@@ -400,12 +439,16 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                   id="react-home-file-input"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setHomeRefImage(ev.target?.result as string);
-                      reader.readAsDataURL(file);
+                      const res = await preprocessImageFile(file);
+                      if (res.success && res.dataUrl) {
+                        setHomeRefImage(res.dataUrl);
+                      } else if (res.error) {
+                        alert(res.error);
+                      }
+                      e.target.value = '';
                     }
                   }}
                 />
@@ -866,6 +909,7 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                   setSourceImage(null);
                   setPreciseRefImages([]);
                   setEditPrompt('');
+                  setPreciseEditModel('auto');
                   setView('workspace');
                 }}
               >
@@ -1002,7 +1046,15 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
               <button
                 type="button"
                 id="workspace-tool-switcher-btn"
-                onClick={() => setIsToolSwitcherOpen(!isToolSwitcherOpen)}
+                onClick={() => {
+                  const nextState = !isToolSwitcherOpen;
+                  setIsToolSwitcherOpen(nextState);
+                  if (nextState) {
+                    setIsPreciseModelOpen(false);
+                    setIsQualityOpen(false);
+                    setIsPreciseCountOpen(false);
+                  }
+                }}
                 className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-neutral-800/80 px-2 py-1.5 rounded-lg transition cursor-pointer select-none"
               >
                 <span className="text-neutral-400 dark:text-neutral-500 font-normal hidden sm:inline">Creative Workflows /</span>
@@ -1122,8 +1174,31 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
             <button
               type="button"
               onClick={() => {
-                setPrompt('');
-                setEditPrompt('');
+                if (workflowTool === 'precise-edit') {
+                  setEditPrompt('');
+                  setSourceImage(null);
+                  setPreciseRefImages([]);
+                  setPreciseEditModel('auto');
+                  setPreciseCount(1);
+                  if (preciseInputRef.current) preciseInputRef.current.value = '';
+                  if (preciseRefInputRef.current) preciseRefInputRef.current.value = '';
+                } else if (workflowTool === 'remove-background') {
+                  setRemoveBgFile(null);
+                  setRemoveBgImage(null);
+                  if (removeBgInputRef.current) removeBgInputRef.current.value = '';
+                } else if (workflowTool === 'upscale-image') {
+                  setUpscaleImage(null);
+                  setUpscaleFactor(2);
+                  if (upscaleInputRef.current) upscaleInputRef.current.value = '';
+                } else {
+                  setPrompt('');
+                  setHomeRefImage(null);
+                  setAspectRatio('auto');
+                  setVariationsCount(1);
+                  setSelectedModel('auto');
+                  setQuality('medium');
+                }
+                showToast?.('Composer settings reset');
               }}
               className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
               title="Clear all"
@@ -1146,15 +1221,19 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                   ref={removeBgInputRef}
                   type="file"
                   id="remove-bg-file-input"
-                  accept="image/png,image/jpeg,image/webp"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
-                    if (file && file.type.startsWith('image/')) {
-                      setRemoveBgFile(file);
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setRemoveBgImage(ev.target?.result as string);
-                      reader.readAsDataURL(file);
+                    if (file) {
+                      const res = await preprocessImageFile(file);
+                      if (res.success && res.dataUrl) {
+                        setRemoveBgFile(file);
+                        setRemoveBgImage(res.dataUrl);
+                      } else if (res.error) {
+                        alert(res.error);
+                      }
+                      e.target.value = '';
                     }
                   }}
                 />
@@ -1174,16 +1253,19 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                       e.stopPropagation();
                       setIsRemoveBgDragging(false);
                     }}
-                    onDrop={(e) => {
+                    onDrop={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setIsRemoveBgDragging(false);
                       const file = e.dataTransfer.files?.[0];
-                      if (file && file.type.startsWith('image/')) {
-                        setRemoveBgFile(file);
-                        const reader = new FileReader();
-                        reader.onload = (ev) => setRemoveBgImage(ev.target?.result as string);
-                        reader.readAsDataURL(file);
+                      if (file) {
+                        const res = await preprocessImageFile(file);
+                        if (res.success && res.dataUrl) {
+                          setRemoveBgFile(file);
+                          setRemoveBgImage(res.dataUrl);
+                        } else if (res.error) {
+                          alert(res.error);
+                        }
                       }
                     }}
                     className={`relative w-full aspect-[4/3] max-h-[380px] rounded-2xl border-2 border-dashed bg-transparent transition-all flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none ${
@@ -1312,12 +1394,16 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                   ref={upscaleInputRef}
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setUpscaleImage(ev.target?.result as string);
-                      reader.readAsDataURL(file);
+                      const res = await preprocessImageFile(file);
+                      if (res.success && res.dataUrl) {
+                        setUpscaleImage(res.dataUrl);
+                      } else if (res.error) {
+                        alert(res.error);
+                      }
+                      e.target.value = '';
                     }
                   }}
                 />
@@ -1335,14 +1421,17 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                       e.preventDefault();
                       setIsUpscaleDragging(false);
                     }}
-                    onDrop={(e) => {
+                    onDrop={async (e) => {
                       e.preventDefault();
                       setIsUpscaleDragging(false);
                       const file = e.dataTransfer.files?.[0];
-                      if (file && file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => setUpscaleImage(ev.target?.result as string);
-                        reader.readAsDataURL(file);
+                      if (file) {
+                        const res = await preprocessImageFile(file);
+                        if (res.success && res.dataUrl) {
+                          setUpscaleImage(res.dataUrl);
+                        } else if (res.error) {
+                          alert(res.error);
+                        }
                       }
                     }}
                     className={`relative w-full aspect-[4/3] rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 bg-transparent transition-colors flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none ${
@@ -1436,8 +1525,8 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
 
                   try {
                     const host = typeof window !== 'undefined' ? (window.location.hostname || 'localhost') : 'localhost';
-                    const isPort5001 = typeof window !== 'undefined' && window.location.port === '5001';
-                    const endpoint = isPort5001 ? '/api/images/upscale' : `http://${host}:5001/api/images/upscale`;
+                    const apiBase = (typeof window !== 'undefined' && (window as any).getApiBaseUrl) ? (window as any).getApiBaseUrl() : (typeof window !== 'undefined' && window.location.port === '3000' ? `http://${host}:5001` : '');
+                    const endpoint = `${apiBase}/api/images/upscale`;
                     const scaleStr = `${upscaleFactor}x`;
 
                     let response;
@@ -1455,8 +1544,8 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                         })
                       });
                     } catch (netErr) {
-                      console.warn('[Upscale] Primary endpoint failed, attempting relative fallback...', netErr);
-                      response = await fetch('/api/images/upscale', {
+                      console.warn('[Upscale] Primary endpoint failed, attempting fallback to direct host:5001...', netErr);
+                      response = await fetch(`http://${host}:5001/api/images/upscale`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
@@ -1529,12 +1618,16 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (ev) => setImg2imgImage(ev.target?.result as string);
-                          reader.readAsDataURL(file);
+                          const res = await preprocessImageFile(file);
+                          if (res.success && res.dataUrl) {
+                            setImg2imgImage(res.dataUrl);
+                          } else if (res.error) {
+                            alert(res.error);
+                          }
+                          e.target.value = '';
                         }
                       }}
                     />
@@ -1673,16 +1766,15 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                   ref={vectorRefInputRef}
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        if (ev.target?.result) {
-                          setVectorRefImages(prev => [...prev, ev.target!.result as string].slice(0, 10));
-                        }
-                      };
-                      reader.readAsDataURL(file);
+                      const res = await preprocessImageFile(file);
+                      if (res.success && res.dataUrl) {
+                        setVectorRefImages(prev => [...prev, res.dataUrl!].slice(0, 10));
+                      } else if (res.error) {
+                        alert(res.error);
+                      }
                       e.target.value = '';
                     }
                   }}
@@ -2001,14 +2093,18 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                 <input
                   type="file"
                   ref={preciseInputRef}
-                  accept="image/png,image/jpeg,image/webp"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
-                    if (file && file.type.startsWith('image/')) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setSourceImage(ev.target?.result as string);
-                      reader.readAsDataURL(file);
+                    if (file) {
+                      const res = await preprocessImageFile(file);
+                      if (res.success && res.dataUrl) {
+                        setSourceImage(res.dataUrl);
+                      } else if (res.error) {
+                        alert(res.error);
+                      }
+                      e.target.value = '';
                     }
                   }}
                 />
@@ -2028,15 +2124,18 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                       e.stopPropagation();
                       setIsPreciseDragging(false);
                     }}
-                    onDrop={(e) => {
+                    onDrop={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setIsPreciseDragging(false);
                       const file = e.dataTransfer.files?.[0];
-                      if (file && file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => setSourceImage(ev.target?.result as string);
-                        reader.readAsDataURL(file);
+                      if (file) {
+                        const res = await preprocessImageFile(file);
+                        if (res.success && res.dataUrl) {
+                          setSourceImage(res.dataUrl);
+                        } else if (res.error) {
+                          alert(res.error);
+                        }
                       }
                     }}
                     className={`relative w-full aspect-[4/3] max-h-[380px] rounded-2xl border-2 border-dashed bg-transparent transition-all flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none ${
@@ -2138,27 +2237,165 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                   accept="image/*"
                   multiple
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const files = Array.from(e.target.files || []);
                     if (files.length === 0) return;
                     const remaining = 10 - preciseRefImages.length;
                     const toProcess = files.slice(0, remaining);
-                    toProcess.forEach(file => {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        const res = ev.target?.result as string;
-                        if (res) {
-                          setPreciseRefImages(prev => prev.length < 10 ? [...prev, res] : prev);
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    });
+                    for (const file of toProcess) {
+                      const res = await preprocessImageFile(file);
+                      if (res.success && res.dataUrl) {
+                        setPreciseRefImages(prev => prev.length < 10 ? [...prev, res.dataUrl!] : prev);
+                      } else if (res.error) {
+                        alert(res.error);
+                        break;
+                      }
+                    }
                     e.target.value = '';
                   }}
                 />
               </div>
 
-              {/* 4. Quality & Variations Dropdown Row (Opens Upwards) */}
+              {/* 4. Precise Edit Model Selector */}
+              <div className="space-y-1.5" id="studio-precise-model-wrapper" ref={preciseModelRef}>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">Model</label>
+                <div className="relative">
+                  <button
+                    id="studio-precise-model-btn"
+                    type="button"
+                    onClick={() => {
+                      const next = !isPreciseModelOpen;
+                      setIsPreciseModelOpen(next);
+                      if (next) {
+                        setIsToolSwitcherOpen(false);
+                        setIsQualityOpen(false);
+                        setIsPreciseCountOpen(false);
+                      }
+                    }}
+                    className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer text-xs font-medium text-slate-800 dark:text-slate-200 shadow-2xs"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      {preciseEditModel === 'auto' ? (
+                        <svg className="w-3.5 h-3.5 shrink-0 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>
+                        </svg>
+                      ) : (preciseEditModel === 'black-forest-labs/flux.2-flex' || preciseEditModel === 'krea/k3-edit') ? (
+                        <svg className="w-3.5 h-3.5 shrink-0 text-zinc-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2L2 7.5v9L12 22l10-5.5v-9L12 2zm0 2.2l7.5 4.1L12 12.4 4.5 8.3 12 4.2zM4 9.8l7 3.8v7.6l-7-3.8V9.8zm16 7.6l-7 3.8v-7.6l7-3.8v7.6z"/>
+                        </svg>
+                      ) : preciseEditModel === 'bytedance-seed/seedream-5-5' ? (
+                        <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none">
+                          <rect x="2.5" y="6" width="3.2" height="12" rx="1.6" fill="#3B82F6"/>
+                          <rect x="7.8" y="3" width="3.2" height="18" rx="1.6" fill="#06B6D4"/>
+                          <rect x="13.1" y="6" width="3.2" height="15" rx="1.6" fill="#3B82F6"/>
+                          <rect x="18.4" y="8" width="3.2" height="10" rx="1.6" fill="#06B6D4"/>
+                        </svg>
+                      ) : (
+                        <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
+                          <path d="M12 2C12 7.5 7.5 12 2 12c5.5 0 10 4.5 10 10 0-5.5 4.5-10 10-10-5.5 0-10-4.5-10-10z" fill="#2563EB"/>
+                        </svg>
+                      )}
+                      <span className="font-medium truncate" id="studio-precise-model-label">
+                        {preciseEditModel === 'auto' ? 'Auto' :
+                         (preciseEditModel === 'black-forest-labs/flux.2-flex' || preciseEditModel === 'krea/k3-edit') ? 'FLUX.2 Flex' :
+                         preciseEditModel === 'bytedance-seed/seedream-5-5' ? 'Seedream 5.5' :
+                         preciseEditModel === 'google/gemini-3.1-flash-image-preview' ? 'Nano Banana 2' :
+                         preciseEditModel}
+                      </span>
+                    </div>
+                    <svg className="w-3.5 h-3.5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                  </button>
+
+                  {isPreciseModelOpen && (
+                    <div
+                      id="studio-precise-model-dropdown"
+                      className="absolute left-0 right-0 bottom-full mb-2 bg-white dark:bg-[#0c141c] rounded-xl border border-slate-200 dark:border-white/10 shadow-2xl p-1.5 z-50 backdrop-blur-2xl text-slate-700 dark:text-slate-200"
+                    >
+                      <div className="text-[10px] font-semibold text-zinc-400 tracking-wider uppercase px-2 py-1 border-b border-slate-100 dark:border-white/10 mb-1">Edit Model</div>
+                      <div className="space-y-0.5">
+                        {[
+                          {
+                            id: 'auto',
+                            label: 'Auto',
+                            desc: 'Intelligently selects the best model',
+                            icon: (
+                              <svg className="w-4 h-4 shrink-0 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>
+                              </svg>
+                            )
+                          },
+                          {
+                            id: 'black-forest-labs/flux.2-flex',
+                            label: 'FLUX.2 Flex',
+                            desc: 'High-identity inpainting & precision editing',
+                            icon: (
+                              <svg className="w-4 h-4 shrink-0 text-zinc-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2L2 7.5v9L12 22l10-5.5v-9L12 2zm0 2.2l7.5 4.1L12 12.4 4.5 8.3 12 4.2zM4 9.8l7 3.8v7.6l-7-3.8V9.8zm16 7.6l-7 3.8v-7.6l7-3.8v7.6z"/>
+                              </svg>
+                            )
+                          },
+                          {
+                            id: 'bytedance-seed/seedream-5-5',
+                            label: 'Seedream 5.5',
+                            desc: 'Multi-reference editing & image input',
+                            icon: (
+                              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
+                                <rect x="2.5" y="6" width="3.2" height="12" rx="1.6" fill="#3B82F6"/>
+                                <rect x="7.8" y="3" width="3.2" height="18" rx="1.6" fill="#06B6D4"/>
+                                <rect x="13.1" y="6" width="3.2" height="15" rx="1.6" fill="#3B82F6"/>
+                                <rect x="18.4" y="8" width="3.2" height="10" rx="1.6" fill="#06B6D4"/>
+                              </svg>
+                            )
+                          },
+                          {
+                            id: 'google/gemini-3.1-flash-image-preview',
+                            label: 'Nano Banana 2',
+                            desc: 'Fast, high-fidelity editing',
+                            icon: (
+                              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                <path d="M12 2C12 7.5 7.5 12 2 12c5.5 0 10 4.5 10 10 0-5.5 4.5-10 10-10-5.5 0-10-4.5-10-10z" fill="#2563EB"/>
+                              </svg>
+                            )
+                          }
+                        ].map((m) => {
+                          const isSelected = preciseEditModel === m.id;
+                          return (
+                            <button
+                              key={m.id}
+                              type="button"
+                              data-model={m.id}
+                              onClick={() => {
+                                setPreciseEditModel(m.id);
+                                setIsPreciseModelOpen(false);
+                              }}
+                              className={`studio-precise-model-option w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors text-left group ${
+                                isSelected ? 'bg-slate-100/70 dark:bg-white/10 font-semibold text-slate-800 dark:text-slate-100' : 'hover:bg-slate-100 dark:hover:bg-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="w-4 h-4 shrink-0 flex items-center justify-center">{m.icon}</span>
+                                <div className="min-w-0">
+                                  <div className="truncate">{m.label}</div>
+                                  <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate font-normal">{m.desc}</div>
+                                </div>
+                              </div>
+                              {isSelected && (
+                                <svg className="studio-precise-model-check w-3.5 h-3.5 text-slate-700 dark:text-slate-200 shrink-0 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 5. Quality & Variations Dropdown Row (Opens Upwards) */}
               <div className="grid grid-cols-2 gap-2">
                 {/* Quality Dropdown (Low, Medium, High - monochrome sliders icon, opens upwards) */}
                 <div className="relative" id="studio-precise-weight-wrapper">
@@ -2167,8 +2404,13 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                     id="studio-precise-edit-weight-btn"
                     type="button"
                     onClick={() => {
-                      setIsQualityOpen(!isQualityOpen);
-                      setIsPreciseCountOpen(false);
+                      const next = !isQualityOpen;
+                      setIsQualityOpen(next);
+                      if (next) {
+                        setIsPreciseModelOpen(false);
+                        setIsPreciseCountOpen(false);
+                        setIsToolSwitcherOpen(false);
+                      }
                     }}
                     className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer text-xs font-medium text-slate-800 dark:text-slate-200 shadow-2xs"
                   >
@@ -2233,8 +2475,13 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                     id="studio-precise-edit-count-btn"
                     type="button"
                     onClick={() => {
-                      setIsPreciseCountOpen(!isPreciseCountOpen);
-                      setIsQualityOpen(false);
+                      const next = !isPreciseCountOpen;
+                      setIsPreciseCountOpen(next);
+                      if (next) {
+                        setIsPreciseModelOpen(false);
+                        setIsQualityOpen(false);
+                        setIsToolSwitcherOpen(false);
+                      }
                     }}
                     className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer text-xs font-medium text-slate-800 dark:text-slate-200 shadow-2xs"
                   >
@@ -2608,7 +2855,50 @@ export const ImageWorkspace: React.FC<ImageWorkspaceProps> = ({
                           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 font-medium">
                             <span className="font-semibold text-slate-700 dark:text-neutral-200">Precise Edit</span>
                             <span className="text-slate-300 dark:text-neutral-600">•</span>
-                            <span className="text-[11px] text-slate-500 dark:text-neutral-400">{asset.time || 'Just now'}</span>
+                            <span className="inline-flex items-center gap-1 text-[14px] font-normal text-neutral-800 dark:text-neutral-200 font-['Plus_Jakarta_Sans',sans-serif]">
+                              {(() => {
+                                const m = (asset.model || asset.modelName || '').toLowerCase();
+                                if (m.includes('seedream') || m.includes('bytedance')) {
+                                  return (
+                                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
+                                      <rect x="2.5" y="6" width="3.2" height="12" rx="1.6" fill="#3B82F6"/>
+                                      <rect x="7.8" y="3" width="3.2" height="18" rx="1.6" fill="#3B82F6" opacity="0.75"/>
+                                      <rect x="13.1" y="6" width="3.2" height="15" rx="1.6" fill="#3B82F6" opacity="0.6"/>
+                                      <rect x="18.4" y="8" width="3.2" height="10" rx="1.6" fill="#06B6D4"/>
+                                    </svg>
+                                  );
+                                }
+                                if (m.includes('banana') || m.includes('gemini') || m.includes('google')) {
+                                  return (
+                                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                      <defs>
+                                        <linearGradient id="gemini-sparkle-precise-card-ts" x1="85%" y1="15%" x2="15%" y2="85%">
+                                          <stop offset="0%" stopColor="#38BDF8"/>
+                                          <stop offset="50%" stopColor="#60A5FA"/>
+                                          <stop offset="100%" stopColor="#2563EB"/>
+                                        </linearGradient>
+                                      </defs>
+                                      <path d="M12 2C12 7.5 7.5 12 2 12c5.5 0 10 4.5 10 10 0-5.5 4.5-10 10-10-5.5 0-10-4.5-10-10z" style={{ fill: 'url(#gemini-sparkle-precise-card-ts)' }}/>
+                                    </svg>
+                                  );
+                                }
+                                if (m === 'auto' || m.startsWith('auto')) {
+                                  return (
+                                    <svg className="w-4 h-4 shrink-0 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>
+                                    </svg>
+                                  );
+                                }
+                                return (
+                                  <svg className="w-4 h-4 shrink-0 text-neutral-800 dark:text-neutral-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 2 2 7v10l10 5 10-5V7L12 2z"/><path d="m2 7 10 5 10-5"/><path d="M12 22V12"/>
+                                  </svg>
+                                );
+                              })()}
+                              <span>{(!asset.modelName || asset.modelName.toLowerCase().startsWith('auto')) ? 'FLUX.2 Flex' : (asset.modelName || asset.model)}</span>
+                            </span>
+                            <span className="text-slate-300 dark:text-neutral-600">•</span>
+                            <span className="text-[12.5px] font-normal text-neutral-400">{asset.time || 'Just now'}</span>
                           </div>
                           <div className="flex items-center justify-between gap-2 pt-0.5 group/prompt-row">
                             <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">{asset.prompt}</p>

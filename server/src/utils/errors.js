@@ -15,6 +15,42 @@ export class ValidationError extends AppError {
   }
 }
 
+export class InvalidRequestError extends AppError {
+  constructor(message, details = null) {
+    super(message, 400, 'INVALID_REQUEST', details);
+  }
+}
+
+export class ImageUploadError extends AppError {
+  constructor(message, details = null) {
+    super(message, 400, 'IMAGE_UPLOAD_ISSUE', details);
+  }
+}
+
+export class PayloadTooLargeError extends AppError {
+  constructor(message = 'Payload exceeds maximum allowed size of 50 MB', details = null) {
+    super(message, 413, 'PAYLOAD_TOO_LARGE', details);
+  }
+}
+
+export class UnsupportedCapabilityError extends AppError {
+  constructor(message, details = null) {
+    super(message, 422, 'UNSUPPORTED_CAPABILITY', details);
+  }
+}
+
+export class ModelCompatibilityError extends AppError {
+  constructor(message, details = null) {
+    super(message, 422, 'MODEL_COMPATIBILITY_ISSUE', details);
+  }
+}
+
+export class SafetyRefusalError extends AppError {
+  constructor(message = 'The prompt or image was flagged by upstream content safety filters.', details = null) {
+    super(message, 422, 'SAFETY_REFUSAL', details);
+  }
+}
+
 export class AuthenticationError extends AppError {
   constructor(message = 'Authentication required') {
     super(message, 401, 'AUTHENTICATION_REQUIRED');
@@ -42,8 +78,14 @@ export class RateLimitError extends AppError {
 
 export class TimeoutError extends AppError {
   constructor(message = 'The AI service took too long to respond.', provider = 'upstream') {
-    super(message, 504, 'GATEWAY_TIMEOUT', { provider });
+    super(message, 504, 'PROVIDER_TIMEOUT', { provider });
     this.provider = provider;
+  }
+}
+
+export class ProviderTimeoutError extends AppError {
+  constructor(message = 'The upstream image provider timed out while generating your image.', details = null) {
+    super(message, 504, 'PROVIDER_TIMEOUT', details);
   }
 }
 
@@ -63,7 +105,7 @@ export class ConfigurationError extends AppError {
 
 export class InternalServerError extends AppError {
   constructor(message = 'An unexpected internal error occurred') {
-    super(message, 500, 'INTERNAL_SERVER_ERROR');
+    super(message, 500, 'INTERNAL_ERROR');
   }
 }
 
@@ -73,37 +115,68 @@ export class InternalServerError extends AppError {
 export function formatErrorForClient(err, requestId = null) {
   const isOperational = err instanceof AppError;
   const statusCode = isOperational ? err.statusCode : (err.statusCode || err.status || 500);
-  const code = isOperational ? err.code : (err.code || err.type || 'INTERNAL_SERVER_ERROR');
+  let code = isOperational ? err.code : (err.code || err.type || 'INTERNAL_ERROR');
+
+  // Map known status codes to standard error codes if default code is generic
+  if (code === 'INTERNAL_ERROR' || code === 'INTERNAL_SERVER_ERROR') {
+    if (statusCode === 400) code = 'INVALID_REQUEST';
+    else if (statusCode === 413) code = 'PAYLOAD_TOO_LARGE';
+    else if (statusCode === 422) code = 'UNSUPPORTED_CAPABILITY';
+    else if (statusCode === 502) code = 'PROVIDER_ERROR';
+    else if (statusCode === 503) code = 'PROVIDER_ERROR';
+    else if (statusCode === 504) code = 'PROVIDER_TIMEOUT';
+  }
 
   // Scrub any accidentally included keys in error message
   let safeMessage = (isOperational || err.status || err.statusCode) ? err.message : 'An unexpected error occurred. Please try again.';
   if (typeof safeMessage === 'string') {
-    safeMessage = safeMessage.replace(/sk-[a-zA-Z0-9_\-]{16,}/g, '[REDACTED]');
+    safeMessage = safeMessage
+      .replace(/(?:Bearer\s+|sk-or-v1-|sk-)[a-zA-Z0-9_\-]{16,}/gi, '[REDACTED]')
+      .replace(/data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]{100,}/g, '[BASE64_IMAGE_DATA]');
+  }
+
+  const responseBody = {
+    success: false,
+    error: {
+      code,
+      message: safeMessage,
+      details: isOperational && err.details ? err.details : (err.details || undefined),
+      requestId: requestId || undefined
+    },
+    message: safeMessage,
+    code
+  };
+
+  if (err.recommendedModels) {
+    responseBody.recommendedModels = err.recommendedModels;
+    if (responseBody.error && !responseBody.error.details) {
+      responseBody.error.details = { recommendedModels: err.recommendedModels };
+    } else if (responseBody.error && responseBody.error.details) {
+      responseBody.error.details.recommendedModels = err.recommendedModels;
+    }
   }
 
   return {
     statusCode,
-    body: {
-      success: false,
-      message: safeMessage,
-      error: {
-        code,
-        message: safeMessage,
-        details: isOperational && err.details ? err.details : undefined,
-        requestId: requestId || undefined
-      }
-    }
+    body: responseBody
   };
 }
 
 export default {
   AppError,
   ValidationError,
+  InvalidRequestError,
+  ImageUploadError,
+  PayloadTooLargeError,
+  UnsupportedCapabilityError,
+  ModelCompatibilityError,
+  SafetyRefusalError,
   AuthenticationError,
   AuthorizationError,
   NotFoundError,
   RateLimitError,
   TimeoutError,
+  ProviderTimeoutError,
   ProviderError,
   ConfigurationError,
   InternalServerError,

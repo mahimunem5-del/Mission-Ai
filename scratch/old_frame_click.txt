@@ -1,0 +1,13 @@
+                // Tapping Image opens White Full-Screen Preview Modal
+                const frameEl = card.querySelector('.mobile-output-frame');
+                if (frameEl) {
+                    frameEl.onclick = () => {
+                        if (typeof openTemplateWhitePreviewModal === 'function') {
+                            openTemplateWhitePreviewModal({
+                                imageUrl: imgUrl,
+                                prompt: displayPrompt,
+                                title: item.title || workspaceTitle || 'Generated Image'
+                            });
+                        }
+                    };
+                }

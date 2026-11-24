@@ -1,5 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 
+export function getApiBaseUrl(): string {
+  if (typeof window === 'undefined') return '';
+  const port = window.location.port;
+  const hostname = window.location.hostname || 'localhost';
+  if (port === '3000') {
+    return `http://${hostname}:5001`;
+  }
+  return '';
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -25,7 +35,7 @@ export async function* streamChatResponse(
   onImage?: (image: ImageItem) => void,
   onImageError?: (error: string) => void
 ): AsyncGenerator<string, void, unknown> {
-  const response = await fetch('http://localhost:5001/api/chat/stream', {
+  const response = await fetch(`${getApiBaseUrl()}/api/chat/stream`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -90,7 +100,7 @@ export async function streamCompareResponses(
   },
   signal?: AbortSignal
 ): Promise<void> {
-  const response = await fetch('http://localhost:5001/api/chat/compare', {
+  const response = await fetch(`${getApiBaseUrl()}/api/chat/compare`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages, models }),
@@ -143,21 +153,21 @@ export async function streamCompareResponses(
 
 export async function fetchConversations(projectId?: string): Promise<any[]> {
   const query = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
-  const res = await fetch(`http://localhost:5001/api/history/conversations${query}`);
+  const res = await fetch(`${getApiBaseUrl()}/api/history/conversations${query}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
   return json.data || [];
 }
 
 export async function fetchConversationDetail(id: string): Promise<any> {
-  const res = await fetch(`http://localhost:5001/api/history/conversations/${encodeURIComponent(id)}`);
+  const res = await fetch(`${getApiBaseUrl()}/api/history/conversations/${encodeURIComponent(id)}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
   return json.data;
 }
 
 export async function deleteConversationApi(id: string): Promise<boolean> {
-  const res = await fetch(`http://localhost:5001/api/history/conversations/${encodeURIComponent(id)}`, {
+  const res = await fetch(`${getApiBaseUrl()}/api/history/conversations/${encodeURIComponent(id)}`, {
     method: 'DELETE'
   });
   if (!res.ok) return false;
@@ -169,7 +179,7 @@ export const App: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/health')
+    fetch(`${getApiBaseUrl()}/api/health`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.status === 'ok') {

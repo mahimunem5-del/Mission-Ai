@@ -21,66 +21,25 @@ if (isSupabaseConfigured) {
         autoRefreshToken: false
       }
     });
-    logger.info('Supabase database client initialized successfully');
+    logger.info('Supabase client initialized successfully (isolated for Image Templates)');
   } catch (err) {
-    logger.error('Failed to initialize Supabase client', { error: err.message });
+    logger.error('Failed to initialize Supabase client for Image Templates', { error: err.message });
     supabaseClient = null;
   }
 } else {
-  if (config.isProd) {
-    logger.warn('[Database Notice]: Running in production without Supabase. Persistent history is disabled.');
-  } else {
-    logger.debug('Supabase credentials not configured. Development in-memory database store active.');
-  }
+  logger.debug('Supabase credentials not configured. Image Templates operating in offline mode.');
 }
 
-// In-Memory Storage Fallback (Active only for development / test environments)
+// In-Memory Storage for Conversations and Messages (Chat operates completely isolated from Supabase)
 const inMemoryConversations = new Map();
 const inMemoryMessages = new Map(); // conversation_id -> Array<message>
 
 /**
- * Ensures persistence layer is available in production, or falls back in development.
- */
-function assertPersistenceAvailable(operationName) {
-  if (config.isProd && !supabaseClient) {
-    throw new ConfigurationError(`Database operation "${operationName}" cannot persist in production without Supabase configuration.`);
-  }
-}
-
-/**
- * Fetch all conversations sorted by created_at DESC
+ * Fetch all conversations sorted by created_at DESC from in-memory store
  */
 export async function getConversations(options = {}) {
   const { projectId = null, limit = 50, userId = null } = options;
 
-  if (supabaseClient) {
-    try {
-      let query = supabaseClient
-        .from('conversations')
-        .select('id, title, model_id, mode, project_id, user_id, created_at, updated_at')
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (projectId) {
-        query = query.eq('project_id', projectId);
-      }
-      if (userId) {
-        query = query.eq('user_id', userId);
-      }
-
-      const { data, error } = await query;
-      if (!error && Array.isArray(data)) {
-        return data;
-      }
-      logger.warn('Supabase fetch conversations query returned error', { error: error?.message });
-    } catch (e) {
-      logger.warn('Supabase query exception during getConversations', { error: e.message });
-    }
-  }
-
-  assertPersistenceAvailable('getConversations');
-
-  // Fallback to in-memory store for development
   return Array.from(inMemoryConversations.values())
     .filter(c => (!projectId || c.project_id === projectId) && (!userId || c.user_id === userId))
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -88,45 +47,11 @@ export async function getConversations(options = {}) {
 }
 
 /**
- * Fetch a single conversation along with its chronological messages
+ * Fetch a single conversation along with its chronological messages from in-memory store
  */
 export async function getConversationById(id, userId = null) {
   if (!id) return null;
 
-  if (supabaseClient) {
-    try {
-      let query = supabaseClient
-        .from('conversations')
-        .select('*')
-        .eq('id', id);
-
-      if (userId) {
-        query = query.eq('user_id', userId);
-      }
-
-      const { data: conv, error: convErr } = await query.single();
-
-      if (!convErr && conv) {
-        const { data: messages, error: msgErr } = await supabaseClient
-          .from('messages')
-          .select('*')
-          .eq('conversation_id', id)
-          .order('created_at', { ascending: true });
-
-        return {
-          ...conv,
-          messages: (!msgErr && Array.isArray(messages)) ? messages : []
-        };
-      }
-      logger.warn('Supabase conversation fetch error', { id, error: convErr?.message });
-    } catch (e) {
-      logger.warn('Supabase conversation query exception', { id, error: e.message });
-    }
-  }
-
-  assertPersistenceAvailable('getConversationById');
-
-  // Fallback to in-memory store for development
   const conv = inMemoryConversations.get(id);
   if (!conv) return null;
   if (userId && conv.user_id && conv.user_id !== userId) return null;
@@ -142,7 +67,7 @@ export async function getConversationById(id, userId = null) {
 }
 
 /**
- * Create a new conversation thread
+ * Create a new conversation thread in in-memory store
  */
 export async function createConversation(data = {}) {
   const id = data.id || crypto.randomUUID();
@@ -157,25 +82,6 @@ export async function createConversation(data = {}) {
     updated_at: new Date().toISOString()
   };
 
-  if (supabaseClient) {
-    try {
-      const { data: created, error } = await supabaseClient
-        .from('conversations')
-        .insert([newConv])
-        .select()
-        .single();
-
-      if (!error && created) {
-        return created;
-      }
-      logger.warn('Supabase insert conversation failed', { error: error?.message });
-    } catch (e) {
-      logger.warn('Supabase insert conversation exception', { error: e.message });
-    }
-  }
-
-  assertPersistenceAvailable('createConversation');
-
   inMemoryConversations.set(id, newConv);
   if (!inMemoryMessages.has(id)) {
     inMemoryMessages.set(id, []);
@@ -184,7 +90,7 @@ export async function createConversation(data = {}) {
 }
 
 /**
- * Persist a message record
+ * Persist a message record in in-memory store
  */
 export async function addMessage(conversationId, data = {}) {
   if (!conversationId) throw new Error('conversation_id is required');
@@ -200,31 +106,6 @@ export async function addMessage(conversationId, data = {}) {
     created_at: data.created_at || new Date().toISOString()
   };
 
-  if (supabaseClient) {
-    try {
-      const { data: created, error } = await supabaseClient
-        .from('messages')
-        .insert([newMsg])
-        .select()
-        .single();
-
-      if (!error && created) {
-        await supabaseClient
-          .from('conversations')
-          .update({ updated_at: new Date().toISOString() })
-          .eq('id', conversationId);
-
-        return created;
-      }
-      logger.warn('Supabase message insert failed', { error: error?.message });
-    } catch (e) {
-      logger.warn('Supabase message insert exception', { error: e.message });
-    }
-  }
-
-  assertPersistenceAvailable('addMessage');
-
-  // In-memory fallback
   if (!inMemoryMessages.has(conversationId)) {
     inMemoryMessages.set(conversationId, []);
   }
@@ -239,31 +120,15 @@ export async function addMessage(conversationId, data = {}) {
 }
 
 /**
- * Delete a conversation and cascade all its messages
+ * Delete a conversation and cascade all its messages in in-memory store
  */
 export async function deleteConversation(id, userId = null) {
   if (!id) return false;
 
-  if (supabaseClient) {
-    try {
-      let query = supabaseClient
-        .from('conversations')
-        .delete()
-        .eq('id', id);
-
-      if (userId) {
-        query = query.eq('user_id', userId);
-      }
-
-      const { error } = await query;
-      if (!error) return true;
-      logger.warn('Supabase delete error', { id, error: error?.message });
-    } catch (e) {
-      logger.warn('Supabase delete exception', { id, error: e.message });
-    }
+  const conv = inMemoryConversations.get(id);
+  if (userId && conv && conv.user_id && conv.user_id !== userId) {
+    return false;
   }
-
-  assertPersistenceAvailable('deleteConversation');
 
   inMemoryConversations.delete(id);
   inMemoryMessages.delete(id);
@@ -271,33 +136,38 @@ export async function deleteConversation(id, userId = null) {
 }
 
 /**
- * Health check status of the database connection
+ * Health check status of the database connection (isolated in-memory for chat/history)
  */
 export async function checkDatabaseHealth() {
-  if (!supabaseClient) {
-    return {
-      status: config.isProd ? 'unconfigured' : 'memory_fallback',
-      type: 'in_memory',
-      connected: !config.isProd
-    };
-  }
+  return {
+    status: 'ready',
+    type: 'in_memory',
+    connected: true
+  };
+}
 
-  try {
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Supabase health check timed out')), 2500)
-    );
-    const queryPromise = supabaseClient.from('conversations').select('id').limit(1);
-    const { error } = await Promise.race([queryPromise, timeoutPromise]);
-    if (!error) {
-      return { status: 'connected', type: 'supabase', connected: true };
+/**
+ * Returns the initialized Supabase client instance with service role privileges
+ */
+export function getSupabaseClient() {
+  if (!supabaseClient && isSupabaseConfigured) {
+    try {
+      supabaseClient = createClient(config.supabase.url, config.supabase.serviceRoleKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      });
+    } catch (err) {
+      logger.error('Failed to initialize Supabase client', { error: err.message });
+      supabaseClient = null;
     }
-    return { status: 'error', type: 'supabase', error: error.message, connected: false };
-  } catch (err) {
-    return { status: 'exception', type: 'supabase', error: err.message, connected: false };
   }
+  return supabaseClient;
 }
 
 export default {
+  getSupabaseClient,
   getConversations,
   getConversationById,
   createConversation,
