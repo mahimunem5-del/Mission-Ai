@@ -1,20 +1,16 @@
 import express from 'express';
 import { getTemplates, uploadTemplate, editTemplate, removeTemplate } from '../controllers/templateController.js';
+import { requireAuth } from '../middleware/auth.js';
+import { generalRateLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
-// GET /api/templates and GET /api/admin/templates
+// Public read access for image templates gallery
 router.get('/', getTemplates);
-router.get('', getTemplates);
 
-// POST /api/templates and POST /api/admin/templates
-router.post('/', uploadTemplate);
-router.post('', uploadTemplate);
-
-// PUT /api/templates/:id and PUT /api/admin/templates/:id
-router.put('/:id', editTemplate);
-
-// DELETE /api/templates/:id and DELETE /api/admin/templates/:id
-router.delete('/:id', removeTemplate);
+// Authenticated write/admin operations
+router.post('/', requireAuth, generalRateLimiter, uploadTemplate);
+router.put('/:id', requireAuth, generalRateLimiter, editTemplate);
+router.delete('/:id', requireAuth, generalRateLimiter, removeTemplate);
 
 export default router;

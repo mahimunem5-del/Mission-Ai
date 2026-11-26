@@ -17,15 +17,15 @@ export function validateChatRequest(req, res, next) {
     return next(new ValidationError('Request body must be a valid JSON object'));
   }
 
-  const { messages, model, searchMode, projectId, projectInstructions, systemPrompt } = body;
+  const { messages, model, searchMode, enabledTools, projectId, projectInstructions, systemPrompt } = body;
 
   if (messages !== undefined) {
     if (!Array.isArray(messages)) {
       return next(new ValidationError('Field "messages" must be an array'));
     }
 
-    if (messages.length > 100) {
-      return next(new ValidationError('Message history exceeds maximum limit of 100 messages'));
+    if (messages.length > 50) {
+      return next(new ValidationError('Message history exceeds maximum limit of 50 messages'));
     }
 
     for (let i = 0; i < messages.length; i++) {
@@ -38,11 +38,11 @@ export function validateChatRequest(req, res, next) {
         return next(new ValidationError(`Invalid role "${msg.role}" at message index ${i}`));
       }
 
-      const content = msg.content;
+      const content = msg.content !== undefined ? msg.content : msg.parts;
       if (content !== undefined && content !== null) {
         const isMultimodal = Array.isArray(content) || (typeof content === 'string' && content.includes('data:image/'));
         const text = typeof content === 'string' ? content : JSON.stringify(content);
-        const maxAllowed = isMultimodal ? 50000000 : 500000;
+        const maxAllowed = isMultimodal ? 10000000 : 100000;
         if (text.length > maxAllowed) {
           return next(new ValidationError(`Message at index ${i} exceeds maximum length of ${maxAllowed.toLocaleString()} characters`));
         }
@@ -77,6 +77,20 @@ export function validateChatRequest(req, res, next) {
   if (systemPrompt !== undefined && systemPrompt !== null) {
     if (typeof systemPrompt !== 'string' || systemPrompt.length > 15000) {
       return next(new ValidationError('Field "systemPrompt" exceeds maximum length of 15,000 characters'));
+    }
+  }
+
+  if (enabledTools !== undefined && enabledTools !== null) {
+    if (!Array.isArray(enabledTools)) {
+      return next(new ValidationError('Field "enabledTools" must be an array'));
+    }
+    if (enabledTools.length > 20) {
+      return next(new ValidationError('Field "enabledTools" exceeds maximum limit of 20 tools'));
+    }
+    for (let i = 0; i < enabledTools.length; i++) {
+      if (typeof enabledTools[i] !== 'string' || enabledTools[i].length > 64 || !/^[a-zA-Z0-9_\-]+$/.test(enabledTools[i])) {
+        return next(new ValidationError(`Invalid tool identifier at enabledTools[${i}]`));
+      }
     }
   }
 

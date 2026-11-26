@@ -51,28 +51,28 @@ export function createRateLimiter(options = {}) {
   const prefix = options.prefix || 'rl';
 
   return async function rateLimitMiddleware(req, res, next) {
-    // 1. Determine client identifier (IP address)
-    // IMPORTANT: In the absence of cryptographic authentication (e.g. verified session/JWT),
-    // arbitrary client-supplied headers like X-User-ID must NEVER be trusted to bypass IP rate limits.
+    // 1. Determine client identifier (authenticated user ID first, fallback to IP address)
     const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown-ip';
-    const identifier = `ip:${clientIp}`;
+    const identifier = req.user?.id ? `user:${req.user.id}` : `ip:${clientIp}`;
     const key = `ratelimit:${prefix}:${identifier}`;
     const now = Date.now();
 
-    // 2. Try Upstash Redis distributed rate limiting if configured
+    // 2. Try Upstash Redis distributed rate limiting if configured (single pipelined round-trip)
     const redis = getRedisInstance();
     if (redis) {
       try {
         const windowSeconds = Math.ceil(windowMs / 1000);
-        const currentCount = await redis.incr(key);
+        const pipe = redis.pipeline();
+        pipe.incr(key);
+        pipe.ttl(key);
+        const [currentCount, rawTtl] = await pipe.exec();
 
-        if (currentCount === 1) {
+        if (currentCount === 1 || rawTtl < 0) {
           await redis.expire(key, windowSeconds);
         }
 
         const remaining = Math.max(0, limit - currentCount);
-        const ttl = await redis.ttl(key);
-        const resetSeconds = ttl > 0 ? ttl : windowSeconds;
+        const resetSeconds = rawTtl > 0 ? rawTtl : windowSeconds;
 
         res.setHeader('RateLimit-Limit', limit);
         res.setHeader('RateLimit-Remaining', remaining);

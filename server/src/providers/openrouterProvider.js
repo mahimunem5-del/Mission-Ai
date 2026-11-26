@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import config from '../config/env.js';
 import { ProviderError, TimeoutError, ConfigurationError } from '../utils/errors.js';
 import logger from '../utils/logger.js';
-import { getFallbackModel } from '../services/modelRouter.js';
+import { getFallbackModel, getSamplingConfig } from '../services/modelRouter.js';
 import { IMAGE_GENERATION_TOOL } from '../services/imageService.js';
 
 let clientInstance = null;
@@ -67,14 +67,18 @@ export async function createStreamWithResilience({
     let requestPayload = null;
     try {
       logger.debug(`Initiating stream with model "${currentModel}" (attempt ${attempts})`, { requestId, model: currentModel });
-      console.log(`[OpenRouter Provider] Outgoing model: ${currentModel}`);
 
+      const sampling = getSamplingConfig(currentModel);
       requestPayload = {
         model: currentModel,
         messages,
-        max_tokens: config.openrouter.maxOutputTokens || 4096,
+        max_tokens: sampling.max_tokens || config.openrouter.maxOutputTokens || 4096,
         stream: true
       };
+      if (!sampling.isReasoning) {
+        if (sampling.temperature !== undefined) requestPayload.temperature = sampling.temperature;
+        if (sampling.top_p !== undefined) requestPayload.top_p = sampling.top_p;
+      }
 
       if (tools && tools.length > 0) {
         requestPayload.tools = tools;
@@ -87,7 +91,12 @@ export async function createStreamWithResilience({
       );
 
       clearTimeout(timer);
-      return { stream, resolvedModel: currentModel };
+      return {
+        stream,
+        resolvedModel: currentModel,
+        usedFallback: currentModel !== model,
+        originalModel: model
+      };
     } catch (err) {
       clearTimeout(timer);
 

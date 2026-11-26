@@ -22,11 +22,13 @@ export const config = {
   port: parseInt(process.env.PORT || '5001', 10),
 
   cors: {
-    allowedOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:3000,http://localhost:5001')
-      .split(',')
+    allowedOrigins: [
+      ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : []),
+      ...(process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:3000,http://localhost:5001').split(',')
+    ]
       .map(o => o.trim())
       .filter(Boolean),
-    allowNullOrigin: true // allows local file:// or sandbox testing
+    allowNullOrigin: !isProd // allows local file:// or sandbox testing in dev only
   },
 
   rateLimit: {
@@ -64,6 +66,10 @@ export const config = {
     apiKey: process.env.SERPER_API_KEY?.trim() || ''
   },
 
+  groq: {
+    apiKey: process.env.GROQ_API_KEY?.trim() || ''
+  },
+
   fal: {
     key: process.env.FAL_KEY?.trim() || ''
   },
@@ -78,6 +84,11 @@ export const config = {
     redisToken: process.env.UPSTASH_REDIS_REST_TOKEN?.trim() || '',
     defaultTtlSeconds: parseInt(process.env.CACHE_TTL_SECONDS || '86400', 10), // 24 hours
     searchCacheTtlSeconds: parseInt(process.env.SEARCH_CACHE_TTL_SECONDS || '600', 10) // 10 minutes
+  },
+
+  auth: {
+    devBypass: !isProd && process.env.DEV_BYPASS_AUTH !== 'false',
+    apiAuthSecret: process.env.API_AUTH_SECRET?.trim() || ''
   }
 };
 
@@ -87,6 +98,14 @@ export const config = {
 export function validateConfig() {
   const missingRequired = [];
   const missingOptional = [];
+
+  if (isProd && process.env.DEV_BYPASS_AUTH === 'true') {
+    throw new Error('[Config Fatal]: DEV_BYPASS_AUTH=true is strictly forbidden in production.');
+  }
+
+  if (isProd && (!config.supabase.url || !config.supabase.serviceRoleKey) && !config.auth.apiAuthSecret) {
+    missingRequired.push('SUPABASE_URL & SUPABASE_SERVICE_ROLE_KEY (or API_AUTH_SECRET) for production authentication');
+  }
 
   if (!config.openrouter.apiKey) {
     if (isProd) {

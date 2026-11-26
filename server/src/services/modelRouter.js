@@ -59,7 +59,7 @@ export const MODEL_REGISTRY = {
     tier: 'free',
     costTier: 'standard',
     contextWindow: 128000,
-    capabilities: { streaming: true, image: false, reasoning: false, coding: true },
+    capabilities: { streaming: true, image: false, reasoning: false, coding: true, tools: true },
     fallback: DEFAULT_FALLBACK_MODEL
   },
   'openai/o3-mini': {
@@ -69,7 +69,7 @@ export const MODEL_REGISTRY = {
     tier: 'pro',
     costTier: 'high',
     contextWindow: 200000,
-    capabilities: { streaming: true, image: false, reasoning: true, coding: true },
+    capabilities: { streaming: true, image: false, reasoning: true, coding: true, tools: true },
     fallback: 'openai/gpt-4o-mini'
   },
   'mistralai/mistral-small-24b-instruct-2501': {
@@ -141,7 +141,7 @@ export const MODEL_REGISTRY = {
     tier: 'pro',
     costTier: 'high',
     contextWindow: 128000,
-    capabilities: { streaming: true, image: false, reasoning: true, coding: true },
+    capabilities: { streaming: true, image: false, reasoning: true, coding: true, tools: true },
     fallback: 'openai/gpt-4o-mini'
   },
   'google/gemini-pro-1.5': {
@@ -196,7 +196,7 @@ export const MODEL_REGISTRY = {
   },
   'anthropic/claude-3-5-sonnet': {
     id: 'anthropic/claude-3-5-sonnet',
-    name: 'Claude Sonnet 5',
+    name: 'Claude 3.5 Sonnet',
     provider: 'anthropic',
     tier: 'pro',
     costTier: 'high',
@@ -206,7 +206,7 @@ export const MODEL_REGISTRY = {
   },
   'anthropic/claude-3.5-sonnet': {
     id: 'anthropic/claude-3.5-sonnet',
-    name: 'Claude Sonnet 5',
+    name: 'Claude 3.5 Sonnet',
     provider: 'anthropic',
     tier: 'pro',
     costTier: 'high',
@@ -296,7 +296,7 @@ export const MODEL_REGISTRY = {
   },
   'x-ai/grok-2-1212': {
     id: 'x-ai/grok-2-1212',
-    name: 'Grok 4.3',
+    name: 'Grok 2',
     provider: 'xai',
     tier: 'pro',
     costTier: 'high',
@@ -346,7 +346,7 @@ export const MODEL_REGISTRY = {
   },
   'x-ai/grok-2': {
     id: 'x-ai/grok-2',
-    name: 'Grok 4.7',
+    name: 'Grok 2',
     provider: 'xai',
     tier: 'pro',
     costTier: 'high',
@@ -356,23 +356,23 @@ export const MODEL_REGISTRY = {
   },
   'anthropic/claude-opus-5.5': {
     id: 'anthropic/claude-opus-5.5',
-    name: 'Claude Opus 5.5',
+    name: 'Claude 3 Opus',
     provider: 'anthropic',
     tier: 'max',
     costTier: 'ultra',
     contextWindow: 200000,
     capabilities: { streaming: true, image: false, reasoning: true, coding: true },
-    fallback: 'anthropic/claude-sonnet-5'
+    fallback: 'anthropic/claude-3-5-sonnet'
   },
   'anthropic/claude-3-opus': {
     id: 'anthropic/claude-3-opus',
-    name: 'Claude Opus 5.5',
+    name: 'Claude 3 Opus',
     provider: 'anthropic',
     tier: 'max',
     costTier: 'ultra',
     contextWindow: 200000,
     capabilities: { streaming: true, image: false, reasoning: true, coding: true },
-    fallback: 'anthropic/claude-sonnet-5'
+    fallback: 'anthropic/claude-3-5-sonnet'
   }
 };
 
@@ -381,9 +381,9 @@ export const MODEL_REGISTRY = {
  */
 export const MODEL_ALIASES = {
   // Free / Active Models (Exclusively OpenRouter Models - Mahi Engine is handled by Dedicated System B)
-  'gpt-5-mini': 'openai/gpt-5-mini',
-  'GPT-5 Mini': 'openai/gpt-5-mini',
-  'gpt 5 mini': 'openai/gpt-5-mini',
+  'gpt-5-mini': 'openai/gpt-4o-mini',
+  'GPT-5 Mini': 'openai/gpt-4o-mini',
+  'gpt 5 mini': 'openai/gpt-4o-mini',
   'o3-mini': 'openai/o3-mini',
   'gemini-2.5-flash': 'google/gemini-2.5-flash',
   'gemini-2-5-flash': 'google/gemini-2.5-flash',
@@ -405,12 +405,12 @@ export const MODEL_ALIASES = {
   'Mistral Small': 'mistralai/mistral-small-24b-instruct-2501',
   'nemotron-fast': 'nvidia/llama-3.1-nemotron-70b-instruct',
   'Nemotron Fast': 'nvidia/llama-3.1-nemotron-70b-instruct',
-  'kimi-k3-fast': 'moonshotai/kimi-k3',
-  'Kimi K3 Fast': 'moonshotai/kimi-k3',
-  'deepseek-v4-flash': 'deepseek/deepseek-v4-flash-0731',
-  'deepseek v4 flash': 'deepseek/deepseek-v4-flash-0731',
-  'DeepSeek V4 Flash': 'deepseek/deepseek-v4-flash-0731',
-  'deepseek/deepseek-v4-flash-0731': 'deepseek/deepseek-v4-flash-0731',
+  'kimi-k3-fast': 'moonshotai/moonshot-v1-8k',
+  'Kimi K3 Fast': 'moonshotai/moonshot-v1-8k',
+  'deepseek-v4-flash': 'deepseek/deepseek-chat',
+  'deepseek v4 flash': 'deepseek/deepseek-chat',
+  'DeepSeek V4 Flash': 'deepseek/deepseek-chat',
+  'deepseek/deepseek-v4-flash-0731': 'deepseek/deepseek-chat',
 
   // Pro / Frontier Models
   'gpt-4o': 'openai/gpt-4o',
@@ -420,58 +420,66 @@ export const MODEL_ALIASES = {
   'gemini 3.1 pro': 'google/gemini-3.1-pro-preview',
   'Gemini 3.1 Pro': 'google/gemini-3.1-pro-preview',
   'google/gemini-3.1-pro-preview': 'google/gemini-3.1-pro-preview',
-  'gpt-6-sol': 'openai/gpt-6-sol',
-  'gpt 6 sol': 'openai/gpt-6-sol',
-  'GPT-6 Sol': 'openai/gpt-6-sol',
-  'openai/gpt-6-sol': 'openai/gpt-6-sol',
-  'claude-sonnet-5': 'anthropic/claude-sonnet-5',
-  'claude sonnet 5': 'anthropic/claude-sonnet-5',
-  'Claude Sonnet 5': 'anthropic/claude-sonnet-5',
-  'anthropic/claude-sonnet-5': 'anthropic/claude-sonnet-5',
+  // Legacy fictional/unreleased UI aliases safely mapped to real available OpenRouter models
+  'gpt-6-sol': 'google/gemini-2.5-flash',
+  'gpt 6 sol': 'google/gemini-2.5-flash',
+  'GPT-6 Sol': 'google/gemini-2.5-flash',
+  'openai/gpt-6-sol': 'google/gemini-2.5-flash',
+  'gpt-5-mini': 'openai/gpt-4o-mini',
+  'GPT-5 Mini': 'openai/gpt-4o-mini',
+  'openai/gpt-5-mini': 'openai/gpt-4o-mini',
+  'claude-sonnet-5': 'anthropic/claude-3-5-sonnet',
+  'claude sonnet 5': 'anthropic/claude-3-5-sonnet',
+  'Claude Sonnet 5': 'anthropic/claude-3-5-sonnet',
+  'anthropic/claude-sonnet-5': 'anthropic/claude-3-5-sonnet',
   'anthropic/claude-3.5-sonnet': 'anthropic/claude-3-5-sonnet',
-  'deepseek-v4-pro': 'deepseek/deepseek-v4-pro-0813',
-  'deepseek v4 pro': 'deepseek/deepseek-v4-pro-0813',
-  'DeepSeek V4 Pro': 'deepseek/deepseek-v4-pro-0813',
-  'deepseek/deepseek-v4-pro-0813': 'deepseek/deepseek-v4-pro-0813',
+  'deepseek-v4-pro': 'deepseek/deepseek-r1',
+  'deepseek v4 pro': 'deepseek/deepseek-r1',
+  'DeepSeek V4 Pro': 'deepseek/deepseek-r1',
+  'deepseek/deepseek-v4-pro-0813': 'deepseek/deepseek-r1',
+  'deepseek-v4-flash': 'deepseek/deepseek-chat',
+  'deepseek v4 flash': 'deepseek/deepseek-chat',
+  'DeepSeek V4 Flash': 'deepseek/deepseek-chat',
+  'deepseek/deepseek-v4-flash-0731': 'deepseek/deepseek-chat',
   'deepseek-r1': 'deepseek/deepseek-r1',
   'DeepSeek R1': 'deepseek/deepseek-r1',
-  'qwen-3.8-max': 'qwen/qwen3.8-max-0902',
-  'qwen-3-8-max': 'qwen/qwen3.8-max-0902',
-  'qwen 3.8 max': 'qwen/qwen3.8-max-0902',
-  'Qwen 3.8 Max': 'qwen/qwen3.8-max-0902',
-  'qwen/qwen3.8-max-0902': 'qwen/qwen3.8-max-0902',
-  'qwen-3-5-max': 'qwen/qwen-max',
-  'Qwen 3.5 Max': 'qwen/qwen-max',
-  'kimi-k3': 'moonshotai/kimi-k3',
-  'kimi k3': 'moonshotai/kimi-k3',
-  'Kimi K3': 'moonshotai/kimi-k3',
-  'moonshotai/kimi-k3': 'moonshotai/kimi-k3',
+  'qwen-3.8-max': 'qwen/qwen-2.5-72b-instruct',
+  'qwen-3-8-max': 'qwen/qwen-2.5-72b-instruct',
+  'qwen 3.8 max': 'qwen/qwen-2.5-72b-instruct',
+  'Qwen 3.8 Max': 'qwen/qwen-2.5-72b-instruct',
+  'qwen/qwen3.8-max-0902': 'qwen/qwen-2.5-72b-instruct',
+  'qwen-3-5-max': 'qwen/qwen-2.5-72b-instruct',
+  'Qwen 3.5 Max': 'qwen/qwen-2.5-72b-instruct',
+  'kimi-k3': 'moonshotai/moonshot-v1-8k',
+  'kimi k3': 'moonshotai/moonshot-v1-8k',
+  'Kimi K3': 'moonshotai/moonshot-v1-8k',
+  'moonshotai/kimi-k3': 'moonshotai/moonshot-v1-8k',
   'glm-5-3': 'zhipu/glm-4',
   'GLM 5.3': 'zhipu/glm-4',
-  'grok-4.3': 'x-ai/grok-4.3',
-  'grok-4-3': 'x-ai/grok-4.3',
-  'grok 4.3': 'x-ai/grok-4.3',
-  'Grok 4.3': 'x-ai/grok-4.3',
-  'x-ai/grok-4.3': 'x-ai/grok-4.3',
+  'grok-4.3': 'x-ai/grok-2-1212',
+  'grok-4-3': 'x-ai/grok-2-1212',
+  'grok 4.3': 'x-ai/grok-2-1212',
+  'Grok 4.3': 'x-ai/grok-2-1212',
+  'x-ai/grok-4.3': 'x-ai/grok-2-1212',
   'claude-4-5-haiku': 'anthropic/claude-haiku-4.5',
   'claude 4.5 haiku': 'anthropic/claude-haiku-4.5',
   'Claude 4.5 Haiku': 'anthropic/claude-haiku-4.5',
   'anthropic/claude-haiku-4.5': 'anthropic/claude-haiku-4.5',
-  'grok-4.7': 'x-ai/grok-4.7',
-  'grok-4-7': 'x-ai/grok-4.7',
-  'grok 4.7': 'x-ai/grok-4.7',
-  'Grok 4.7': 'x-ai/grok-4.7',
-  'x-ai/grok-4.7': 'x-ai/grok-4.7',
-  'gemini-3.8-flash': 'google/gemini-3.8-flash',
-  'gemini-3-8-flash': 'google/gemini-3.8-flash',
-  'gemini 3.8 flash': 'google/gemini-3.8-flash',
-  'Gemini 3.8 Flash': 'google/gemini-3.8-flash',
-  'google/gemini-3.8-flash': 'google/gemini-3.8-flash',
-  'claude-opus-5.5': 'anthropic/claude-opus-5.5',
-  'claude-opus-5-5': 'anthropic/claude-opus-5.5',
-  'claude opus 5.5': 'anthropic/claude-opus-5.5',
-  'Claude Opus 5.5': 'anthropic/claude-opus-5.5',
-  'anthropic/claude-opus-5.5': 'anthropic/claude-opus-5.5'
+  'grok-4.7': 'x-ai/grok-2-1212',
+  'grok-4-7': 'x-ai/grok-2-1212',
+  'grok 4.7': 'x-ai/grok-2-1212',
+  'Grok 4.7': 'x-ai/grok-2-1212',
+  'x-ai/grok-4.7': 'x-ai/grok-2-1212',
+  'gemini-3.8-flash': 'google/gemini-2.5-flash',
+  'gemini-3-8-flash': 'google/gemini-2.5-flash',
+  'gemini 3.8 flash': 'google/gemini-2.5-flash',
+  'Gemini 3.8 Flash': 'google/gemini-2.5-flash',
+  'google/gemini-3.8-flash': 'google/gemini-2.5-flash',
+  'claude-opus-5.5': 'anthropic/claude-3-opus',
+  'claude-opus-5-5': 'anthropic/claude-3-opus',
+  'claude opus 5.5': 'anthropic/claude-3-opus',
+  'Claude Opus 5.5': 'anthropic/claude-3-opus',
+  'anthropic/claude-opus-5.5': 'anthropic/claude-3-opus'
 };
 
 /**
@@ -631,6 +639,38 @@ export function getFallbackModel(canonicalModelId) {
 }
 
 /**
+ * Returns per-model sampling configuration.
+ * Reasoning models (o3-mini, deepseek-r1, etc.) use provider defaults without temperature/top_p overrides.
+ */
+export function getSamplingConfig(canonicalModelId) {
+  const id = String(canonicalModelId || '').toLowerCase();
+  const isReasoningModel =
+    id.includes('o3-mini') ||
+    id.includes('o1') ||
+    id.includes('deepseek-r1') ||
+    id.includes('kimi-k3');
+
+  const meta = getModelMetadata(canonicalModelId);
+  const maxTokens = isReasoningModel
+    ? 8192
+    : (meta.tier === 'pro' ? 8192 : 4096);
+
+  if (isReasoningModel) {
+    return {
+      isReasoning: true,
+      max_tokens: maxTokens
+    };
+  }
+
+  return {
+    isReasoning: false,
+    temperature: 0.7,
+    top_p: 0.95,
+    max_tokens: maxTokens
+  };
+}
+
+/**
  * Validates model access against a plan tier (for future plan-based policies).
  */
 export function validateModelForPlan(canonicalModelId, userPlan = 'free') {
@@ -640,6 +680,227 @@ export function validateModelForPlan(canonicalModelId, userPlan = 'free') {
   }
   // Currently in free tier mode, all configured models are accessible or downgraded gracefully
   return { allowed: true, tier: meta.tier };
+}
+
+/**
+ * Returns the single-source-of-truth catalog of verified, honest models for GET /api/models.
+ */
+export function getAvailableModelsCatalog() {
+  return [
+    {
+      id: 'mahi-engine',
+      name: 'Mahi Engine',
+      provider: 'custom',
+      icon: 'zap',
+      isLocked: false,
+      isPro: false,
+      isDefault: true,
+      tier: 'free',
+      group: 'Default Engine',
+      desc: 'Fast, balanced everyday assistant by Mestrio AI',
+      openRouterModel: 'mahi-engine',
+      capabilities: { streaming: true, image: false, reasoning: false, coding: true, tools: false }
+    },
+    {
+      id: 'gpt-4o-mini',
+      name: 'GPT-4o Mini',
+      provider: 'openai',
+      icon: 'openai',
+      isLocked: false,
+      isPro: false,
+      tier: 'free',
+      group: 'OpenAI',
+      desc: 'Fast, affordable everyday model by OpenAI',
+      openRouterModel: 'openai/gpt-4o-mini',
+      capabilities: MODEL_REGISTRY['openai/gpt-4o-mini'].capabilities
+    },
+    {
+      id: 'gpt-4o',
+      name: 'GPT-4o',
+      provider: 'openai',
+      icon: 'openai',
+      isLocked: true,
+      isPro: true,
+      tier: 'pro',
+      group: 'OpenAI',
+      desc: 'Flagship multimodal model by OpenAI',
+      openRouterModel: 'openai/gpt-4o',
+      capabilities: MODEL_REGISTRY['openai/gpt-4o'].capabilities
+    },
+    {
+      id: 'o3-mini',
+      name: 'o3-mini',
+      provider: 'openai',
+      icon: 'openai',
+      isLocked: true,
+      isPro: true,
+      badge: 'Thinking',
+      tag: 'Thinking',
+      tier: 'pro',
+      group: 'OpenAI',
+      desc: 'High-speed STEM & logic reasoning by OpenAI',
+      openRouterModel: 'openai/o3-mini',
+      capabilities: MODEL_REGISTRY['openai/o3-mini'].capabilities
+    },
+    {
+      id: 'gemini-2.5-flash',
+      name: 'Gemini 2.5 Flash',
+      provider: 'google',
+      icon: 'gemini',
+      isLocked: false,
+      isPro: false,
+      tier: 'free',
+      group: 'Google',
+      desc: 'Low-latency multimodal model by Google',
+      openRouterModel: 'google/gemini-2.5-flash',
+      capabilities: MODEL_REGISTRY['google/gemini-2.5-flash'].capabilities
+    },
+    {
+      id: 'gemini-3.1-pro',
+      name: 'Gemini 3.1 Pro',
+      provider: 'google',
+      icon: 'gemini',
+      isLocked: true,
+      isPro: true,
+      tier: 'pro',
+      group: 'Google',
+      desc: 'Deep reasoning & long-context model by Google',
+      openRouterModel: 'google/gemini-3.1-pro-preview',
+      capabilities: MODEL_REGISTRY['google/gemini-3.1-pro-preview'].capabilities
+    },
+    {
+      id: 'claude-4-5-haiku',
+      name: 'Claude 4.5 Haiku',
+      provider: 'anthropic',
+      icon: 'anthropic',
+      isLocked: true,
+      isPro: true,
+      tier: 'pro',
+      group: 'Anthropic',
+      desc: 'Fast, crisp intelligence by Anthropic',
+      openRouterModel: 'anthropic/claude-haiku-4.5',
+      capabilities: MODEL_REGISTRY['anthropic/claude-haiku-4.5'].capabilities
+    },
+    {
+      id: 'claude-3-5-sonnet',
+      name: 'Claude 3.5 Sonnet',
+      provider: 'anthropic',
+      icon: 'anthropic',
+      isLocked: true,
+      isPro: true,
+      tier: 'pro',
+      group: 'Anthropic',
+      desc: 'Exceptional coding & nuanced writing by Anthropic',
+      openRouterModel: 'anthropic/claude-3-5-sonnet',
+      capabilities: MODEL_REGISTRY['anthropic/claude-3-5-sonnet'].capabilities
+    },
+    {
+      id: 'claude-3-opus',
+      name: 'Claude 3 Opus',
+      provider: 'anthropic',
+      icon: 'anthropic',
+      isLocked: true,
+      isPro: true,
+      tier: 'max',
+      group: 'Anthropic',
+      desc: 'Deep synthesis & complex analysis by Anthropic',
+      openRouterModel: 'anthropic/claude-3-opus',
+      capabilities: MODEL_REGISTRY['anthropic/claude-3-opus'].capabilities
+    },
+    {
+      id: 'deepseek-chat',
+      name: 'DeepSeek V3',
+      provider: 'deepseek',
+      icon: 'deepseek',
+      isLocked: false,
+      isPro: false,
+      tier: 'free',
+      group: 'DeepSeek',
+      desc: 'Fast, capable open-weights model',
+      openRouterModel: 'deepseek/deepseek-chat',
+      capabilities: MODEL_REGISTRY['deepseek/deepseek-chat'].capabilities
+    },
+    {
+      id: 'deepseek-r1',
+      name: 'DeepSeek R1',
+      provider: 'deepseek',
+      icon: 'deepseek',
+      isLocked: true,
+      isPro: true,
+      badge: 'Thinking',
+      tag: 'Thinking',
+      tier: 'pro',
+      group: 'DeepSeek',
+      desc: 'Open reasoning model with chain-of-thought',
+      openRouterModel: 'deepseek/deepseek-r1',
+      capabilities: MODEL_REGISTRY['deepseek/deepseek-r1'].capabilities
+    },
+    {
+      id: 'qwen-2.5-coder',
+      name: 'Qwen 2.5 Coder 32B',
+      provider: 'qwen',
+      icon: 'qwen',
+      isLocked: false,
+      isPro: false,
+      tier: 'free',
+      group: 'Open & Specialized',
+      desc: 'Specialized code generation & debugging by Alibaba',
+      openRouterModel: 'qwen/qwen-2.5-coder-32b-instruct',
+      capabilities: MODEL_REGISTRY['qwen/qwen-2.5-coder-32b-instruct'].capabilities
+    },
+    {
+      id: 'qwen-2.5-72b',
+      name: 'Qwen 2.5 72B',
+      provider: 'qwen',
+      icon: 'qwen',
+      isLocked: true,
+      isPro: true,
+      tier: 'pro',
+      group: 'Open & Specialized',
+      desc: 'High-capacity multilingual model by Alibaba',
+      openRouterModel: 'qwen/qwen-2.5-72b-instruct',
+      capabilities: MODEL_REGISTRY['qwen/qwen-2.5-72b-instruct'].capabilities
+    },
+    {
+      id: 'mistral-small',
+      name: 'Mistral Small 24B',
+      provider: 'mistral',
+      icon: 'mistral',
+      isLocked: false,
+      isPro: false,
+      tier: 'free',
+      group: 'Open & Specialized',
+      desc: 'Compact, fast European instruction model',
+      openRouterModel: 'mistralai/mistral-small-24b-instruct-2501',
+      capabilities: MODEL_REGISTRY['mistralai/mistral-small-24b-instruct-2501'].capabilities
+    },
+    {
+      id: 'nemotron-fast',
+      name: 'Nemotron 70B',
+      provider: 'nvidia',
+      icon: 'nvidia',
+      isLocked: false,
+      isPro: false,
+      tier: 'free',
+      group: 'Open & Specialized',
+      desc: 'NVIDIA Llama 3.1 Nemotron 70B Instruct',
+      openRouterModel: 'nvidia/llama-3.1-nemotron-70b-instruct',
+      capabilities: MODEL_REGISTRY['nvidia/llama-3.1-nemotron-70b-instruct'].capabilities
+    },
+    {
+      id: 'grok-2',
+      name: 'Grok 2',
+      provider: 'xai',
+      icon: 'xai',
+      isLocked: true,
+      isPro: true,
+      tier: 'pro',
+      group: 'xAI',
+      desc: 'Direct, candid intelligence by xAI',
+      openRouterModel: 'x-ai/grok-2-1212',
+      capabilities: MODEL_REGISTRY['x-ai/grok-2-1212'].capabilities
+    }
+  ];
 }
 
 export default {
@@ -653,5 +914,7 @@ export default {
   resolveModel,
   getModelMetadata,
   getFallbackModel,
+  getSamplingConfig,
+  getAvailableModelsCatalog,
   validateModelForPlan
 };

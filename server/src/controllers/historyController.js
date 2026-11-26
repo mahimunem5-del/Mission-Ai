@@ -1,21 +1,22 @@
 import {
-  getConversations,
-  getConversationById,
-  createConversation as dbCreateConversation,
-  addMessage as dbAddMessage,
-  deleteConversation as dbDeleteConversation
-} from '../db/dbService.js';
-import { NotFoundError } from '../utils/errors.js';
+  conversationsRepository,
+  messagesRepository,
+  messagePartsRepository,
+  attachmentsRepository
+} from '../database/repositories/index.js';
+import { NotFoundError, AuthenticationError } from '../utils/errors.js';
 import logger from '../utils/logger.js';
 
 export async function listConversations(req, res, next) {
   try {
-    const { projectId, limit, userId } = req.query;
+    const userId = req.user?.id;
+    if (!userId) return next(new AuthenticationError('Authenticated user required'));
+
+    const { projectId, limit } = req.query;
     const parsedLimit = limit ? parseInt(limit, 10) : 50;
 
-    const conversations = await getConversations({
+    const conversations = await conversationsRepository.listByUser(userId, {
       projectId: projectId || null,
-      userId: userId || null,
       limit: Number.isNaN(parsedLimit) ? 50 : Math.min(parsedLimit, 100)
     });
 
@@ -28,9 +29,11 @@ export async function listConversations(req, res, next) {
 
 export async function getConversation(req, res, next) {
   try {
+    const userId = req.user?.id;
+    if (!userId) return next(new AuthenticationError('Authenticated user required'));
+
     const { id } = req.params;
-    const { userId } = req.query;
-    const conversation = await getConversationById(id, userId || null);
+    const conversation = await conversationsRepository.findByIdForUser(id, userId);
 
     if (!conversation) {
       return next(new NotFoundError(`Conversation not found with ID: ${id}`));
@@ -45,15 +48,17 @@ export async function getConversation(req, res, next) {
 
 export async function createConversation(req, res, next) {
   try {
-    const { id, title, model_id, modelId, mode, project_id, projectId, user_id, userId } = req.body || {};
+    const userId = req.user?.id;
+    if (!userId) return next(new AuthenticationError('Authenticated user required'));
 
-    const created = await dbCreateConversation({
+    const { id, title, model_id, modelId, mode, project_id, projectId } = req.body || {};
+
+    const created = await conversationsRepository.upsertForUser(userId, {
       id,
       title: title || 'New Chat',
       model_id: model_id || modelId || 'mahi-engine',
       mode: mode || 'chat',
-      project_id: project_id || projectId || null,
-      user_id: user_id || userId || null
+      project_id: project_id || projectId || null
     });
 
     res.status(201).json({ success: true, data: created });
@@ -65,16 +70,39 @@ export async function createConversation(req, res, next) {
 
 export async function addMessageToConversation(req, res, next) {
   try {
-    const { id: conversationId } = req.params;
-    const { id, role, content, type, metadata } = req.body || {};
+    const userId = req.user?.id;
+    if (!userId) return next(new AuthenticationError('Authenticated user required'));
 
-    const createdMessage = await dbAddMessage(conversationId, {
+    const { id: conversationId } = req.params;
+    const existing = await conversationsRepository.findByIdForUser(conversationId, userId);
+    if (!existing) {
+      return next(new NotFoundError(`Conversation not found with ID: ${conversationId}`));
+    }
+
+    const { id, role, content, type, metadata, parts, attachments } = req.body || {};
+
+    const createdMessage = await messagesRepository.createMessage(conversationId, {
       id,
       role: role || 'user',
       content: content || '',
       type: type || 'text',
       metadata: metadata || {}
     });
+
+    // Optionally persist structured message parts & attachment metadata
+    if (Array.isArray(parts) && parts.length > 0 && createdMessage?.id) {
+      await messagePartsRepository.saveMessageParts(createdMessage.id, parts);
+    }
+
+    if (Array.isArray(attachments) && attachments.length > 0 && createdMessage?.id) {
+      for (const att of attachments) {
+        await attachmentsRepository.createAttachment(userId, {
+          ...att,
+          conversation_id: existing.id,
+          message_id: createdMessage.id
+        });
+      }
+    }
 
     res.status(201).json({ success: true, data: createdMessage });
   } catch (err) {
@@ -83,11 +111,37 @@ export async function addMessageToConversation(req, res, next) {
   }
 }
 
+export async function getMessageParts(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return next(new AuthenticationError('Authenticated user required'));
+
+    const { id: conversationId, messageId } = req.params;
+    const existing = await conversationsRepository.findByIdForUser(conversationId, userId);
+    if (!existing) {
+      return next(new NotFoundError(`Conversation not found with ID: ${conversationId}`));
+    }
+
+    const parts = await messagePartsRepository.listPartsByMessage(messageId);
+    res.json({ success: true, data: parts });
+  } catch (err) {
+    logger.error('Failed to fetch message parts', { requestId: req.id, error: err.message });
+    next(err);
+  }
+}
+
 export async function deleteConversation(req, res, next) {
   try {
+    const userId = req.user?.id;
+    if (!userId) return next(new AuthenticationError('Authenticated user required'));
+
     const { id } = req.params;
-    const { userId } = req.query;
-    const deleted = await dbDeleteConversation(id, userId || null);
+    const existing = await conversationsRepository.findByIdForUser(id, userId);
+    if (!existing) {
+      return next(new NotFoundError(`Conversation not found with ID: ${id}`));
+    }
+
+    const deleted = await conversationsRepository.deleteForUser(id, userId);
     res.json({ success: true, deleted: Boolean(deleted) });
   } catch (err) {
     logger.error('Failed to delete conversation', { requestId: req.id, id: req.params.id, error: err.message });
@@ -100,5 +154,6 @@ export default {
   getConversation,
   createConversation,
   addMessageToConversation,
+  getMessageParts,
   deleteConversation
 };

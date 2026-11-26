@@ -1,50 +1,15 @@
 import { orchestrateChatRequest } from '../orchestrator/aiOrchestrator.js';
+import { orchestrateUiStream } from '../ai/sdk/uiStreamOrchestrator.js';
+import { createSseSession } from '../ai/streaming/sseStream.js';
 import logger from '../utils/logger.js';
 
 /**
  * Chat Stream Controller
  * Handles SSE protocol negotiation, client abort signals, and delegates to AI Orchestrator.
  */
-export async function streamChat(req, res, next) {
+export async function streamChat(req, res) {
   const requestId = req.id || 'no-id';
-
-  // Setup standard SSE Headers
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  if (typeof res.flushHeaders === 'function') {
-    res.flushHeaders();
-  }
-
-  let isClientDisconnected = false;
-  const abortController = new AbortController();
-
-  req.on('aborted', () => {
-    isClientDisconnected = true;
-    abortController.abort();
-    logger.debug('Client connection aborted', { requestId });
-  });
-
-  res.on('close', () => {
-    if (!res.writableEnded) {
-      isClientDisconnected = true;
-      abortController.abort();
-    }
-  });
-
-  const checkAborted = () => isClientDisconnected || res.writableEnded;
-
-  const writeChunk = (payload) => {
-    if (checkAborted()) return;
-
-    if (payload === '[DONE]') {
-      res.write('data: [DONE]\n\n');
-      res.end();
-      return;
-    }
-
-    res.write(`data: ${JSON.stringify(payload)}\n\n`);
-  };
+  const { abortSignal, isAborted, writeChunk, endWithError } = createSseSession(req, res, requestId);
 
   try {
     const {
@@ -53,7 +18,9 @@ export async function streamChat(req, res, next) {
       searchMode = 'none',
       projectId = null,
       projectInstructions = null,
-      systemPrompt = null
+      systemPrompt = null,
+      userName = null,
+      language = null
     } = req.body || {};
 
     await orchestrateChatRequest({
@@ -63,31 +30,60 @@ export async function streamChat(req, res, next) {
       projectId,
       projectInstructions,
       systemPrompt,
+      userName: userName || req.user?.name || null,
+      userId: req.user?.id || null,
+      language,
       writeChunk,
-      isAborted: checkAborted,
-      abortSignal: abortController.signal,
+      isAborted,
+      abortSignal,
       requestId
     });
   } catch (err) {
-    if (checkAborted()) return;
-
+    if (isAborted()) return;
     logger.error('Error during chat stream orchestration', { requestId, error: err.message });
-    try {
-      if (!res.headersSent) {
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        if (typeof res.flushHeaders === 'function') res.flushHeaders();
-      }
-      res.write(`data: ${JSON.stringify({ text: `\n\n[Error: ${err.message || 'Stream processing failed'}]` })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      res.end();
-    } catch (_) {
-      try { res.end(); } catch (__) { }
+    endWithError(err.message || 'Stream processing failed');
+  }
+}
+
+export async function streamUiChat(req, res, next) {
+  const requestId = req.id || 'no-id';
+  try {
+    const {
+      messages = [],
+      model = 'mahi-engine',
+      searchMode = 'none',
+      enabledTools = null,
+      projectId = null,
+      projectInstructions = null,
+      systemPrompt = null,
+      userName = null,
+      language = null
+    } = req.body || {};
+
+    await orchestrateUiStream({
+      req,
+      res,
+      messages,
+      model,
+      searchMode,
+      enabledTools,
+      projectId,
+      projectInstructions,
+      systemPrompt,
+      userName: userName || req.user?.name || null,
+      userId: req.user?.id || null,
+      language,
+      requestId
+    });
+  } catch (err) {
+    logger.error('Error in streamUiChat', { requestId, error: err.message });
+    if (!res.headersSent) {
+      next(err);
     }
   }
 }
 
 export default {
-  streamChat
+  streamChat,
+  streamUiChat
 };

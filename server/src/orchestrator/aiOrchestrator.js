@@ -5,6 +5,7 @@ import {
   resolveProvider,
   MAHI_ENGINE_SYSTEM_PROMPT
 } from '../services/mahiEngineResolver.js';
+import { buildSystemPrompt } from '../prompts/masterSystemPrompt.js';
 import {
   detectAndEnrichImageIntent,
   executeImageGeneration,
@@ -15,8 +16,8 @@ import {
 } from '../services/imageService.js';
 import { fetchWebContext } from '../services/searchService.js';
 import { executeDeepResearch } from './researchOrchestrator.js';
-import { createCompletionStream, isImageJsonBlock, parseImagePromptFromJsonBlock } from '../services/openrouterService.js';
-import { createMahiStreamWithResilience } from '../providers/mahiEngineProvider.js';
+import { getProviderAdapter } from '../ai/adapters/index.js';
+import { isImageJsonBlock, parseImagePromptFromJsonBlock } from '../ai/adapters/openrouterAdapter.js';
 import {
   generateCacheKey,
   getCachedStream,
@@ -102,6 +103,72 @@ export function sanitizeMessagesForLlm(messages = []) {
  */
 
 /**
+ * Stateful streaming filter that strips hidden <think>...</think> reasoning blocks
+ * (even when tags span across multiple SSE chunks).
+ */
+function createThinkTagStripper() {
+  let inThink = false;
+  let buffer = '';
+  const OPEN_TAG = '<think>';
+  const CLOSE_TAG = '</think>';
+
+  function partialSuffixLength(str, tag) {
+    const lower = str.toLowerCase();
+    for (let len = Math.min(str.length, tag.length - 1); len > 0; len--) {
+      if (lower.endsWith(tag.slice(0, len))) return len;
+    }
+    return 0;
+  }
+
+  return {
+    push(chunkText) {
+      if (!chunkText) return '';
+      buffer += chunkText;
+      let output = '';
+
+      while (buffer.length > 0) {
+        const lower = buffer.toLowerCase();
+        if (!inThink) {
+          const openIdx = lower.indexOf(OPEN_TAG);
+          if (openIdx !== -1) {
+            output += buffer.slice(0, openIdx);
+            buffer = buffer.slice(openIdx + OPEN_TAG.length);
+            inThink = true;
+          } else {
+            const hold = partialSuffixLength(buffer, OPEN_TAG);
+            output += buffer.slice(0, buffer.length - hold);
+            buffer = buffer.slice(buffer.length - hold);
+            break;
+          }
+        } else {
+          const closeIdx = lower.indexOf(CLOSE_TAG);
+          if (closeIdx !== -1) {
+            buffer = buffer.slice(closeIdx + CLOSE_TAG.length);
+            inThink = false;
+            // Trim immediate leading newlines left right after </think>
+            buffer = buffer.replace(/^\s*\n/, '');
+          } else {
+            const hold = partialSuffixLength(buffer, CLOSE_TAG);
+            buffer = buffer.slice(buffer.length - hold);
+            break;
+          }
+        }
+      }
+      return output;
+    },
+    flush() {
+      if (inThink) {
+        buffer = '';
+        return '';
+      }
+      const rest = buffer;
+      buffer = '';
+      return rest;
+    }
+  };
+}
+
+/**
  * Orchestrates a single chat / search / image stream request
  */
 export async function orchestrateChatRequest({
@@ -111,6 +178,9 @@ export async function orchestrateChatRequest({
   projectId = null,
   projectInstructions = null,
   systemPrompt: customSystemPrompt = null,
+  userName = null,
+  userId = null,
+  language = null,
   writeChunk,
   isAborted,
   abortSignal,
@@ -279,9 +349,19 @@ export async function orchestrateChatRequest({
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 3. Search Grounding & Deep Research Pipelines
+  // 3. Master System Prompt + Search Grounding & Deep Research Pipelines
   // ─────────────────────────────────────────────────────────────────────────────
-  let dynamicSystemInstruction = customSystemPrompt || '';
+  const hasAttachments = Array.isArray(lastUserMsg?.content) || Boolean(directImage);
+  const masterPrompt = buildSystemPrompt({
+    userName,
+    language,
+    searchMode,
+    hasAttachments,
+    selectedModelLabel: model
+  });
+  let dynamicSystemInstruction = customSystemPrompt
+    ? `${masterPrompt}\n\n${customSystemPrompt}`
+    : masterPrompt;
   let sourcesCount = 0;
 
   if (searchMode === 'deep-research') {
@@ -297,21 +377,14 @@ export async function orchestrateChatRequest({
     });
 
     if (research.isCasual) {
-      const basePrompt = isMahi
-        ? MAHI_ENGINE_SYSTEM_PROMPT
-        : (dynamicSystemInstruction || 'You are an expert AI research assistant.');
-      dynamicSystemInstruction = `${basePrompt}\n\nThe user submitted a casual greeting or non-research remark. Do NOT produce a deep research report or artificial research vectors. Provide a friendly, concise, and helpful greeting and gracefully ask what technical, scientific, empirical, or complex topic they would like to deeply investigate today.`;
+      dynamicSystemInstruction = `${dynamicSystemInstruction}\n\nThe user submitted a casual greeting or non-research remark. Do NOT produce a deep research report or artificial research vectors. Provide a friendly, concise, and helpful greeting and gracefully ask what technical, scientific, empirical, or complex topic they would like to deeply investigate today.`;
     } else {
       if (!isAborted() && research.sources && research.sources.length > 0) {
         sourcesCount = research.sources.length;
         writeChunk({ type: 'sources', data: research.sources });
       }
 
-      const basePrompt = isMahi
-        ? MAHI_ENGINE_SYSTEM_PROMPT
-        : (dynamicSystemInstruction || 'You are an expert AI research analyst.');
-
-      dynamicSystemInstruction = `${basePrompt}
+      dynamicSystemInstruction = `${dynamicSystemInstruction}
 
 # ROLE & OBJECTIVE:
 You are an elite enterprise research analyst (ChatGPT Deep Research standard). Your task is to produce an authoritative, exhaustive, and rigorously synthesized Deep Research report focused strictly on the user's exact query: "${lastUserQuery}".
@@ -342,13 +415,7 @@ ${research.contextText || 'Synthesize an exhaustive, first-principles research r
       writeChunk({ type: 'sources', data: searchRes.sources });
     }
 
-    const basePrompt = isMahi
-      ? MAHI_ENGINE_SYSTEM_PROMPT
-      : (dynamicSystemInstruction || 'You are an expert AI assistant.');
-
-    dynamicSystemInstruction = `${basePrompt}\n\nGround your response strictly on the provided real-time reference material. Write a fluid, natural, and comprehensive answer. Avoid conversational mentions of website names or sources (do not write phrases like "according to [Website] [1]" or "see [Website] [1]"). Instead, state the factual findings directly and seamlessly place bracketed numerical citations like [1], [2] immediately behind the relevant factual assertions, claims, or data points.\n\nREFERENCE CONTEXT:\n${searchRes.contextText}`;
-  } else if (isMahi && !dynamicSystemInstruction) {
-    dynamicSystemInstruction = MAHI_ENGINE_SYSTEM_PROMPT;
+    dynamicSystemInstruction = `${dynamicSystemInstruction}\n\nGround your response strictly on the provided real-time reference material. Write a fluid, natural, and comprehensive answer. Avoid conversational mentions of website names or sources (do not write phrases like "according to [Website] [1]" or "see [Website] [1]"). Instead, state the factual findings directly and seamlessly place bracketed numerical citations like [1], [2] immediately behind the relevant factual assertions, claims, or data points.\n\nREFERENCE CONTEXT:\n${searchRes.contextText}`;
   }
 
   if (isAborted()) return;
@@ -408,34 +475,20 @@ ${research.contextText || 'Synthesize an exhaustive, first-principles research r
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 5. Credentials Verification & Dev Fallbacks (Provider-Specific)
+  // 5. Credentials Verification & Dev Fallbacks (Provider Adapter)
   // ─────────────────────────────────────────────────────────────────────────────
-  if (isMahi) {
-    if (!config.mahiEngine.apiKey) {
-      if (config.isProd) {
-        throw new ConfigurationError('MAHI_ENGINE_API_KEY is not configured in production.');
-      }
-
-      const notice = 'MAHI_ENGINE_API_KEY is not set in server/.env. Please configure your dedicated Mahi Engine API key (and optional MAHI_ENGINE_API_BASE_URL / MAHI_ENGINE_MODEL) to enable live Mahi Engine responses.';
-      if (!isAborted()) {
-        writeChunk({ text: notice });
-        writeChunk('[DONE]');
-      }
-      return;
+  const adapter = getProviderAdapter(model);
+  if (!adapter.isConfigured()) {
+    if (config.isProd) {
+      throw new ConfigurationError(`${adapter.name} is not configured in production.`);
     }
-  } else {
-    if (!config.openrouter.apiKey) {
-      if (config.isProd) {
-        throw new ConfigurationError('OPENROUTER_API_KEY is not configured in production.');
-      }
 
-      const fallbackNotice = 'OPENROUTER_API_KEY is not set in server/.env. Please configure your OpenRouter API key to enable live model streaming.';
-      if (!isAborted()) {
-        writeChunk({ text: fallbackNotice });
-        writeChunk('[DONE]');
-      }
-      return;
+    const notice = adapter.getUnconfiguredNotice();
+    if (!isAborted()) {
+      writeChunk({ text: notice });
+      writeChunk('[DONE]');
     }
+    return;
   }
 
   // Setup stampede in-flight promise for concurrent identical requests
@@ -448,38 +501,35 @@ ${research.contextText || 'Synthesize an exhaustive, first-principles research r
   setInFlight(cacheKey, inFlightPromise);
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 6. Provider Execution (Independent System A or System B)
+  // 6. Provider Execution (Unified Adapter Interface)
   // ─────────────────────────────────────────────────────────────────────────────
   let stream;
   let resolvedModel;
 
   try {
-    if (isMahi) {
-      // SYSTEM B: Dedicated Mahi Engine Provider (never calls OpenRouter)
-      const streamResult = await createMahiStreamWithResilience({
-        messages: sanitizedMessages,
-        systemInstruction: dynamicSystemInstruction,
-        projectId,
-        projectInstructions,
-        abortSignal,
-        requestId
+    const streamResult = await adapter.createChatStream({
+      model,
+      messages: sanitizedMessages,
+      systemInstruction: dynamicSystemInstruction,
+      projectId,
+      projectInstructions,
+      abortSignal,
+      requestId,
+      writeChunk
+    });
+    stream = streamResult.stream;
+    resolvedModel = streamResult.resolvedModel;
+    if (!isAborted()) {
+      writeChunk({
+        type: 'status',
+        message: streamResult.usedFallback
+          ? `Requested model "${model}" unavailable; using fallback "${resolvedModel}"`
+          : '',
+        requestedModel: model,
+        resolvedModel: streamResult.displayModel || resolvedModel,
+        provider: adapter.name,
+        isFallback: Boolean(streamResult.usedFallback)
       });
-      stream = streamResult.stream;
-      resolvedModel = streamResult.resolvedModel;
-    } else {
-      // SYSTEM A: OpenRouter Model Provider (never calls Mahi Engine API)
-      const streamResult = await createCompletionStream({
-        model,
-        messages: sanitizedMessages,
-        systemInstruction: dynamicSystemInstruction,
-        projectId,
-        projectInstructions,
-        abortSignal,
-        requestId,
-        writeChunk
-      });
-      stream = streamResult.stream;
-      resolvedModel = streamResult.resolvedModel;
     }
   } catch (err) {
     rejectInFlight(err);
@@ -491,20 +541,33 @@ ${research.contextText || 'Synthesize an exhaustive, first-principles research r
   }
 
   let accumulatedText = '';
+  let actualUsage = null;
+  const thinkStripper = createThinkTagStripper();
 
   for await (const chunk of stream) {
     if (isAborted()) {
       rejectInFlight(new Error('Client aborted stream'));
       break;
     }
-    const content = chunk.choices?.[0]?.delta?.content || '';
-    if (content) {
-      accumulatedText += content;
-      writeChunk({ text: content });
+    if (chunk?.usage) {
+      actualUsage = chunk.usage;
+    }
+    const rawContent = chunk.choices?.[0]?.delta?.content || '';
+    if (rawContent) {
+      const cleanContent = thinkStripper.push(rawContent);
+      if (cleanContent) {
+        accumulatedText += cleanContent;
+        writeChunk({ text: cleanContent });
+      }
     }
   }
 
   if (!isAborted()) {
+    const tail = thinkStripper.flush();
+    if (tail) {
+      accumulatedText += tail;
+      writeChunk({ text: tail });
+    }
     // If accumulatedText is empty, either the stream completed with 0 text or an image was synthesized and [DONE] was already sent
     if (!accumulatedText || accumulatedText.trim().length === 0) {
       resolveInFlight('');
@@ -566,12 +629,18 @@ ${research.contextText || 'Synthesize an exhaustive, first-principles research r
 
     recordRequestMetrics({
       requestId,
+      userId,
       provider,
       ...(engine ? { engine } : {}),
+      requestedModel: model,
       model: resolvedModel,
       mode: searchMode,
       promptLength: JSON.stringify(messages).length,
       completionLength: accumulatedText.length,
+      inputTokens: actualUsage?.prompt_tokens ?? null,
+      outputTokens: actualUsage?.completion_tokens ?? null,
+      totalTokens: actualUsage?.total_tokens ?? null,
+      apiCostUsd: typeof actualUsage?.cost === 'number' ? actualUsage.cost : null,
       durationMs: Date.now() - startTime,
       cacheHit: false,
       sourcesCount
@@ -607,116 +676,67 @@ export async function orchestrateCompareRequest({
 
   // Parallel resilient streaming completions across all selected models with error isolation
   const streamPromises = uniqueModels.map(async (modelId) => {
-    const isMahi = isMahiEngine(modelId);
+    const adapter = getProviderAdapter(modelId);
+    const isMahi = adapter.name === 'mahi-engine';
+    const emitId = isMahi ? 'mahi-engine' : modelId;
 
-    // If Mahi Engine is selected in compare mode:
-    if (isMahi) {
-      if (!config.mahiEngine.apiKey) {
-        if (config.isProd) {
-          throw new ConfigurationError('MAHI_ENGINE_API_KEY is not configured in production.');
-        }
-        // Dev fallback simulation for unconfigured Mahi Engine API key
-        const mockTokens = [
-          `### Mahi Engine Grounded Synthesis\n\n`,
-          `Direct evaluation for **"${lastUserQuery}"**:\n\n`,
-          `• **Architecture**: Dedicated Mahi Engine integration active.\n`,
-          `• **Notice**: Configure MAHI_ENGINE_API_KEY in server/.env for live model responses.`
-        ];
-        for (const token of mockTokens) {
-          if (isAborted()) break;
-          await new Promise(r => setTimeout(r, 60));
-          if (isAborted()) break;
-          writeChunk({ modelId: 'mahi-engine', text: token });
-        }
-        if (!isAborted()) {
-          writeChunk({ type: 'model_done', modelId: 'mahi-engine' });
-        }
-        return;
-      }
-
-      try {
-        const { stream } = await createMahiStreamWithResilience({
-          messages: sanitizedMessages,
-          systemInstruction: MAHI_ENGINE_SYSTEM_PROMPT,
-          abortSignal,
-          requestId
-        });
-
-        for await (const chunk of stream) {
-          if (isAborted()) break;
-          const text = chunk.choices?.[0]?.delta?.content || '';
-          if (text) {
-            writeChunk({ modelId: 'mahi-engine', text });
-          }
-        }
-
-        if (!isAborted()) {
-          writeChunk({ type: 'model_done', modelId: 'mahi-engine' });
-        }
-      } catch (err) {
-        logger.error('Error in compare model "mahi-engine"', { requestId, error: err.message });
-        if (!isAborted()) {
-          writeChunk({
-            type: 'model_error',
-            modelId: 'mahi-engine',
-            error: err.message || 'Mahi Engine API unavailable'
-          });
-        }
-      }
-      return;
-    }
-
-    // Normal OpenRouter model in compare mode:
-    if (!config.openrouter.apiKey) {
+    if (!adapter.isConfigured()) {
       if (config.isProd) {
-        throw new ConfigurationError('OPENROUTER_API_KEY is not configured in production.');
+        throw new ConfigurationError(`${adapter.name} is not configured in production.`);
       }
-      // Dev fallback simulation for unconfigured OpenRouter API key
-      const mockTokens = [
-        `### ${modelId} Perspective\n\n`,
-        `Analysis on **"${lastUserQuery}"**:\n\n`,
-        `• **Execution**: Parallel compare channel active.\n`,
-        `• **Notice**: Configure OPENROUTER_API_KEY in server/.env for live streaming.`
-      ];
+      const mockTokens = isMahi
+        ? [
+            `### Mahi Engine Grounded Synthesis\n\n`,
+            `Direct evaluation for **"${lastUserQuery}"**:\n\n`,
+            `• **Architecture**: Dedicated Mahi Engine integration active.\n`,
+            `• **Notice**: Configure MAHI_ENGINE_API_KEY in server/.env for live model responses.`
+          ]
+        : [
+            `### ${modelId} Perspective\n\n`,
+            `Analysis on **"${lastUserQuery}"**:\n\n`,
+            `• **Execution**: Parallel compare channel active.\n`,
+            `• **Notice**: Configure OPENROUTER_API_KEY in server/.env for live streaming.`
+          ];
       for (const token of mockTokens) {
         if (isAborted()) break;
-        await new Promise(r => setTimeout(r, 80));
+        await new Promise(r => setTimeout(r, isMahi ? 60 : 80));
         if (isAborted()) break;
-        writeChunk({ modelId, text: token });
+        writeChunk({ modelId: emitId, text: token });
       }
       if (!isAborted()) {
-        writeChunk({ type: 'model_done', modelId });
+        writeChunk({ type: 'model_done', modelId: emitId });
       }
       return;
     }
 
     try {
-      const { stream } = await createCompletionStream({
+      const { stream } = await adapter.createChatStream({
         model: modelId,
         messages: sanitizedMessages,
-        systemInstruction: null,
+        systemInstruction: isMahi ? MAHI_ENGINE_SYSTEM_PROMPT : null,
         abortSignal,
-        requestId
+        requestId,
+        enableTools: false
       });
 
       for await (const chunk of stream) {
         if (isAborted()) break;
         const text = chunk.choices?.[0]?.delta?.content || '';
         if (text) {
-          writeChunk({ modelId, text });
+          writeChunk({ modelId: emitId, text });
         }
       }
 
       if (!isAborted()) {
-        writeChunk({ type: 'model_done', modelId });
+        writeChunk({ type: 'model_done', modelId: emitId });
       }
     } catch (err) {
-      logger.error(`Error in compare model "${modelId}"`, { requestId, error: err.message });
+      logger.error(`Error in compare model "${emitId}"`, { requestId, error: err.message });
       if (!isAborted()) {
         writeChunk({
           type: 'model_error',
-          modelId,
-          error: err.message || 'Model unavailable via OpenRouter'
+          modelId: emitId,
+          error: err.message || `${adapter.name} unavailable`
         });
       }
     }

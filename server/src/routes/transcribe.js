@@ -1,22 +1,32 @@
 import { Router } from 'express';
 import config from '../config/env.js';
+import { ValidationError } from '../utils/errors.js';
+import logger from '../utils/logger.js';
 
 const router = Router();
+const MAX_AUDIO_BASE64_LENGTH = 25 * 1024 * 1024; // ~25MB base64 ceiling
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   try {
     const { audio, mimeType } = req.body || {};
     if (!audio) {
       return res.status(200).json({ text: '' });
     }
+    if (typeof audio !== 'string' || audio.length > MAX_AUDIO_BASE64_LENGTH) {
+      return next(new ValidationError('Invalid or oversized audio payload'));
+    }
 
-    // 1. If GROQ_API_KEY is available: use Groq Whisper STT (whisper-large-v3)
-    const groqKey = process.env.GROQ_API_KEY?.trim();
+    const safeMime = (typeof mimeType === 'string' && /^audio\/[a-z0-9.+-]+$/i.test(mimeType))
+      ? mimeType
+      : 'audio/webm';
+
+    // 1. Groq Whisper STT (whisper-large-v3)
+    const groqKey = config.groq?.apiKey;
     if (groqKey) {
       try {
         const audioBuffer = Buffer.from(audio, 'base64');
         const formData = new FormData();
-        formData.append('file', new Blob([audioBuffer], { type: mimeType || 'audio/webm' }), 'speech.webm');
+        formData.append('file', new Blob([audioBuffer], { type: safeMime }), 'speech.webm');
         formData.append('model', 'whisper-large-v3');
 
         const groqRes = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -24,7 +34,8 @@ router.post('/', async (req, res) => {
           headers: {
             'Authorization': `Bearer ${groqKey}`
           },
-          body: formData
+          body: formData,
+          signal: AbortSignal.timeout(25000)
         });
 
         if (groqRes.ok) {
@@ -34,24 +45,27 @@ router.post('/', async (req, res) => {
           }
         }
       } catch (groqErr) {
-        console.warn('Groq Whisper transcribe error:', groqErr.message);
+        logger.warn('Groq Whisper transcribe error', { requestId: req.id, error: groqErr.message });
       }
     }
 
-    // 2. If Mahi Engine / Gemini key is available: use Gemini Multimodal Audio Transcription
+    // 2. Gemini Multimodal Audio Transcription (key sent via header, never in URL)
     const mahiKey = config.mahiEngine?.apiKey;
     if (mahiKey) {
       try {
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${mahiKey}`;
+        const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
         const geminiRes = await fetch(geminiUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': mahiKey
+          },
           body: JSON.stringify({
             contents: [{
               parts: [
                 {
                   inlineData: {
-                    mimeType: mimeType || 'audio/webm',
+                    mimeType: safeMime,
                     data: audio
                   }
                 },
@@ -60,7 +74,8 @@ router.post('/', async (req, res) => {
                 }
               ]
             }]
-          })
+          }),
+          signal: AbortSignal.timeout(25000)
         });
 
         if (geminiRes.ok) {
@@ -71,13 +86,13 @@ router.post('/', async (req, res) => {
           }
         }
       } catch (geminiErr) {
-        console.warn('Gemini transcribe fallback error:', geminiErr.message);
+        logger.warn('Gemini transcribe fallback error', { requestId: req.id, error: geminiErr.message });
       }
     }
 
     return res.status(200).json({ text: '' });
   } catch (err) {
-    console.error('/api/transcribe uncaught error:', err);
+    logger.error('/api/transcribe uncaught error', { requestId: req.id, error: err.message });
     return res.status(200).json({ text: '' });
   }
 });

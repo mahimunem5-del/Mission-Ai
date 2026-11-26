@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
-import config from '../config/env.js';
 import { resolveMahiEngineConfig } from '../services/mahiEngineResolver.js';
+import { formatProviderMessages } from '../ai/adapters/baseAdapter.js';
 import { ProviderError, TimeoutError, ConfigurationError } from '../utils/errors.js';
 import logger from '../utils/logger.js';
 
@@ -40,49 +40,6 @@ function getMahiClient() {
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-function getMessageLength(msg) {
-  if (!msg || !msg.content) return 0;
-  if (typeof msg.content === 'string') return msg.content.length;
-  if (Array.isArray(msg.content)) {
-    return msg.content.reduce((acc, part) => {
-      if (part?.type === 'text') return acc + (part.text || '').length;
-      if (part?.type === 'image_url') return acc + 1000;
-      return acc + 100;
-    }, 0);
-  }
-  return 100;
-}
-
-/**
- * Context window cost control: trims excess conversational history while retaining system context
- */
-function trimHistoryForCostControl(messages, maxTokensApprox = 25000) {
-  if (!Array.isArray(messages) || messages.length <= 1) return messages;
-
-  let totalChars = 0;
-  const maxChars = maxTokensApprox * 4;
-  const trimmed = [];
-
-  let firstSystem = null;
-  if (messages[0]?.role === 'system') {
-    firstSystem = messages[0];
-    totalChars += getMessageLength(firstSystem);
-  }
-
-  const pool = firstSystem ? messages.slice(1) : messages;
-  for (let i = pool.length - 1; i >= 0; i--) {
-    const msg = pool[i];
-    const len = getMessageLength(msg);
-    if (totalChars + len > maxChars && trimmed.length >= 2) {
-      break;
-    }
-    totalChars += len;
-    trimmed.unshift(msg);
-  }
-
-  return firstSystem ? [firstSystem, ...trimmed] : trimmed;
-}
-
 /**
  * Formats messages for the Mahi Engine API schema
  */
@@ -93,54 +50,13 @@ export function formatMahiMessages({
   projectInstructions = null
 }) {
   const engineConfig = resolveMahiEngineConfig();
-  const formatted = [];
-
-  // 1. Inject project workspace instructions if present
-  if (projectInstructions) {
-    formatted.push({
-      role: 'system',
-      content: `PROJECT WORKSPACE INSTRUCTIONS:\nYou are operating within an isolated workspace (Project ID: ${projectId || 'default'}). Adhere strictly to the following instructions:\n${projectInstructions}`
-    });
-  } else if (projectId) {
-    formatted.push({
-      role: 'system',
-      content: `PROJECT WORKSPACE CONTEXT:\nYou are operating within an isolated workspace for Project ID: ${projectId}. Keep all analysis and code aligned with this project.`
-    });
-  }
-
-  // 2. Inject specialized Mahi Engine persona / search grounding prompt
-  const basePrompt = systemInstruction || engineConfig.systemPrompt;
-  if (basePrompt) {
-    formatted.push({
-      role: 'system',
-      content: basePrompt
-    });
-  }
-
-  // 3. User & Assistant conversational messages
-  if (Array.isArray(messages) && messages.length > 0) {
-    messages.forEach(m => {
-      if (!m) return;
-      let contentPayload = m.content;
-      if (m.role === 'assistant' && (!contentPayload || (typeof contentPayload === 'string' && !contentPayload.trim()))) {
-        contentPayload = m.imageUrl ? (m.imagePrompt ? `[Generated Image: ${m.imagePrompt}]` : '[Generated Image]') : '[Assistant Response]';
-      }
-      if (!contentPayload || (typeof contentPayload === 'string' && !contentPayload.trim())) {
-        return;
-      }
-
-      if (typeof contentPayload !== 'string' && !Array.isArray(contentPayload)) {
-        contentPayload = JSON.stringify(contentPayload);
-      }
-
-      formatted.push({
-        role: m.role === 'assistant' ? 'assistant' : (m.role === 'system' ? 'system' : 'user'),
-        content: contentPayload
-      });
-    });
-  }
-
-  return trimHistoryForCostControl(formatted);
+  return formatProviderMessages({
+    messages,
+    systemInstruction: systemInstruction || engineConfig.systemPrompt,
+    projectId,
+    projectInstructions,
+    maxTokensApprox: 25000
+  });
 }
 
 /**
@@ -197,8 +113,8 @@ export async function createMahiStreamWithResilience({
         {
           model: engineConfig.model,
           messages: formattedMessages,
-          temperature: engineConfig.temperature !== undefined ? engineConfig.temperature : 0.35,
-          top_p: engineConfig.topP !== undefined ? engineConfig.topP : 0.9,
+          temperature: engineConfig.temperature !== undefined ? engineConfig.temperature : 0.7,
+          top_p: engineConfig.topP !== undefined ? engineConfig.topP : 0.95,
           max_tokens: engineConfig.maxOutputTokens || 4096,
           stream: true
         },
