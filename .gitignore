@@ -1,3 +1,23 @@
+# Environment & Secrets
 .env
+.env.*
+!.env.example
 server/.env
+server/.env.*
+!server/.env.example
+chat-next/.env
+chat-next/.env.*
+
+# Dependencies
 node_modules/
+server/node_modules/
+chat-next/node_modules/
+
+# Build Outputs & Caches
+dist/
+chat-next/dist/
+.vite/
+*.tsbuildinfo
+
+# Local Scratch & QA Artifacts
+scratch/

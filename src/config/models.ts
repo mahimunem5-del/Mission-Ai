@@ -16,35 +16,45 @@ export interface AIModel {
 }
 
 export const MODELS: AIModel[] = [
-  // 0. Default Engine:
   {
     id: 'mahi-engine',
-    name: 'Mahi Engine (Standard)',
+    name: 'Mahi Engine',
     provider: 'custom',
     icon: 'zap',
     isLocked: false,
     isPro: false,
     isDefault: true,
     group: 'Default Engine',
-    description: 'Fast, efficient everyday standard engine',
-    desc: 'Fast, efficient everyday standard engine',
+    description: 'Fast, balanced everyday assistant by Mestrio AI',
+    desc: 'Fast, balanced everyday assistant by Mestrio AI',
     color: 'bg-amber-500',
     openRouterModel: 'mahi-engine'
   },
-
-  // 1. OpenAI (ChatGPT Series):
   {
-    id: 'gpt-5-mini',
-    name: 'GPT-5 Mini',
+    id: 'gpt-4o-mini',
+    name: 'GPT-4o Mini',
+    provider: 'openai',
+    icon: 'openai',
+    isLocked: false,
+    isPro: false,
+    group: 'OpenAI',
+    description: 'Fast, affordable everyday model by OpenAI',
+    desc: 'Fast, affordable everyday model by OpenAI',
+    color: 'bg-emerald-600',
+    openRouterModel: 'openai/gpt-4o-mini'
+  },
+  {
+    id: 'gpt-4o',
+    name: 'GPT-4o',
     provider: 'openai',
     icon: 'openai',
     isLocked: true,
     isPro: true,
-    group: 'OpenAI (ChatGPT Series)',
-    description: 'Lightweight multimodal model by OpenAI',
-    desc: 'Lightweight multimodal model by OpenAI',
-    color: 'bg-emerald-600',
-    openRouterModel: 'openai/gpt-5-mini'
+    group: 'OpenAI',
+    description: 'Flagship multimodal model by OpenAI',
+    desc: 'Flagship multimodal model by OpenAI',
+    color: 'bg-emerald-700',
+    openRouterModel: 'openai/gpt-4o'
   },
   {
     id: 'o3-mini',
@@ -53,56 +63,26 @@ export const MODELS: AIModel[] = [
     icon: 'openai',
     isLocked: true,
     isPro: true,
-    group: 'OpenAI (ChatGPT Series)',
-    description: 'High-speed reasoning model by OpenAI',
-    desc: 'High-speed reasoning model by OpenAI',
-    color: 'bg-emerald-700',
+    badge: 'Thinking',
+    tag: 'Thinking',
+    group: 'OpenAI',
+    description: 'High-speed STEM & logic reasoning by OpenAI',
+    desc: 'High-speed STEM & logic reasoning by OpenAI',
+    color: 'bg-emerald-800',
     openRouterModel: 'openai/o3-mini'
   },
-  {
-    id: 'gpt-6-sol',
-    name: 'GPT-6 Sol',
-    provider: 'openai',
-    icon: 'openai',
-    isLocked: true,
-    isPro: true,
-    badge: 'New',
-    tag: 'New',
-    group: 'OpenAI (ChatGPT Series)',
-    description: 'Frontier breakthrough model with solar reasoning',
-    desc: 'Frontier breakthrough model with solar reasoning',
-    color: 'bg-emerald-800',
-    openRouterModel: 'openai/gpt-6-sol'
-  },
-
-  // 2. Google (Gemini Series):
   {
     id: 'gemini-2.5-flash',
     name: 'Gemini 2.5 Flash',
     provider: 'google',
     icon: 'gemini',
-    isLocked: true,
-    isPro: true,
-    group: 'Google (Gemini Series)',
-    description: 'Next-gen multimodal speed by Google',
-    desc: 'Next-gen multimodal speed by Google',
+    isLocked: false,
+    isPro: false,
+    group: 'Google',
+    description: 'Low-latency multimodal model by Google',
+    desc: 'Low-latency multimodal model by Google',
     color: 'bg-blue-600',
     openRouterModel: 'google/gemini-2.5-flash'
-  },
-  {
-    id: 'gemini-3.8-flash',
-    name: 'Gemini 3.8 Flash',
-    provider: 'google',
-    icon: 'gemini',
-    isLocked: true,
-    isPro: true,
-    badge: 'New',
-    tag: 'New',
-    group: 'Google (Gemini Series)',
-    description: 'State-of-the-art multimodal frontier speed',
-    desc: 'State-of-the-art multimodal frontier speed',
-    color: 'bg-blue-800',
-    openRouterModel: 'google/gemini-3.8-flash'
   },
   {
     id: 'gemini-3.1-pro',
@@ -111,14 +91,12 @@ export const MODELS: AIModel[] = [
     icon: 'gemini',
     isLocked: true,
     isPro: true,
-    group: 'Google (Gemini Series)',
-    description: 'Frontier reasoning and multimodality by Google',
-    desc: 'Frontier reasoning and multimodality by Google',
+    group: 'Google',
+    description: 'Deep reasoning & long-context model by Google',
+    desc: 'Deep reasoning & long-context model by Google',
     color: 'bg-blue-700',
     openRouterModel: 'google/gemini-3.1-pro-preview'
   },
-
-  // 3. Anthropic (Claude Series):
   {
     id: 'claude-4-5-haiku',
     name: 'Claude 4.5 Haiku',
@@ -126,52 +104,50 @@ export const MODELS: AIModel[] = [
     icon: 'anthropic',
     isLocked: true,
     isPro: true,
-    group: 'Anthropic (Claude Series)',
-    description: 'High-speed intelligence by Anthropic',
-    desc: 'High-speed intelligence by Anthropic',
+    group: 'Anthropic',
+    description: 'Fast, crisp intelligence by Anthropic',
+    desc: 'Fast, crisp intelligence by Anthropic',
     color: 'bg-amber-600',
     openRouterModel: 'anthropic/claude-haiku-4.5'
   },
   {
-    id: 'claude-sonnet-5',
-    name: 'Claude Sonnet 5',
+    id: 'claude-3-5-sonnet',
+    name: 'Claude 3.5 Sonnet',
     provider: 'anthropic',
     icon: 'anthropic',
     isLocked: true,
     isPro: true,
-    group: 'Anthropic (Claude Series)',
-    description: 'Exceptional deep coding and nuanced thinking',
-    desc: 'Exceptional deep coding and nuanced thinking',
+    group: 'Anthropic',
+    description: 'Exceptional coding & nuanced writing by Anthropic',
+    desc: 'Exceptional coding & nuanced writing by Anthropic',
     color: 'bg-amber-700',
-    openRouterModel: 'anthropic/claude-sonnet-5'
+    openRouterModel: 'anthropic/claude-3-5-sonnet'
   },
   {
-    id: 'claude-opus-5.5',
-    name: 'Claude Opus 5.5',
+    id: 'claude-3-opus',
+    name: 'Claude 3 Opus',
     provider: 'anthropic',
     icon: 'anthropic',
     isLocked: true,
     isPro: true,
-    group: 'Anthropic (Claude Series)',
-    description: 'Maximum intelligence for complex synthesis',
-    desc: 'Maximum intelligence for complex synthesis',
+    group: 'Anthropic',
+    description: 'Deep synthesis & complex analysis by Anthropic',
+    desc: 'Deep synthesis & complex analysis by Anthropic',
     color: 'bg-amber-800',
-    openRouterModel: 'anthropic/claude-opus-5.5'
+    openRouterModel: 'anthropic/claude-3-opus'
   },
-
-  // 4. DeepSeek Series:
   {
-    id: 'deepseek-v4-flash',
-    name: 'DeepSeek V4 Flash',
+    id: 'deepseek-chat',
+    name: 'DeepSeek V3',
     provider: 'deepseek',
     icon: 'deepseek',
-    isLocked: true,
-    isPro: true,
-    group: 'DeepSeek Series',
-    description: 'Ultra-fast open architecture reasoning',
-    desc: 'Ultra-fast open architecture reasoning',
+    isLocked: false,
+    isPro: false,
+    group: 'DeepSeek',
+    description: 'Fast, capable open-weights model',
+    desc: 'Fast, capable open-weights model',
     color: 'bg-cyan-600',
-    openRouterModel: 'deepseek/deepseek-v4-flash-0731'
+    openRouterModel: 'deepseek/deepseek-chat'
   },
   {
     id: 'deepseek-r1',
@@ -182,105 +158,82 @@ export const MODELS: AIModel[] = [
     isPro: true,
     badge: 'Thinking',
     tag: 'Thinking',
-    group: 'DeepSeek Series',
-    description: 'Open reasoning model with deep chain-of-thought',
-    desc: 'Open reasoning model with deep chain-of-thought',
-    color: 'bg-cyan-600',
+    group: 'DeepSeek',
+    description: 'Open reasoning model with chain-of-thought',
+    desc: 'Open reasoning model with chain-of-thought',
+    color: 'bg-cyan-700',
     openRouterModel: 'deepseek/deepseek-r1'
   },
   {
-    id: 'deepseek-v4-pro',
-    name: 'DeepSeek V4 Pro',
-    provider: 'deepseek',
-    icon: 'deepseek',
-    isLocked: true,
-    isPro: true,
-    group: 'DeepSeek Series',
-    description: 'Unconstrained mathematical & coding performance',
-    desc: 'Unconstrained mathematical & coding performance',
-    color: 'bg-cyan-700',
-    openRouterModel: 'deepseek/deepseek-v4-pro-0813'
-  },
-
-  // 5. xAI (Grok Series):
-  {
-    id: 'grok-4-3',
-    name: 'Grok 4.3',
-    provider: 'xai',
-    icon: 'xai',
-    isLocked: true,
-    isPro: true,
-    group: 'xAI (Grok Series)',
-    description: 'Candid and direct intelligence by xAI',
-    desc: 'Candid and direct intelligence by xAI',
-    color: 'bg-zinc-900',
-    openRouterModel: 'x-ai/grok-4.3'
-  },
-  {
-    id: 'grok-4-7',
-    name: 'Grok 4.7',
-    provider: 'xai',
-    icon: 'xai',
-    isLocked: true,
-    isPro: true,
-    badge: 'New',
-    tag: 'New',
-    group: 'xAI (Grok Series)',
-    description: 'Advanced frontier reasoning and depth',
-    desc: 'Advanced frontier reasoning and depth',
-    color: 'bg-zinc-900',
-    openRouterModel: 'x-ai/grok-4.7'
-  },
-
-  // 6. Other Providers (Qwen & Kimi):
-  {
     id: 'qwen-2.5-coder',
-    name: 'Qwen 2.5 Coder',
+    name: 'Qwen 2.5 Coder 32B',
     provider: 'qwen',
     icon: 'qwen',
-    isLocked: true,
-    isPro: true,
-    group: 'Other Providers (Qwen & Kimi)',
-    description: 'Advanced coding & reasoning by Alibaba',
-    desc: 'Advanced coding & reasoning by Alibaba',
+    isLocked: false,
+    isPro: false,
+    group: 'Open & Specialized',
+    description: 'Specialized code generation & debugging by Alibaba',
+    desc: 'Specialized code generation & debugging by Alibaba',
     color: 'bg-indigo-600',
     openRouterModel: 'qwen/qwen-2.5-coder-32b-instruct'
   },
   {
-    id: 'qwen-3.8-max',
-    name: 'Qwen 3.8 Max',
+    id: 'qwen-2.5-72b',
+    name: 'Qwen 2.5 72B',
     provider: 'qwen',
     icon: 'qwen',
     isLocked: true,
     isPro: true,
-    badge: 'Thinking',
-    tag: 'Thinking',
-    group: 'Other Providers (Qwen & Kimi)',
-    description: 'Dense thinking and complex problem solving',
-    desc: 'Dense thinking and complex problem solving',
+    group: 'Open & Specialized',
+    description: 'High-capacity multilingual model by Alibaba',
+    desc: 'High-capacity multilingual model by Alibaba',
     color: 'bg-orange-600',
-    openRouterModel: 'qwen/qwen3.8-max-0902'
+    openRouterModel: 'qwen/qwen-2.5-72b-instruct'
   },
   {
-    id: 'kimi-k3',
-    name: 'Kimi K3',
-    provider: 'kimi',
-    icon: 'kimi',
+    id: 'mistral-small',
+    name: 'Mistral Small 24B',
+    provider: 'mistral',
+    icon: 'mistral',
+    isLocked: false,
+    isPro: false,
+    group: 'Open & Specialized',
+    description: 'Compact, fast European instruction model',
+    desc: 'Compact, fast European instruction model',
+    color: 'bg-orange-500',
+    openRouterModel: 'mistralai/mistral-small-24b-instruct-2501'
+  },
+  {
+    id: 'nemotron-fast',
+    name: 'Nemotron 70B',
+    provider: 'nvidia',
+    icon: 'nvidia',
+    isLocked: false,
+    isPro: false,
+    group: 'Open & Specialized',
+    description: 'NVIDIA Llama 3.1 Nemotron 70B Instruct',
+    desc: 'NVIDIA Llama 3.1 Nemotron 70B Instruct',
+    color: 'bg-lime-600',
+    openRouterModel: 'nvidia/llama-3.1-nemotron-70b-instruct'
+  },
+  {
+    id: 'grok-2',
+    name: 'Grok 2',
+    provider: 'xai',
+    icon: 'xai',
     isLocked: true,
     isPro: true,
-    badge: 'Thinking',
-    tag: 'Thinking',
-    group: 'Other Providers (Qwen & Kimi)',
-    description: 'Deep chain-of-thought mathematical reasoning',
-    desc: 'Deep chain-of-thought mathematical reasoning',
+    group: 'xAI',
+    description: 'Direct, candid intelligence by xAI',
+    desc: 'Direct, candid intelligence by xAI',
     color: 'bg-zinc-900',
-    openRouterModel: 'moonshotai/kimi-k3'
+    openRouterModel: 'x-ai/grok-2-1212'
   }
 ];
 
-export const UNLIMITED_MODELS: AIModel[] = [MODELS[0]];
-export const PREMIUM_MODELS: AIModel[] = MODELS.slice(1);
+export const UNLIMITED_MODELS: AIModel[] = MODELS.filter(m => !m.isPro);
+export const PREMIUM_MODELS: AIModel[] = MODELS.filter(m => m.isPro);
 
 export const DEFAULT_MODEL_LABEL = 'Model';
 export const DEFAULT_MODEL_ID = 'mahi-engine';
-export const DEFAULT_MODEL_NAME = 'Mahi Engine (Standard)';
+export const DEFAULT_MODEL_NAME = 'Mahi Engine';

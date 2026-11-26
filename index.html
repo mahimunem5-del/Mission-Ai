@@ -31,16 +31,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" integrity="sha384-Uq05+JLko69eOiPr39ta9bh7kld5PKZoU+fF7g0EXTAriEollhZ+DrN8Q/Oi8J2Q" crossorigin="anonymous"></script>
     <!-- Mermaid Diagram & Flowchart Rendering Engine (Mermaid 10.9.1) -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" integrity="sha384-WmdflGW9aGfoBdHc4rRyWzYuAjEmDwMdGdiPNacbwfGKxBW/SO6guzuQ76qjnSlr" crossorigin="anonymous"></script>
-    <!-- Google Fonts: Inter, Instrument Serif, Plus Jakarta Sans -->
+    <!-- Chart.js Data Visualization Presentation Engine (Chart.js 4.4.7 UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" integrity="sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC" crossorigin="anonymous"></script>
+    <!-- Google Fonts: Inter, Instrument Serif, Plus Jakarta Sans, and Noto Sans Multi-Script -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans Arabic', 'Noto Sans Bengali', 'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
             background-color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* ─── Dedicated Standalone Mobile Images Workspace UI (< 768px) ─── */
@@ -1399,7 +1401,6 @@
 
         /* ─── PERPLEXITY AI TYPOGRAPHY SCALE (GLOBAL) ───────────────────── */
 
-        /* User Message Bubble Typography */
         .user-message-bubble,
         #messages-container .user-message-bubble,
         #project-chat-messages .user-message-bubble {
@@ -1409,327 +1410,64 @@
             letter-spacing: -0.005em;
         }
 
-        /* AI Assistant Markdown / Response Typography Scale */
-        .prose-chat,
-        .chat-markdown,
-        .prose-perplexity,
-        #messages-container .prose-chat,
-        #project-chat-messages .prose-chat {
-            font-size: 16px !important;
-            line-height: 1.65 !important;
-            letter-spacing: -0.011em;
-            color: #27272a;
-            /* text-zinc-800 */
-        }
-
-        html.dark .prose-chat,
-        html.dark .chat-markdown,
-        html.dark .prose-perplexity,
-        html.dark #messages-container .prose-chat,
-        html.dark #project-chat-messages .prose-chat {
-            color: #f4f4f5;
-            /* text-zinc-100 */
-        }
-
-        /* Base Body Paragraphs */
-        .prose-chat p,
-        .chat-markdown p,
-        .prose-perplexity p,
-        #messages-container .prose-chat p,
-        #project-chat-messages .prose-chat p {
-            font-size: 16px !important;
-            line-height: 1.65 !important;
-            margin-top: 0;
-            margin-bottom: 0.75rem !important;
-            /* 12px */
-            letter-spacing: -0.011em;
-        }
-
-        .prose-chat p:last-child,
-        .chat-markdown p:last-child,
-        .prose-perplexity p:last-child {
-            margin-bottom: 0 !important;
-        }
-
-        /* Headings */
-        .prose-chat h1,
-        .chat-markdown h1,
-        .prose-perplexity h1 {
-            font-size: 1.5rem !important;
-            /* 24px */
-            line-height: 1.25 !important;
-            /* leading-tight */
-            font-weight: 600 !important;
-            letter-spacing: -0.02em;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #18181b;
-        }
-
-        html.dark .prose-chat h1,
-        html.dark .chat-markdown h1,
-        html.dark .prose-perplexity h1 {
-            color: #fafafa;
-        }
-
-        .prose-chat h2,
-        .chat-markdown h2,
-        .prose-perplexity h2 {
-            font-size: 1.25rem !important;
-            /* 20px */
-            line-height: 1.35 !important;
-            /* leading-snug */
-            font-weight: 600 !important;
-            letter-spacing: -0.018em;
-            margin-top: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: #18181b;
-        }
-
-        html.dark .prose-chat h2,
-        html.dark .chat-markdown h2,
-        html.dark .prose-perplexity h2 {
-            color: #fafafa;
-        }
-
-        .prose-chat h3,
-        .chat-markdown h3,
-        .prose-perplexity h3 {
-            font-size: 1.125rem !important;
-            /* 18px */
-            line-height: 1.4 !important;
-            font-weight: 600 !important;
-            letter-spacing: -0.015em;
-            margin-top: 1rem;
-            margin-bottom: 0.375rem;
-            color: #18181b;
-        }
-
-        html.dark .prose-chat h3,
-        html.dark .chat-markdown h3,
-        html.dark .prose-perplexity h3 {
-            color: #fafafa;
-        }
-
-        .prose-chat h4,
-        .chat-markdown h4,
-        .prose-perplexity h4 {
-            font-size: 1rem !important;
-            /* 16px */
-            line-height: 1.45 !important;
-            font-weight: 600 !important;
-            margin-top: 0.875rem;
-            margin-bottom: 0.25rem;
-            color: #18181b;
-        }
-
-        html.dark .prose-chat h4,
-        html.dark .chat-markdown h4,
-        html.dark .prose-perplexity h4 {
-            color: #fafafa;
-        }
-
-        /* List Items */
-        .prose-chat ul,
-        .chat-markdown ul,
-        .prose-perplexity ul {
-            list-style-type: disc;
-            padding-left: 1.375rem;
-            margin-top: 0.375rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .prose-chat ol,
-        .chat-markdown ol,
-        .prose-perplexity ol {
-            list-style-type: decimal;
-            padding-left: 1.375rem;
-            margin-top: 0.375rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .prose-chat li,
-        .chat-markdown li,
-        .prose-perplexity li {
-            font-size: 16px !important;
-            line-height: 1.65 !important;
-            margin-top: 0.375rem !important;
-            /* gap-1.5 / 6px */
-            margin-bottom: 0.375rem !important;
-            padding-left: 0.125rem;
-            letter-spacing: -0.011em;
-        }
-
-        .prose-chat li::marker,
-        .chat-markdown li::marker,
-        .prose-perplexity li::marker {
-            color: #a1a1aa;
-            /* zinc-400 */
-        }
-
-        html.dark .prose-chat li::marker,
-        html.dark .chat-markdown li::marker,
-        html.dark .prose-perplexity li::marker {
-            color: #71717a;
-            /* zinc-500 */
-        }
-
-        /* Inline Code */
-        .prose-chat :not(pre)>code,
-        .chat-markdown :not(pre)>code,
-        .prose-perplexity :not(pre)>code {
-            font-size: 14px !important;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-            padding: 0.15rem 0.375rem !important;
-            border-radius: 0.375rem !important;
-            background-color: #f4f4f5 !important;
-            /* zinc-100 */
-            border: 1px solid rgba(228, 228, 231, 0.8) !important;
-            /* zinc-200 */
-            color: #27272a !important;
-            /* zinc-800 */
-            word-break: break-word;
-        }
-
-        html.dark .prose-chat :not(pre)>code,
-        html.dark .chat-markdown :not(pre)>code,
-        html.dark .prose-perplexity :not(pre)>code {
-            background-color: rgba(39, 39, 42, 0.8) !important;
-            /* zinc-800 */
-            border-color: rgba(63, 63, 70, 0.7) !important;
-            /* zinc-700 */
-            color: #e4e4e7 !important;
-            /* zinc-200 */
-        }
-
-        /* Code Blocks */
-        .prose-chat pre,
-        .chat-markdown pre,
-        .prose-perplexity pre {
-            font-size: 13.5px !important;
-            /* 13.5px - 14px */
-            line-height: 1.5 !important;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-            background-color: #fafafa !important;
-            border: 1px solid #e4e4e7 !important;
-            border-radius: 0.75rem !important;
-            /* rounded-xl */
-            padding: 0.875rem 1rem !important;
-            margin-top: 0.75rem !important;
-            margin-bottom: 0.75rem !important;
-            overflow-x: auto;
-            color: #18181b !important;
-        }
-
-        html.dark .prose-chat pre,
-        html.dark .chat-markdown pre,
-        html.dark .prose-perplexity pre {
-            background-color: #18181b !important;
-            border-color: #27272a !important;
-            color: #f4f4f5 !important;
-        }
-
-        .prose-chat pre code,
-        .chat-markdown pre code,
-        .prose-perplexity pre code {
-            font-size: 13.5px !important;
-            line-height: 1.5 !important;
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            color: inherit !important;
-        }
-
-        /* Blockquotes / Notes */
-        .prose-chat blockquote,
-        .chat-markdown blockquote,
-        .prose-perplexity blockquote {
-            font-size: 15.5px !important;
-            /* 15px - 16px */
-            line-height: 1.6 !important;
-            font-style: italic;
-            border-left: 3px solid #d4d4d8 !important;
-            /* zinc-300 */
-            padding-left: 0.875rem !important;
-            padding-top: 0.25rem !important;
-            padding-bottom: 0.25rem !important;
-            margin-top: 0.75rem !important;
-            margin-bottom: 0.75rem !important;
-            color: #52525b !important;
-            /* zinc-600 */
-        }
-
-        html.dark .prose-chat blockquote,
-        html.dark .chat-markdown blockquote,
-        html.dark .prose-perplexity blockquote {
-            border-left-color: #52525b !important;
-            color: #a1a1aa !important;
-            /* zinc-400 */
-        }
-
-        /* Strong / Bold */
-        .prose-chat strong,
-        .chat-markdown strong,
-        .prose-perplexity strong {
-            font-weight: 600 !important;
-            color: #18181b;
-        }
-
-        html.dark .prose-chat strong,
-        html.dark .chat-markdown strong,
-        html.dark .prose-perplexity strong {
-            color: #ffffff;
-        }
-
-        /* Emphasis / Italic */
-        .prose-chat em,
-        .chat-markdown em,
-        .prose-perplexity em {
-            font-style: italic;
-            color: #52525b;
-        }
-
-        html.dark .prose-chat em,
-        html.dark .chat-markdown em,
-        html.dark .prose-perplexity em {
-            color: #d4d4d8;
-        }
-
-        /* Links */
-        .prose-chat a,
-        .chat-markdown a,
-        .prose-perplexity a {
-            color: #2563eb;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-
-        html.dark .prose-chat a,
-        html.dark .chat-markdown a,
-        html.dark .prose-perplexity a {
-            color: #60a5fa;
-        }
-
         /* ─── SCOPED DESKTOP CHAT RESPONSE TYPOGRAPHY (.chat-response-prose) ─── */
-        .chat-response-prose {
-            font-size: 16px;
-            line-height: 1.7;
-            letter-spacing: -0.011em;
-            color: #27272a;
-            word-break: break-word;
+        :root {
+            --chat-text: #1f1f1f;
+            --chat-heading: #18181b;
+            --chat-muted: #71717a;
+            --chat-border: #e4e4e7;
+            --chat-inline-code-bg: rgba(113, 113, 122, 0.12);
+            --chat-table-head-bg: #f4f4f5;
+            --chat-accent: #2563eb;
+            --chat-user-bubble-bg: #f4f4f5;
+            --chat-user-bubble-text: #18181b;
         }
 
-        html.dark .chat-response-prose {
-            color: #f4f4f5;
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) {
+                --chat-text: #e4e4e7;
+                --chat-heading: #fafafa;
+                --chat-muted: #a1a1aa;
+                --chat-border: #27272a;
+                --chat-inline-code-bg: rgba(255, 255, 255, 0.1);
+                --chat-table-head-bg: #27272a;
+                --chat-accent: #60a5fa;
+                --chat-user-bubble-bg: #27272a;
+                --chat-user-bubble-text: #f4f4f5;
+            }
+        }
+
+        html.dark {
+            --chat-text: #e4e4e7;
+            --chat-heading: #fafafa;
+            --chat-muted: #a1a1aa;
+            --chat-border: #27272a;
+            --chat-inline-code-bg: rgba(255, 255, 255, 0.1);
+            --chat-table-head-bg: #27272a;
+            --chat-accent: #60a5fa;
+            --chat-user-bubble-bg: #27272a;
+            --chat-user-bubble-text: #f4f4f5;
+        }
+
+        .chat-response-prose {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans Arabic', 'Noto Sans Bengali', 'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+            font-size: 15.5px;
+            line-height: 1.72;
+            letter-spacing: -0.005em;
+            color: var(--chat-text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         /* Paragraphs */
         .chat-response-prose p {
-            font-size: 16px;
-            line-height: 1.7;
+            font-size: 15.5px;
+            line-height: 1.72;
             margin-top: 0;
-            margin-bottom: 0.85rem;
-            letter-spacing: -0.011em;
+            margin-bottom: 1em;
+            letter-spacing: -0.005em;
         }
 
         .chat-response-prose p:last-child {
@@ -1738,92 +1476,205 @@
 
         /* Headings Hierarchy */
         .chat-response-prose h1 {
-            font-size: 24px;
-            line-height: 1.3;
+            font-size: 1.5em;
+            line-height: 1.35;
             font-weight: 600;
             letter-spacing: -0.02em;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #18181b;
-        }
-
-        html.dark .chat-response-prose h1 {
-            color: #fafafa;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: var(--chat-heading);
         }
 
         .chat-response-prose h2 {
-            font-size: 20px;
-            line-height: 1.35;
+            font-size: 18px;
+            line-height: 1.4;
             font-weight: 600;
-            letter-spacing: -0.018em;
-            margin-top: 1.25rem;
+            letter-spacing: -0.014em;
+            margin-top: 1.5rem;
             margin-bottom: 0.5rem;
-            color: #18181b;
-        }
-
-        html.dark .chat-response-prose h2 {
-            color: #fafafa;
+            color: var(--chat-heading);
         }
 
         .chat-response-prose h3 {
-            font-size: 17px;
-            line-height: 1.4;
+            font-size: 16px;
+            line-height: 1.45;
             font-weight: 600;
-            letter-spacing: -0.015em;
-            margin-top: 1rem;
+            letter-spacing: -0.01em;
+            margin-top: 1.25rem;
             margin-bottom: 0.375rem;
-            color: #18181b;
-        }
-
-        html.dark .chat-response-prose h3 {
-            color: #fafafa;
+            color: var(--chat-heading);
         }
 
         .chat-response-prose h4 {
-            font-size: 15px;
-            line-height: 1.45;
+            font-size: 1em;
+            line-height: 1.5;
             font-weight: 600;
-            margin-top: 0.875rem;
-            margin-bottom: 0.25rem;
-            color: #18181b;
+            margin-top: 1.25em;
+            margin-bottom: 0.35em;
+            color: var(--chat-heading);
         }
 
-        html.dark .chat-response-prose h4 {
-            color: #fafafa;
+        .chat-response-prose > h1:first-child,
+        .chat-response-prose > h2:first-child,
+        .chat-response-prose > h3:first-child {
+            margin-top: 0;
         }
 
         /* Lists - Ordered & Unordered with True Hanging Indent */
         .chat-response-prose ul {
             list-style-type: disc;
             list-style-position: outside;
-            padding-left: 1.5rem;
-            margin-top: 0.4rem;
-            margin-bottom: 0.85rem;
+            padding-inline-start: 1.5rem;
+            margin-top: 0.4em;
+            margin-bottom: 1em;
         }
 
         .chat-response-prose ol {
             list-style-type: decimal;
             list-style-position: outside;
-            padding-left: 1.5rem;
-            margin-top: 0.4rem;
-            margin-bottom: 0.85rem;
+            padding-inline-start: 1.5rem;
+            margin-top: 0.4em;
+            margin-bottom: 1em;
         }
 
         .chat-response-prose li {
-            font-size: 16px;
-            line-height: 1.7;
-            margin-top: 0.25rem;
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.011em;
+            font-size: 15.5px;
+            line-height: 1.72;
+            margin: 0.35em 0;
+            letter-spacing: -0.005em;
+            color: #0d0d0d;
         }
 
+        html.dark .chat-response-prose li {
+            color: #f4f4f5;
+        }
+
+        .chat-response-prose li > p {
+            margin-bottom: 0.35em;
+        }
+
+        .chat-response-prose ul > li::marker,
+        .chat-response-prose ol > li::marker,
         .chat-response-prose li::marker {
-            color: #a1a1aa;
+            color: #0d0d0d;
         }
 
+        html.dark .chat-response-prose ul > li::marker,
+        html.dark .chat-response-prose ol > li::marker,
         html.dark .chat-response-prose li::marker {
-            color: #71717a;
+            color: #f4f4f5;
         }
+
+        /* Inline code */
+        .chat-response-prose :not(pre) > code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.9em;
+            background: var(--chat-inline-code-bg);
+            padding: 0.15em 0.38em;
+            border-radius: 6px;
+            color: var(--chat-heading);
+            word-break: break-word;
+        }
+
+        /* Tables */
+        .chat-response-prose table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+
+        .chat-response-prose th {
+            background: transparent;
+            color: #0d0d0d;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-align: start;
+            padding-block: 0.625rem;
+            padding-inline-end: 1.25rem;
+            padding-inline-start: 0.25rem;
+            border-bottom: 1px solid #e5e5e5;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
+
+        html.dark .chat-response-prose th {
+            color: #fafafa;
+            border-bottom-color: #27272a;
+        }
+
+        .chat-response-prose td {
+            padding-block: 0.75rem;
+            padding-inline-end: 1.25rem;
+            padding-inline-start: 0.25rem;
+            text-align: start;
+            border-bottom: 1px solid #ececec;
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #1f1f1f;
+            vertical-align: top;
+        }
+
+        html.dark .chat-response-prose td {
+            color: #e4e4e7;
+            border-bottom-color: #27272a;
+        }
+
+        .chat-response-prose td:first-child {
+            font-weight: 500;
+            color: #0d0d0d;
+            white-space: nowrap;
+        }
+
+        html.dark .chat-response-prose td:first-child {
+            color: #fafafa;
+        }
+
+        .chat-response-prose tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Streaming Caret & 3-Dot Thinking Indicator */
+        @keyframes mestrioCaretBlink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .chat-response-prose[data-streaming="true"] > *:last-child::after {
+            content: '';
+            display: inline-block;
+            width: 2px;
+            height: 1.05em;
+            margin-inline-start: 3px;
+            vertical-align: text-bottom;
+            background-color: var(--chat-accent);
+            border-radius: 1px;
+            animation: mestrioCaretBlink 1s steps(1) infinite;
+        }
+
+        @keyframes mestrioDotPulse {
+            0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        .thinking-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 2px;
+        }
+
+        .thinking-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 9999px;
+            background-color: var(--chat-muted);
+            animation: mestrioDotPulse 1.3s ease-in-out infinite;
+        }
+
+        .thinking-dots span:nth-child(2) { animation-delay: 0.18s; }
+        .thinking-dots span:nth-child(3) { animation-delay: 0.36s; }
 
         /* Nested Lists Hierarchy & Markers */
         .chat-response-prose ul ul,
@@ -1832,11 +1683,11 @@
         .chat-response-prose ol ul {
             margin-top: 0.25rem;
             margin-bottom: 0.25rem;
-            padding-left: 1.25rem;
+            padding-inline-start: 1.25rem;
         }
 
         .chat-response-prose ul ul {
-            list-style-type: circle;
+            list-style-type: disc;
         }
 
         .chat-response-prose ul ul ul {
@@ -1854,7 +1705,7 @@
         /* GFM Task Lists (Checklists) */
         .chat-response-prose .task-list-item {
             list-style-type: none;
-            margin-left: -1.25rem;
+            margin-inline-start: -1.25rem;
             display: flex;
             align-items: baseline;
             gap: 0.5rem;
@@ -1879,10 +1730,11 @@
         /* Blockquotes & Multi-Line Blockquotes */
         .chat-response-prose blockquote {
             font-size: 15.5px;
-            line-height: 1.6;
+            line-height: 1.65;
             font-style: italic;
-            border-left: 3px solid #d4d4d8;
-            padding-left: 0.875rem;
+            border-inline-start: 3px solid #d4d4d8;
+            padding-inline-start: 0.875rem;
+            padding-inline-end: 1rem;
             padding-top: 0.25rem;
             padding-bottom: 0.25rem;
             margin-top: 0.85rem;
@@ -1891,7 +1743,7 @@
         }
 
         html.dark .chat-response-prose blockquote {
-            border-left-color: #52525b;
+            border-inline-start-color: #52525b;
             color: #a1a1aa;
         }
 
@@ -1972,13 +1824,21 @@
         }
 
         /* ─── PHASE 2: PREMIUM CODE BLOCK UI & DUAL-THEME PRISM SYNTAX ─── */
+        .chat-response-prose pre,
+        .chat-response-prose code,
+        .prose-chat pre,
+        .prose-chat code {
+            direction: ltr;
+            unicode-bidi: isolate;
+        }
+
         .chat-response-prose .code-block-wrapper {
             border-radius: 0.75rem;
             overflow: hidden;
-            margin: 1.1rem 0;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            margin: 1.25rem 0;
+            border: 1px solid #e5e5e5;
+            background: #f9f9f9;
+            direction: ltr;
             transition: border-color 0.15s ease;
         }
         html.dark .chat-response-prose .code-block-wrapper {
@@ -1991,11 +1851,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.45rem 0.85rem;
-            background: #f1f5f9;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 11px;
-            color: #64748b;
+            padding: 0.5rem 1rem;
+            background: #efefef;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 12px;
+            color: #5e5e5e;
             user-select: none;
         }
         html.dark .chat-response-prose .code-block-header {
@@ -2006,11 +1866,9 @@
 
         .chat-response-prose .code-block-header .lang-badge {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: #475569;
+            font-size: 12px;
+            font-weight: 500;
+            color: #5e5e5e;
         }
         html.dark .chat-response-prose .code-block-header .lang-badge {
             color: #cdd6f4;
@@ -2180,19 +2038,19 @@
             box-sizing: border-box;
             margin: 1.1rem 0;
             padding: 1.25rem 1rem;
-            border-radius: 0.75rem;
-            border: 1px solid rgba(228, 228, 231, 0.9);
+            border-radius: 0.875rem;
+            border: 1px solid #ececec;
             background-color: #ffffff;
             overflow-x: auto;
             text-align: center;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            box-shadow: none;
             transition: background-color 0.15s ease, border-color 0.15s ease;
         }
 
         html.dark .chat-response-prose .mermaid-diagram-wrapper,
         html.dark .mermaid-diagram-wrapper {
-            border-color: rgba(63, 63, 70, 0.7);
-            background-color: rgba(24, 24, 27, 0.5);
+            border-color: rgba(63, 63, 70, 0.55);
+            background-color: rgba(24, 24, 27, 0.45);
             box-shadow: none;
         }
 
@@ -2226,6 +2084,58 @@
 
         html.dark .chat-response-prose .mermaid-streaming-wrapper,
         html.dark .mermaid-streaming-wrapper {
+            border-color: rgba(63, 63, 70, 0.7);
+            background-color: rgba(24, 24, 27, 0.3);
+        }
+
+        /* ─── SCOPED CHART.JS DATA VISUALIZATION STYLES (.chart-visualization-wrapper) ─── */
+        .chat-response-prose .chart-visualization-wrapper,
+        .chart-visualization-wrapper {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin: 1.1rem 0;
+            padding: 1.25rem 1rem;
+            border-radius: 0.875rem;
+            border: 1px solid #ececec;
+            background-color: #ffffff;
+            overflow-x: auto;
+            text-align: center;
+            box-shadow: none;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        html.dark .chat-response-prose .chart-visualization-wrapper,
+        html.dark .chart-visualization-wrapper {
+            border-color: rgba(63, 63, 70, 0.5);
+            background-color: rgba(24, 24, 27, 0.45);
+            box-shadow: none;
+        }
+
+        .chart-visualization-wrapper[data-chart-rendered="error"] {
+            padding: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .chat-response-prose .chart-streaming-wrapper,
+        .chart-streaming-wrapper {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin: 1.1rem 0;
+            padding: 1.5rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px dashed rgba(212, 212, 216, 0.9);
+            background-color: rgba(244, 244, 245, 0.5);
+            text-align: center;
+        }
+
+        html.dark .chat-response-prose .chart-streaming-wrapper,
+        html.dark .chart-streaming-wrapper {
             border-color: rgba(63, 63, 70, 0.7);
             background-color: rgba(24, 24, 27, 0.3);
         }
@@ -4930,9 +4840,18 @@
 
             <!-- Messages Container (Visible when current conversation has messages) -->
             <div id="messages-container"
-                class="hidden w-full flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-6 min-h-0">
-                <div id="messages-content-wrapper" class="w-full flex-1 flex flex-col gap-6 min-h-0"></div>
+                class="hidden w-full flex-1 overflow-y-auto py-6 flex flex-col min-h-0 relative">
+                <div id="messages-content-wrapper" class="w-full max-w-[768px] mx-auto px-4 sm:px-6 flex-1 flex flex-col space-y-6 min-h-0"></div>
             </div>
+
+            <!-- Floating Scroll-to-Latest Button -->
+            <button type="button" id="scroll-to-latest-btn" aria-label="Scroll to latest" title="Scroll to latest"
+                class="hidden fixed bottom-36 left-1/2 -translate-x-1/2 z-30 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 shadow-md hover:bg-zinc-50 dark:hover:bg-zinc-700 text-xs font-medium transition-all cursor-pointer">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>
+                </svg>
+                <span>Scroll to latest</span>
+            </button>
 
             <!-- Chat Box Area -->
             <div id="chat-box-area" class="relative w-full max-w-3xl mx-auto flex flex-col items-center z-10">
@@ -4962,7 +4881,7 @@
 
                 <!-- 2. Flat Minimalist Chat Box (Perplexity AI Style) -->
                 <div id="chat-input-card"
-                    class="w-full bg-white dark:bg-[#202020] rounded-2xl border border-gray-200/90 dark:border-[#2e2e2e] shadow-xs px-4 pt-3 pb-2.5 relative z-10 focus-within:border-slate-300 dark:focus-within:border-zinc-600/30 min-h-[124px] flex flex-col justify-between">
+                    class="w-full bg-white dark:bg-[#202020] rounded-[24px] border border-gray-200/90 dark:border-[#2e2e2e] shadow-sm px-4 pt-3.5 pb-2.5 relative z-10 focus-within:border-blue-400/60 dark:focus-within:border-blue-500/40 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all min-h-[124px] flex flex-col justify-between">
                     <!-- Attachment Preview Chips Container -->
                     <div id="attachment-preview-container" class="hidden flex flex-wrap gap-2 mb-2"></div>
 
@@ -5367,6 +5286,30 @@
                 <div id="incognito-footnote"
                     class="hidden text-xs text-zinc-400 dark:text-zinc-500 text-center mt-3 select-none">
                     Sessions you create won't save to your history and expire after 24 hours
+                </div>
+
+                <!-- 4 Quick-Prompt Cards (Empty State) -->
+                <div id="hero-quick-prompts" class="w-full max-w-3xl mx-auto mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 px-1">
+                    <button type="button" data-quick-prompt="Explain quantum computing in simple terms"
+                        class="quick-prompt-card text-left p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-[#202020]/80 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Explain a concept</div>
+                        <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">Quantum computing simply</div>
+                    </button>
+                    <button type="button" data-quick-prompt="Write a clean Python function to merge two sorted lists"
+                        class="quick-prompt-card text-left p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-[#202020]/80 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Write clean code</div>
+                        <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">Merge two sorted lists in Python</div>
+                    </button>
+                    <button type="button" data-quick-prompt="Compare React vs Vue in a concise table"
+                        class="quick-prompt-card text-left p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-[#202020]/80 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Compare options</div>
+                        <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">React vs Vue comparison table</div>
+                    </button>
+                    <button type="button" data-quick-prompt="hello vaiya tumi ki ki korte paro"
+                        class="quick-prompt-card text-left p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/80 dark:bg-[#202020]/80 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Chat in Banglish</div>
+                        <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">Ask Mahi what it can help with</div>
+                    </button>
                 </div>
 
                 <!-- Inert template for legacy tests (No visual or layout presence) -->
@@ -14000,45 +13943,64 @@
             }
         }
 
-        const AVAILABLE_MODELS = [
+        let AVAILABLE_MODELS = [
             // 0. Default Engine
-            { id: 'mahi-engine', name: 'Mahi Engine (Standard)', provider: 'custom', icon: 'zap', isLocked: false, isPro: false, isDefault: true, group: 'Default Engine', desc: 'Fast, efficient everyday standard engine', openRouterModel: 'mahi-engine' },
+            { id: 'mahi-engine', name: 'Mahi Engine', provider: 'custom', icon: 'zap', isLocked: false, isPro: false, isDefault: true, group: 'Default Engine', desc: 'Fast, balanced everyday assistant by Mestrio AI', openRouterModel: 'mahi-engine' },
 
-            // 1. OpenAI (ChatGPT Series)
-            { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'openai', icon: 'openai', isLocked: true, isPro: true, group: 'OpenAI (ChatGPT Series)', desc: 'Lightweight multimodal model by OpenAI', openRouterModel: 'openai/gpt-5-mini' },
-            { id: 'o3-mini', name: 'o3-mini', provider: 'openai', icon: 'openai', isLocked: true, isPro: true, group: 'OpenAI (ChatGPT Series)', desc: 'High-speed reasoning model by OpenAI', openRouterModel: 'openai/o3-mini' },
-            { id: 'gpt-6-sol', name: 'GPT-6 Sol', provider: 'openai', icon: 'openai', isLocked: true, isPro: true, badge: 'New', tag: 'New', group: 'OpenAI (ChatGPT Series)', desc: 'Frontier breakthrough model with solar reasoning', openRouterModel: 'openai/gpt-6-sol' },
+            // 1. OpenAI
+            { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', icon: 'openai', isLocked: false, isPro: false, group: 'OpenAI', desc: 'Fast, affordable everyday model by OpenAI', openRouterModel: 'openai/gpt-4o-mini' },
+            { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', icon: 'openai', isLocked: true, isPro: true, group: 'OpenAI', desc: 'Flagship multimodal model by OpenAI', openRouterModel: 'openai/gpt-4o' },
+            { id: 'o3-mini', name: 'o3-mini', provider: 'openai', icon: 'openai', isLocked: true, isPro: true, badge: 'Thinking', tag: 'Thinking', group: 'OpenAI', desc: 'High-speed STEM & logic reasoning by OpenAI', openRouterModel: 'openai/o3-mini' },
 
-            // 2. Google (Gemini Series)
-            { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'google', icon: 'gemini', isLocked: true, isPro: true, group: 'Google (Gemini Series)', desc: 'Next-gen multimodal speed by Google', openRouterModel: 'google/gemini-2.5-flash' },
-            { id: 'gemini-3.8-flash', name: 'Gemini 3.8 Flash', provider: 'google', icon: 'gemini', isLocked: true, isPro: true, badge: 'New', tag: 'New', group: 'Google (Gemini Series)', desc: 'State-of-the-art multimodal frontier speed', openRouterModel: 'google/gemini-3.8-flash' },
-            { id: 'gemini-3.1-pro', name: 'Gemini 3.1 Pro', provider: 'google', icon: 'gemini', isLocked: true, isPro: true, group: 'Google (Gemini Series)', desc: 'Frontier reasoning and multimodality by Google', openRouterModel: 'google/gemini-3.1-pro-preview' },
+            // 2. Google
+            { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'google', icon: 'gemini', isLocked: false, isPro: false, group: 'Google', desc: 'Low-latency multimodal model by Google', openRouterModel: 'google/gemini-2.5-flash' },
+            { id: 'gemini-3.1-pro', name: 'Gemini 3.1 Pro', provider: 'google', icon: 'gemini', isLocked: true, isPro: true, group: 'Google', desc: 'Deep reasoning & long-context model by Google', openRouterModel: 'google/gemini-3.1-pro-preview' },
 
-            // 3. Anthropic (Claude Series)
-            { id: 'claude-4-5-haiku', name: 'Claude 4.5 Haiku', provider: 'anthropic', icon: 'anthropic', isLocked: true, isPro: true, group: 'Anthropic (Claude Series)', desc: 'High-speed intelligence by Anthropic', openRouterModel: 'anthropic/claude-haiku-4.5' },
-            { id: 'claude-sonnet-5', name: 'Claude Sonnet 5', provider: 'anthropic', icon: 'anthropic', isLocked: true, isPro: true, group: 'Anthropic (Claude Series)', desc: 'Exceptional deep coding and nuanced thinking', openRouterModel: 'anthropic/claude-sonnet-5' },
-            { id: 'claude-opus-5.5', name: 'Claude Opus 5.5', provider: 'anthropic', icon: 'anthropic', isLocked: true, isPro: true, group: 'Anthropic (Claude Series)', desc: 'Maximum intelligence for complex synthesis', openRouterModel: 'anthropic/claude-opus-5.5' },
+            // 3. Anthropic
+            { id: 'claude-4-5-haiku', name: 'Claude 4.5 Haiku', provider: 'anthropic', icon: 'anthropic', isLocked: true, isPro: true, group: 'Anthropic', desc: 'Fast, crisp intelligence by Anthropic', openRouterModel: 'anthropic/claude-haiku-4.5' },
+            { id: 'claude-3-5-sonnet', name: 'Claude 3.5 Sonnet', provider: 'anthropic', icon: 'anthropic', isLocked: true, isPro: true, group: 'Anthropic', desc: 'Exceptional coding & nuanced writing by Anthropic', openRouterModel: 'anthropic/claude-3-5-sonnet' },
+            { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'anthropic', icon: 'anthropic', isLocked: true, isPro: true, group: 'Anthropic', desc: 'Deep synthesis & complex analysis by Anthropic', openRouterModel: 'anthropic/claude-3-opus' },
 
-            // 4. DeepSeek Series
-            { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'deepseek', icon: 'deepseek', isLocked: true, isPro: true, group: 'DeepSeek Series', desc: 'Ultra-fast open architecture reasoning', openRouterModel: 'deepseek/deepseek-v4-flash-0731' },
-            { id: 'deepseek-r1', name: 'DeepSeek R1', provider: 'deepseek', icon: 'deepseek', isLocked: true, isPro: true, badge: 'Thinking', tag: 'Thinking', group: 'DeepSeek Series', desc: 'Open reasoning model with deep chain-of-thought', openRouterModel: 'deepseek/deepseek-r1' },
-            { id: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro', provider: 'deepseek', icon: 'deepseek', isLocked: true, isPro: true, group: 'DeepSeek Series', desc: 'Unconstrained mathematical & coding performance', openRouterModel: 'deepseek/deepseek-v4-pro-0813' },
+            // 4. DeepSeek
+            { id: 'deepseek-chat', name: 'DeepSeek V3', provider: 'deepseek', icon: 'deepseek', isLocked: false, isPro: false, group: 'DeepSeek', desc: 'Fast, capable open-weights model', openRouterModel: 'deepseek/deepseek-chat' },
+            { id: 'deepseek-r1', name: 'DeepSeek R1', provider: 'deepseek', icon: 'deepseek', isLocked: true, isPro: true, badge: 'Thinking', tag: 'Thinking', group: 'DeepSeek', desc: 'Open reasoning model with chain-of-thought', openRouterModel: 'deepseek/deepseek-r1' },
 
-            // 5. xAI (Grok Series)
-            { id: 'grok-4-3', name: 'Grok 4.3', provider: 'xai', icon: 'xai', isLocked: true, isPro: true, group: 'xAI (Grok Series)', desc: 'Candid and direct intelligence by xAI', openRouterModel: 'x-ai/grok-4.3' },
-            { id: 'grok-4-7', name: 'Grok 4.7', provider: 'xai', icon: 'xai', isLocked: true, isPro: true, badge: 'New', tag: 'New', group: 'xAI (Grok Series)', desc: 'Advanced frontier reasoning and depth', openRouterModel: 'x-ai/grok-4.7' },
+            // 5. Open & Specialized
+            { id: 'qwen-2.5-coder', name: 'Qwen 2.5 Coder 32B', provider: 'qwen', icon: 'qwen', isLocked: false, isPro: false, group: 'Open & Specialized', desc: 'Specialized code generation & debugging by Alibaba', openRouterModel: 'qwen/qwen-2.5-coder-32b-instruct' },
+            { id: 'qwen-2.5-72b', name: 'Qwen 2.5 72B', provider: 'qwen', icon: 'qwen', isLocked: true, isPro: true, group: 'Open & Specialized', desc: 'High-capacity multilingual model by Alibaba', openRouterModel: 'qwen/qwen-2.5-72b-instruct' },
+            { id: 'mistral-small', name: 'Mistral Small 24B', provider: 'mistral', icon: 'mistral', isLocked: false, isPro: false, group: 'Open & Specialized', desc: 'Compact, fast European instruction model', openRouterModel: 'mistralai/mistral-small-24b-instruct-2501' },
+            { id: 'nemotron-fast', name: 'Nemotron 70B', provider: 'nvidia', icon: 'nvidia', isLocked: false, isPro: false, group: 'Open & Specialized', desc: 'NVIDIA Llama 3.1 Nemotron 70B Instruct', openRouterModel: 'nvidia/llama-3.1-nemotron-70b-instruct' },
 
-            // 6. Other Providers (Qwen & Kimi)
-            { id: 'qwen-2.5-coder', name: 'Qwen 2.5 Coder', provider: 'qwen', icon: 'qwen', isLocked: true, isPro: true, group: 'Other Providers (Qwen & Kimi)', desc: 'Advanced coding & reasoning by Alibaba', openRouterModel: 'qwen/qwen-2.5-coder-32b-instruct' },
-            { id: 'qwen-3.8-max', name: 'Qwen 3.8 Max', provider: 'qwen', icon: 'qwen', isLocked: true, isPro: true, badge: 'Thinking', tag: 'Thinking', group: 'Other Providers (Qwen & Kimi)', desc: 'Dense thinking and complex problem solving', openRouterModel: 'qwen/qwen3.8-max-0902' },
-            { id: 'kimi-k3', name: 'Kimi K3', provider: 'kimi', icon: 'kimi', isLocked: true, isPro: true, badge: 'Thinking', tag: 'Thinking', group: 'Other Providers (Qwen & Kimi)', desc: 'Deep chain-of-thought mathematical reasoning', openRouterModel: 'moonshotai/kimi-k3' }
+            // 6. xAI
+            { id: 'grok-2', name: 'Grok 2', provider: 'xai', icon: 'xai', isLocked: true, isPro: true, group: 'xAI', desc: 'Direct, candid intelligence by xAI', openRouterModel: 'x-ai/grok-2-1212' }
         ];
 
-        const UNLIMITED_MODELS = [AVAILABLE_MODELS[0]];
-        const PREMIUM_MODELS = AVAILABLE_MODELS.slice(1);
+        let UNLIMITED_MODELS = AVAILABLE_MODELS.filter(m => !m.isPro);
+        let PREMIUM_MODELS = AVAILABLE_MODELS.filter(m => m.isPro);
         window.MODELS = AVAILABLE_MODELS;
         window.UNLIMITED_MODELS = UNLIMITED_MODELS;
         window.PREMIUM_MODELS = PREMIUM_MODELS;
+
+        async function loadAvailableModelsFromServer() {
+            try {
+                const res = await fetch(`${getApiBaseUrl()}/api/models`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && Array.isArray(data.models) && data.models.length > 0) {
+                    AVAILABLE_MODELS = data.models;
+                    UNLIMITED_MODELS = AVAILABLE_MODELS.filter(m => !m.isPro);
+                    PREMIUM_MODELS = AVAILABLE_MODELS.filter(m => m.isPro);
+                    window.MODELS = AVAILABLE_MODELS;
+                    window.UNLIMITED_MODELS = UNLIMITED_MODELS;
+                    window.PREMIUM_MODELS = PREMIUM_MODELS;
+                    if (typeof renderModelDropdownOptions === 'function') renderModelDropdownOptions();
+                    if (typeof updateModelUI === 'function') updateModelUI(chatState.selectedModel);
+                }
+            } catch (_) {
+                // Keep built-in fallback catalog if offline
+            }
+        }
+        window.loadAvailableModelsFromServer = loadAvailableModelsFromServer;
         window.DEFAULT_MODEL_ID = 'mahi-engine';
 
         function getCanonicalModelId(idOrName) {
@@ -14109,7 +14071,9 @@
             return 'chat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
         }
 
-        const STORAGE_KEY = 'mestrio_platform_chats_v1';
+        const STORAGE_KEY_V1 = 'mestrio_platform_chats_v1';
+        const STORAGE_KEY = 'mestrio_platform_chats_v2';
+        const STORAGE_SCHEMA_VERSION = 2;
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -14153,6 +14117,7 @@
                 const isCurrentIncognito = Boolean(currentConv && currentConv.isIncognito);
 
                 const data = {
+                    schemaVersion: STORAGE_SCHEMA_VERSION,
                     conversations: persistentConversations,
                     currentConversationId: isCurrentIncognito ? (persistentConversations[0] ? persistentConversations[0].id : null) : chatState.currentConversationId,
                     selectedModel: chatState.selectedModel
@@ -14163,13 +14128,39 @@
             }
         }
 
+        function migrateLocalStorageV1ToV2(v1Data) {
+            if (!v1Data || typeof v1Data !== 'object') return null;
+            const conversations = Array.isArray(v1Data.conversations)
+                ? v1Data.conversations.map(c => ({
+                    ...c,
+                    projectId: c.projectId || null,
+                    messages: Array.isArray(c.messages) ? c.messages : []
+                }))
+                : [];
+            return {
+                schemaVersion: STORAGE_SCHEMA_VERSION,
+                conversations,
+                currentConversationId: v1Data.currentConversationId || (conversations[0] ? conversations[0].id : null),
+                selectedModel: v1Data.selectedModel || 'mahi-engine'
+            };
+        }
+
         function loadFromLocalStorage() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
+                const rawV2 = localStorage.getItem(STORAGE_KEY);
+                if (rawV2) {
+                    const parsed = JSON.parse(rawV2);
                     if (parsed && typeof parsed === 'object') {
                         return parsed;
+                    }
+                }
+                const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
+                if (rawV1) {
+                    const parsedV1 = JSON.parse(rawV1);
+                    const migrated = migrateLocalStorageV1ToV2(parsedV1);
+                    if (migrated) {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+                        return migrated;
                     }
                 }
             } catch (e) {
@@ -14258,6 +14249,56 @@
         const messagesContainer = document.getElementById('messages-container');
         const chatBoxArea = document.getElementById('chat-box-area');
         const chatFreePlanHeader = document.getElementById('chat-free-plan-header');
+        const scrollToLatestBtn = document.getElementById('scroll-to-latest-btn');
+
+        function isNearBottom(container, threshold = 120) {
+            if (!container) return true;
+            return (container.scrollHeight - container.scrollTop - container.clientHeight) <= threshold;
+        }
+
+        function smartScrollToBottom(container, force = false) {
+            if (!container) return;
+            if (force || isNearBottom(container, 140)) {
+                container.scrollTop = container.scrollHeight;
+                if (scrollToLatestBtn && container === messagesContainer) {
+                    scrollToLatestBtn.classList.add('hidden');
+                }
+            } else if (scrollToLatestBtn && container === messagesContainer) {
+                if (window.isGeneratingChatResponse) {
+                    scrollToLatestBtn.classList.remove('hidden');
+                } else {
+                    scrollToLatestBtn.classList.add('hidden');
+                }
+            }
+        }
+        window.smartScrollToBottom = smartScrollToBottom;
+
+        if (messagesContainer) {
+            messagesContainer.addEventListener('scroll', () => {
+                if (!scrollToLatestBtn) return;
+                if (!window.isGeneratingChatResponse || isNearBottom(messagesContainer, 120)) {
+                    scrollToLatestBtn.classList.add('hidden');
+                } else {
+                    scrollToLatestBtn.classList.remove('hidden');
+                }
+            }, { passive: true });
+        }
+        if (scrollToLatestBtn) {
+            scrollToLatestBtn.addEventListener('click', () => {
+                smartScrollToBottom(messagesContainer, true);
+            });
+        }
+
+        document.querySelectorAll('.quick-prompt-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const promptText = card.getAttribute('data-quick-prompt') || '';
+                if (!promptText || !chatInput) return;
+                chatInput.value = promptText;
+                if (typeof adjustTextareaHeight === 'function') adjustTextareaHeight();
+                chatInput.dispatchEvent(new Event('input'));
+                sendMessage();
+            });
+        });
 
         // ─── BACKEND STREAMING & NETWORK ERROR FEEDBACK SYSTEM ─────────────
         function showBackendNetworkErrorToast(msg) {
@@ -14306,6 +14347,9 @@
                 updateSendButtonToStopState(projActiveBtn, 'sm');
                 updateSendButtonToStopState(projLandingBtn, 'md');
             } else {
+                if (scrollToLatestBtn) {
+                    scrollToLatestBtn.classList.add('hidden');
+                }
                 restoreSendButtonToNormalState(mainSendBtn, 'md');
                 restoreSendButtonToNormalState(projActiveBtn, 'sm');
                 restoreSendButtonToNormalState(projLandingBtn, 'md');
@@ -15021,8 +15065,8 @@
                     const hasLeft = c.startsWith(':');
                     const hasRight = c.endsWith(':');
                     if (hasLeft && hasRight) return 'text-center';
-                    if (hasRight) return 'text-right';
-                    return 'text-left';
+                    if (hasRight) return 'text-end';
+                    return 'text-start';
                 });
             }
 
@@ -15043,24 +15087,22 @@
                         i++;
                     }
 
-                    let tableHtml = '<div class="my-3 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 shadow-2xs">';
-                    tableHtml += '<table class="w-full text-left text-xs md:text-sm border-collapse">';
-                    tableHtml += '<thead class="bg-neutral-100/90 dark:bg-neutral-800/90 text-neutral-800 dark:text-neutral-200 font-semibold border-b border-neutral-200 dark:border-neutral-800">';
-                    tableHtml += '<tr>';
+                    let tableHtml = '<div class="my-5 w-full overflow-x-auto">';
+                    tableHtml += '<table dir="auto" class="w-full text-start border-collapse">';
+                    tableHtml += '<thead><tr>';
                     headerCells.forEach((hCell, colIdx) => {
-                        const alignClass = aligns[colIdx] || 'text-left';
-                        tableHtml += `<th class="px-3.5 py-2.5 font-semibold ${alignClass}">${hCell}</th>`;
+                        const alignClass = aligns[colIdx] || 'text-start';
+                        tableHtml += `<th class="py-2.5 pe-5 ps-1 text-start text-[13.5px] font-semibold text-[#0d0d0d] dark:text-zinc-100 border-b border-[#e5e5e5] dark:border-zinc-800 whitespace-nowrap ${alignClass}">${hCell}</th>`;
                     });
                     tableHtml += '</tr></thead>';
 
-                    tableHtml += '<tbody class="divide-y divide-neutral-200 dark:divide-neutral-800/80 text-neutral-700 dark:text-neutral-300">';
-                    bodyRows.forEach((cells, rIdx) => {
-                        const zebraClass = (rIdx % 2 === 1) ? 'bg-neutral-50/40 dark:bg-neutral-800/20 ' : '';
-                        tableHtml += `<tr class="${zebraClass}hover:bg-neutral-100/60 dark:hover:bg-neutral-800/50 transition-colors">`;
+                    tableHtml += '<tbody>';
+                    bodyRows.forEach((cells) => {
+                        tableHtml += '<tr class="hover:bg-neutral-100/40 dark:hover:bg-neutral-800/30 transition-colors">';
                         headerCells.forEach((_, colIdx) => {
                             const cellVal = cells[colIdx] !== undefined ? cells[colIdx] : '';
-                            const alignClass = aligns[colIdx] || 'text-left';
-                            tableHtml += `<td class="px-3.5 py-2 leading-relaxed ${alignClass}">${cellVal}</td>`;
+                            const alignClass = aligns[colIdx] || 'text-start';
+                            tableHtml += `<td class="py-3 pe-5 ps-1 border-b border-[#ececec] dark:border-zinc-800 text-[14.5px] leading-[1.6] text-[#1f1f1f] dark:text-zinc-200 align-top first:font-medium first:text-[#0d0d0d] dark:first:text-zinc-100 first:whitespace-nowrap ${alignClass}">${cellVal}</td>`;
                         });
                         tableHtml += '</tr>';
                     });
@@ -15097,16 +15139,17 @@
                 'table', 'thead', 'tbody', 'tr', 'th', 'td',
                 'a', 'span', 'div', 'button',
                 'img', 'svg', 'path', 'circle', 'line', 'polyline', 'rect', 'polygon',
-                'input'
+                'input', 'label', 'canvas', 'details', 'summary', 'caption'
             ],
             ALLOWED_ATTR: [
-                'href', 'target', 'rel', 'title', 'class', 'id',
+                'href', 'target', 'rel', 'title', 'class', 'id', 'dir',
                 'data-citation', 'data-artifact-id', 'data-lang',
                 'data-mermaid-rendered', 'data-mermaid-pending', 'data-mermaid-raw', 'data-mermaid-rendering', 'data-theme',
+                'data-chart-id', 'data-chart-type', 'data-chart-pending', 'data-chart-rendered', 'data-chart-theme', 'data-chart-raw',
                 'src', 'alt', 'width', 'height', 'loading', 'decoding',
                 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin',
                 'cx', 'cy', 'r', 'x', 'y', 'x1', 'y1', 'x2', 'y2', 'rx', 'ry', 'points', 'd',
-                'type', 'disabled', 'checked', 'role', 'aria-label', 'aria-hidden',
+                'type', 'disabled', 'checked', 'role', 'aria-label', 'aria-hidden', 'tabindex', 'scope', 'open',
                 'style'
             ],
             ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
@@ -15212,8 +15255,1260 @@
             const cacheKey = themeKey + ':::' + cleanCode;
 
             // Return pending container for client-side rendering with hidden pre for clean source preservation
-            return `<div class="mermaid-diagram-wrapper my-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 p-4 overflow-x-auto text-center shadow-xs" data-mermaid-pending="true" data-theme="${themeKey}"><span class="mermaid-loading-state inline-flex items-center justify-center gap-2 text-xs font-medium text-zinc-400 dark:text-zinc-500 py-6"><svg class="w-4 h-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Rendering diagram...</span></span><pre class="mermaid-raw hidden" style="display:none">${escapeHtml(cleanCode)}</pre></div>`;
+            return `<div class="mermaid-diagram-wrapper my-3.5 rounded-xl border border-[#ececec] dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 p-4 overflow-x-auto text-center" data-mermaid-pending="true" data-theme="${themeKey}"><span class="mermaid-loading-state inline-flex items-center justify-center gap-2 text-xs font-medium text-zinc-400 dark:text-zinc-500 py-6"><svg class="w-4 h-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Rendering diagram...</span></span><pre class="mermaid-raw hidden" style="display:none">${escapeHtml(cleanCode)}</pre></div>`;
         }
+
+        /**
+         * Phase 3.1: Strict Chart.js Configuration Validator & Sanitizer
+         * - Enforces allowlist schema, rejecting __proto__, prototype, constructor, and arbitrary callbacks
+         * - Validates finite numeric data points, labels, and color strings
+         * - Enforces maximum limits (8 datasets, 50 labels, 100 points/dataset, 500 total points)
+         * - Normalizes area charts to line charts with controlled fill
+         */
+        const SAFE_CHART_COLOR_PATTERN = /^(?:#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)|hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*(?:0|1|0?\.\d+)\s*)?\)|[a-zA-Z]{3,20})$/;
+        const FORBIDDEN_CONFIG_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+
+        function isValidChartColor(c) {
+            if (typeof c !== 'string') return false;
+            return SAFE_CHART_COLOR_PATTERN.test(c.trim());
+        }
+
+        function sanitizeChartColor(c, fallback) {
+            return isValidChartColor(c) ? c.trim() : fallback;
+        }
+
+        function validateAndSanitizeChartConfig(rawText) {
+            let cleanText = (rawText || '').trim();
+            if (!cleanText) {
+                return { valid: false, error: 'Empty chart configuration', rawCode: cleanText };
+            }
+
+            if (cleanText.includes('&quot;') || cleanText.includes('&amp;') || cleanText.includes('&#39;')) {
+                cleanText = cleanText
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&amp;/g, '&');
+            }
+
+            let parsed;
+            try {
+                parsed = JSON.parse(cleanText, (key, value) => {
+                    if (FORBIDDEN_CONFIG_KEYS.has(key)) {
+                        throw new Error(`Forbidden key detected: ${key}`);
+                    }
+                    return value;
+                });
+            } catch (err) {
+                return { valid: false, error: 'JSON syntax error: ' + (err.message || 'Malformed JSON'), rawCode: cleanText };
+            }
+
+            if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+                return { valid: false, error: 'Chart configuration must be a JSON object', rawCode: cleanText };
+            }
+
+            // 1. Chart type validation
+            let chartType = String(parsed.type || '').trim().toLowerCase();
+            let isArea = false;
+            if (chartType === 'area') {
+                chartType = 'line';
+                isArea = true;
+            }
+
+            const ALLOWED_TYPES = new Set(['bar', 'line', 'pie', 'doughnut', 'scatter']);
+            if (!ALLOWED_TYPES.has(chartType)) {
+                return { valid: false, error: `Unsupported chart type '${chartType}'. Allowed: bar, line, pie, doughnut, scatter, area`, rawCode: cleanText };
+            }
+
+            // 2. Data object validation
+            const rawData = parsed.data;
+            if (typeof rawData !== 'object' || rawData === null || Array.isArray(rawData)) {
+                return { valid: false, error: "Missing or invalid 'data' object", rawCode: cleanText };
+            }
+
+            // 3. Datasets validation
+            const rawDatasets = rawData.datasets;
+            if (!Array.isArray(rawDatasets) || rawDatasets.length === 0) {
+                return { valid: false, error: "'data.datasets' must be a non-empty array", rawCode: cleanText };
+            }
+            if (rawDatasets.length > 8) {
+                return { valid: false, error: `Too many datasets (${rawDatasets.length}). Maximum allowed is 8`, rawCode: cleanText };
+            }
+            if ((chartType === 'pie' || chartType === 'doughnut') && rawDatasets.length > 2) {
+                return { valid: false, error: `${chartType} charts support at most 2 datasets`, rawCode: cleanText };
+            }
+
+            // 4. Labels validation
+            let sanitizedLabels = [];
+            if (chartType !== 'scatter') {
+                if (!Array.isArray(rawData.labels) || rawData.labels.length === 0) {
+                    return { valid: false, error: `Missing or empty 'data.labels' array for ${chartType} chart`, rawCode: cleanText };
+                }
+                if (rawData.labels.length > 50) {
+                    return { valid: false, error: `Too many labels (${rawData.labels.length}). Maximum allowed is 50`, rawCode: cleanText };
+                }
+                sanitizedLabels = rawData.labels.map((lbl, idx) => {
+                    const str = String(lbl !== undefined && lbl !== null ? lbl : `Item ${idx + 1}`).trim();
+                    return str.slice(0, 40);
+                });
+            } else if (Array.isArray(rawData.labels)) {
+                sanitizedLabels = rawData.labels.slice(0, 50).map(lbl => String(lbl || '').trim().slice(0, 40));
+            }
+
+            // 5. Datasets processing & limits
+            let totalDataPoints = 0;
+            const sanitizedDatasets = [];
+            const DEFAULT_PALETTE = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#64748b'];
+
+            for (let dIdx = 0; dIdx < rawDatasets.length; dIdx++) {
+                const ds = rawDatasets[dIdx];
+                if (typeof ds !== 'object' || ds === null || Array.isArray(ds)) {
+                    return { valid: false, error: `Dataset [${dIdx}] must be an object`, rawCode: cleanText };
+                }
+
+                const rawDataArr = ds.data;
+                if (!Array.isArray(rawDataArr) || rawDataArr.length === 0) {
+                    return { valid: false, error: `Dataset [${dIdx}] 'data' must be a non-empty array`, rawCode: cleanText };
+                }
+                if (rawDataArr.length > 100) {
+                    return { valid: false, error: `Dataset [${dIdx}] has ${rawDataArr.length} points. Maximum allowed is 100`, rawCode: cleanText };
+                }
+
+                totalDataPoints += rawDataArr.length;
+                if (totalDataPoints > 500) {
+                    return { valid: false, error: `Total data points across all datasets exceeds maximum limit of 500`, rawCode: cleanText };
+                }
+
+                // Check length match for categorical charts
+                if (chartType !== 'scatter') {
+                    if (rawDataArr.length !== sanitizedLabels.length) {
+                        return {
+                            valid: false,
+                            error: `Dataset [${dIdx}] data length (${rawDataArr.length}) does not match labels length (${sanitizedLabels.length})`,
+                            rawCode: cleanText
+                        };
+                    }
+                }
+
+                const fallbackColor = DEFAULT_PALETTE[dIdx % DEFAULT_PALETTE.length];
+                const sanitizedDs = {
+                    label: String(ds.label || `Dataset ${dIdx + 1}`).trim().slice(0, 60),
+                    data: []
+                };
+
+                // Validate points
+                if (chartType === 'scatter') {
+                    for (let pIdx = 0; pIdx < rawDataArr.length; pIdx++) {
+                        const pt = rawDataArr[pIdx];
+                        if (typeof pt !== 'object' || pt === null || Array.isArray(pt)) {
+                            return { valid: false, error: `Scatter point [${pIdx}] in dataset [${dIdx}] must be an object {x, y}`, rawCode: cleanText };
+                        }
+                        const x = Number(pt.x);
+                        const y = Number(pt.y);
+                        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+                            return { valid: false, error: `Scatter point [${pIdx}] has non-finite coordinates {x: ${pt.x}, y: ${pt.y}}`, rawCode: cleanText };
+                        }
+                        sanitizedDs.data.push({ x, y });
+                    }
+                } else {
+                    let datasetSum = 0;
+                    for (let pIdx = 0; pIdx < rawDataArr.length; pIdx++) {
+                        const val = Number(rawDataArr[pIdx]);
+                        if (!Number.isFinite(val)) {
+                            return { valid: false, error: `Data point [${pIdx}] in dataset [${dIdx}] is non-finite: ${rawDataArr[pIdx]}`, rawCode: cleanText };
+                        }
+                        if ((chartType === 'pie' || chartType === 'doughnut') && val < 0) {
+                            return { valid: false, error: `${chartType} slice [${pIdx}] in dataset [${dIdx}] cannot be negative: ${val}`, rawCode: cleanText };
+                        }
+                        datasetSum += val;
+                        sanitizedDs.data.push(val);
+                    }
+
+                    if ((chartType === 'pie' || chartType === 'doughnut') && datasetSum <= 0) {
+                        return { valid: false, error: `${chartType} chart data sum must be greater than zero`, rawCode: cleanText };
+                    }
+                }
+
+                // Styling properties allowlist
+                if (Array.isArray(ds.backgroundColor)) {
+                    sanitizedDs.backgroundColor = ds.backgroundColor.map((c, i) => sanitizeChartColor(c, DEFAULT_PALETTE[i % DEFAULT_PALETTE.length]));
+                } else if (typeof ds.backgroundColor === 'string') {
+                    sanitizedDs.backgroundColor = sanitizeChartColor(ds.backgroundColor, fallbackColor);
+                } else {
+                    if (chartType === 'pie' || chartType === 'doughnut') {
+                        sanitizedDs.backgroundColor = sanitizedDs.data.map((_, i) => DEFAULT_PALETTE[i % DEFAULT_PALETTE.length]);
+                    } else {
+                        sanitizedDs.backgroundColor = fallbackColor;
+                    }
+                }
+
+                if (Array.isArray(ds.borderColor)) {
+                    sanitizedDs.borderColor = ds.borderColor.map((c, i) => sanitizeChartColor(c, DEFAULT_PALETTE[i % DEFAULT_PALETTE.length]));
+                } else if (typeof ds.borderColor === 'string') {
+                    sanitizedDs.borderColor = sanitizeChartColor(ds.borderColor, fallbackColor);
+                } else {
+                    sanitizedDs.borderColor = fallbackColor;
+                }
+
+                if (typeof ds.borderWidth === 'number' && Number.isFinite(ds.borderWidth)) {
+                    sanitizedDs.borderWidth = Math.max(0, Math.min(10, ds.borderWidth));
+                }
+
+                if (chartType === 'line') {
+                    sanitizedDs.fill = (isArea || ds.fill === true || ds.fill === 'origin') ? 'origin' : false;
+                    if (typeof ds.tension === 'number' && Number.isFinite(ds.tension)) {
+                        sanitizedDs.tension = Math.max(0, Math.min(1, ds.tension));
+                    }
+                    if (typeof ds.pointRadius === 'number' && Number.isFinite(ds.pointRadius)) {
+                        sanitizedDs.pointRadius = Math.max(0, Math.min(20, ds.pointRadius));
+                    }
+                }
+
+                sanitizedDatasets.push(sanitizedDs);
+            }
+
+            // 6. Title and options processing
+            let titleText = '';
+            const rawOpts = parsed.options || {};
+            if (rawOpts.plugins && rawOpts.plugins.title && typeof rawOpts.plugins.title.text === 'string') {
+                titleText = rawOpts.plugins.title.text.trim().slice(0, 80);
+            } else if (typeof rawOpts.title === 'string') {
+                titleText = rawOpts.title.trim().slice(0, 80);
+            }
+
+            const cleanConfig = {
+                type: chartType,
+                data: {
+                    labels: sanitizedLabels,
+                    datasets: sanitizedDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: rawOpts.plugins?.legend?.display !== false && rawOpts.legend !== false,
+                            position: ['top', 'bottom', 'left', 'right'].includes(rawOpts.plugins?.legend?.position)
+                                ? rawOpts.plugins.legend.position : 'bottom'
+                        },
+                        title: {
+                            display: Boolean(titleText),
+                            text: titleText
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            };
+
+            // Scales for bar, line, scatter
+            if (chartType === 'bar' || chartType === 'line' || chartType === 'scatter') {
+                cleanConfig.options.scales = {
+                    x: {
+                        grid: { display: rawOpts.scales?.x?.grid?.display === true }
+                    },
+                    y: {
+                        grid: { display: rawOpts.scales?.y?.grid?.display !== false },
+                        beginAtZero: rawOpts.scales?.y?.beginAtZero !== false
+                    }
+                };
+                if (typeof rawOpts.scales?.x?.title?.text === 'string') {
+                    cleanConfig.options.scales.x.title = { display: true, text: rawOpts.scales.x.title.text.trim().slice(0, 40) };
+                }
+                if (typeof rawOpts.scales?.y?.title?.text === 'string') {
+                    cleanConfig.options.scales.y.title = { display: true, text: rawOpts.scales.y.title.text.trim().slice(0, 40) };
+                }
+                if (Boolean(rawOpts.scales?.x?.stacked)) cleanConfig.options.scales.x.stacked = true;
+                if (Boolean(rawOpts.scales?.y?.stacked)) cleanConfig.options.scales.y.stacked = true;
+            }
+
+            return {
+                valid: true,
+                config: cleanConfig,
+                chartType: chartType,
+                title: titleText,
+                datasetCount: sanitizedDatasets.length,
+                pointCount: totalDataPoints,
+                isArea: isArea
+            };
+        }
+
+        let _chartRenderCounter = 0;
+        const _chartConfigCache = new Map();
+
+        /**
+         * Renders a lightweight chart placeholder wrapper
+         */
+        function renderChartPlaceholder(rawCode) {
+            const cleanCode = (rawCode || '').trim();
+            if (!cleanCode) return '';
+
+            const result = validateAndSanitizeChartConfig(cleanCode);
+            if (!result.valid) {
+                return `
+                    <div class="chart-visualization-wrapper my-3.5 rounded-xl text-left" data-chart-rendered="error">
+                        <div class="chart-error-container text-left p-3.5 rounded-lg border border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 text-xs text-amber-800 dark:text-amber-300">
+                            <div class="flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-400 mb-1">
+                                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span>Chart Configuration Notice</span>
+                            </div>
+                            <p class="text-[11.5px] text-zinc-600 dark:text-zinc-400 mb-2">Could not render chart due to invalid configuration (${escapeHtml(result.error)}). Raw source preserved below:</p>
+                            <pre class="bg-amber-100/60 dark:bg-zinc-900 border border-amber-200 dark:border-zinc-800 rounded p-2.5 font-mono text-[11px] overflow-x-auto text-zinc-800 dark:text-zinc-200">${escapeHtml(cleanCode)}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const chartId = 'chart_' + (++_chartRenderCounter) + '_' + Math.floor(Math.random() * 1000000);
+            const isDark = (typeof document !== 'undefined') &&
+                (document.documentElement.classList.contains('dark') || (document.body && document.body.classList.contains('dark')));
+            const themeKey = isDark ? 'dark' : 'default';
+
+            // Cache configuration (bounded cache, max 100)
+            if (_chartConfigCache.size >= 100) {
+                const oldestKey = _chartConfigCache.keys().next().value;
+                _chartConfigCache.delete(oldestKey);
+            }
+            _chartConfigCache.set(chartId, result.config);
+
+            const displayTitle = result.title ? escapeHtml(result.title) : 'Data visualization';
+            const ariaLabel = `${displayTitle}. ${result.chartType} chart showing ${result.datasetCount} series across ${result.pointCount} data points.`;
+
+            return `
+                <div id="${chartId}" class="chart-visualization-wrapper my-3.5 rounded-xl border border-[#ececec] dark:border-zinc-800/80 bg-white dark:bg-zinc-900/40 p-4 overflow-x-auto text-center" data-chart-id="${chartId}" data-chart-type="${result.chartType}" data-chart-pending="true" data-chart-theme="${themeKey}" role="region" aria-label="${ariaLabel}">
+                    <span class="chart-loading-state inline-flex items-center justify-center gap-2 text-xs font-medium text-zinc-400 dark:text-zinc-500 py-6">
+                        <svg class="w-4 h-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                        <span>Rendering data visualization...</span>
+                    </span>
+                    <pre class="chart-raw hidden" style="display:none">${escapeHtml(cleanCode)}</pre>
+                </div>
+            `;
+        }
+
+        window.validateAndSanitizeChartConfig = validateAndSanitizeChartConfig;
+        window.renderChartPlaceholder = renderChartPlaceholder;
+
+        /**
+         * Phase 3.1 Stage 2 & 3: Chart.js Actual Hydration, Zoom & Lifecycle Registry
+         */
+        const _chartInstances = new Map();
+        const _chartZoomStates = new Map();
+
+        function getChartTypeBadgeLabel(type, isArea) {
+            if (isArea) return 'AREA';
+            switch (type) {
+                case 'bar': return 'BAR';
+                case 'line': return 'LINE';
+                case 'pie': return 'PIE';
+                case 'doughnut': return 'DOUGHNUT';
+                case 'scatter': return 'SCATTER';
+                default: return 'CHART';
+            }
+        }
+
+        function destroyChartInstance(chartId, preserveZoom = false) {
+            if (!chartId) return;
+            const chart = _chartInstances.get(chartId);
+            if (chart) {
+                try {
+                    chart.destroy();
+                } catch (e) {
+                    console.warn('[Chart.js] Destroy error for ' + chartId + ':', e);
+                }
+                _chartInstances.delete(chartId);
+            }
+            if (!preserveZoom) {
+                _chartZoomStates.delete(chartId);
+            }
+        }
+
+        function updateZoomButtonStates(wrapper, zoomState) {
+            if (!wrapper || !zoomState) return;
+            const btnZoomIn = wrapper.querySelector('.chart-btn-zoom-in');
+            const btnZoomOut = wrapper.querySelector('.chart-btn-zoom-out');
+            const btnReset = wrapper.querySelector('.chart-btn-reset-zoom');
+
+            if (btnReset) {
+                btnReset.disabled = !zoomState.isZoomed;
+            }
+            if (btnZoomOut) {
+                btnZoomOut.disabled = !zoomState.isZoomed;
+            }
+            if (btnZoomIn) {
+                if (zoomState.isScatter) {
+                    const origSpanX = zoomState.origXMax - zoomState.origXMin;
+                    const currentSpanX = zoomState.currentXMax - zoomState.currentXMin;
+                    btnZoomIn.disabled = currentSpanX <= origSpanX * 0.05;
+                } else {
+                    const currentSpan = zoomState.currentMax - zoomState.currentMin + 1;
+                    btnZoomIn.disabled = currentSpan <= 3;
+                }
+            }
+        }
+
+        function handleChartZoom(chartId, action, wrapper) {
+            const chartInstance = _chartInstances.get(chartId);
+            if (!chartInstance) return;
+
+            const zoomState = _chartZoomStates.get(chartId);
+            if (!zoomState) return;
+
+            if (zoomState.isScatter) {
+                const origXMin = zoomState.origXMin;
+                const origXMax = zoomState.origXMax;
+                const origYMin = zoomState.origYMin;
+                const origYMax = zoomState.origYMax;
+
+                if (action === 'reset') {
+                    delete chartInstance.options.scales.x.min;
+                    delete chartInstance.options.scales.x.max;
+                    delete chartInstance.options.scales.y.min;
+                    delete chartInstance.options.scales.y.max;
+                    zoomState.currentXMin = origXMin;
+                    zoomState.currentXMax = origXMax;
+                    zoomState.currentYMin = origYMin;
+                    zoomState.currentYMax = origYMax;
+                    zoomState.isZoomed = false;
+                } else if (action === 'in') {
+                    const spanX = zoomState.currentXMax - zoomState.currentXMin;
+                    const spanY = zoomState.currentYMax - zoomState.currentYMin;
+                    const origSpanX = origXMax - origXMin;
+                    const origSpanY = origYMax - origYMin;
+
+                    if (spanX > origSpanX * 0.05 && spanY > origSpanY * 0.05) {
+                        const centerX = (zoomState.currentXMin + zoomState.currentXMax) / 2;
+                        const centerY = (zoomState.currentYMin + zoomState.currentYMax) / 2;
+                        const newSpanX = spanX * 0.75;
+                        const newSpanY = spanY * 0.75;
+                        zoomState.currentXMin = centerX - newSpanX / 2;
+                        zoomState.currentXMax = centerX + newSpanX / 2;
+                        zoomState.currentYMin = centerY - newSpanY / 2;
+                        zoomState.currentYMax = centerY + newSpanY / 2;
+                        zoomState.isZoomed = true;
+
+                        chartInstance.options.scales.x.min = zoomState.currentXMin;
+                        chartInstance.options.scales.x.max = zoomState.currentXMax;
+                        chartInstance.options.scales.y.min = zoomState.currentYMin;
+                        chartInstance.options.scales.y.max = zoomState.currentYMax;
+                    }
+                } else if (action === 'out') {
+                    const spanX = zoomState.currentXMax - zoomState.currentXMin;
+                    const spanY = zoomState.currentYMax - zoomState.currentYMin;
+                    const centerX = (zoomState.currentXMin + zoomState.currentXMax) / 2;
+                    const centerY = (zoomState.currentYMin + zoomState.currentYMax) / 2;
+                    const newSpanX = spanX * 1.333;
+                    const newSpanY = spanY * 1.333;
+
+                    const newXMin = Math.max(origXMin, centerX - newSpanX / 2);
+                    const newXMax = Math.min(origXMax, centerX + newSpanX / 2);
+                    const newYMin = Math.max(origYMin, centerY - newSpanY / 2);
+                    const newYMax = Math.min(origYMax, centerY + newSpanY / 2);
+
+                    if (newXMin <= origXMin && newXMax >= origXMax && newYMin <= origYMin && newYMax >= origYMax) {
+                        delete chartInstance.options.scales.x.min;
+                        delete chartInstance.options.scales.x.max;
+                        delete chartInstance.options.scales.y.min;
+                        delete chartInstance.options.scales.y.max;
+                        zoomState.currentXMin = origXMin;
+                        zoomState.currentXMax = origXMax;
+                        zoomState.currentYMin = origYMin;
+                        zoomState.currentYMax = origYMax;
+                        zoomState.isZoomed = false;
+                    } else {
+                        zoomState.currentXMin = newXMin;
+                        zoomState.currentXMax = newXMax;
+                        zoomState.currentYMin = newYMin;
+                        zoomState.currentYMax = newYMax;
+                        zoomState.isZoomed = true;
+                        chartInstance.options.scales.x.min = newXMin;
+                        chartInstance.options.scales.x.max = newXMax;
+                        chartInstance.options.scales.y.min = newYMin;
+                        chartInstance.options.scales.y.max = newYMax;
+                    }
+                }
+            } else {
+                const origMin = zoomState.origMin;
+                const origMax = zoomState.origMax;
+
+                if (action === 'reset') {
+                    delete chartInstance.options.scales.x.min;
+                    delete chartInstance.options.scales.x.max;
+                    zoomState.currentMin = origMin;
+                    zoomState.currentMax = origMax;
+                    zoomState.isZoomed = false;
+                } else if (action === 'in') {
+                    const currentSpan = zoomState.currentMax - zoomState.currentMin + 1;
+                    if (currentSpan > 3) {
+                        const step = Math.max(1, Math.floor(currentSpan * 0.2));
+                        let newMin = zoomState.currentMin + step;
+                        let newMax = zoomState.currentMax - step;
+                        if (newMax - newMin < 2) {
+                            const mid = Math.round((zoomState.currentMin + zoomState.currentMax) / 2);
+                            newMin = Math.max(origMin, mid - 1);
+                            newMax = Math.min(origMax, newMin + 2);
+                        }
+                        zoomState.currentMin = newMin;
+                        zoomState.currentMax = newMax;
+                        zoomState.isZoomed = true;
+                        chartInstance.options.scales.x.min = newMin;
+                        chartInstance.options.scales.x.max = newMax;
+                    }
+                } else if (action === 'out') {
+                    const currentSpan = zoomState.currentMax - zoomState.currentMin + 1;
+                    const step = Math.max(1, Math.floor(currentSpan * 0.25));
+                    const newMin = Math.max(origMin, zoomState.currentMin - step);
+                    const newMax = Math.min(origMax, zoomState.currentMax + step);
+                    if (newMin <= origMin && newMax >= origMax) {
+                        delete chartInstance.options.scales.x.min;
+                        delete chartInstance.options.scales.x.max;
+                        zoomState.currentMin = origMin;
+                        zoomState.currentMax = origMax;
+                        zoomState.isZoomed = false;
+                    } else {
+                        zoomState.currentMin = newMin;
+                        zoomState.currentMax = newMax;
+                        zoomState.isZoomed = true;
+                        chartInstance.options.scales.x.min = newMin;
+                        chartInstance.options.scales.x.max = newMax;
+                    }
+                }
+            }
+
+            if (typeof chartInstance.update === 'function') {
+                chartInstance.update('none');
+            }
+
+            updateZoomButtonStates(wrapper, zoomState);
+        }
+
+        const _activeChartExports = new Set();
+
+        function sanitizeExportFilename(title, chartType) {
+            let base = '';
+            if (typeof title === 'string' && title.trim()) {
+                base = title.trim();
+            } else if (typeof chartType === 'string' && chartType.trim()) {
+                base = `chart-${chartType.trim()}`;
+            } else {
+                base = 'chart-export';
+            }
+            base = base.toLowerCase().replace(/[^a-z0-9_\-]+/gi, '-').replace(/^-+|-+$/g, '');
+            if (!base || base.length === 0) {
+                base = `chart-${chartType || 'visualization'}`;
+            }
+            if (base.length > 50) {
+                base = base.substring(0, 50).replace(/-+$/, '');
+            }
+            const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            return `${base}-${timestamp}.png`;
+        }
+
+        async function exportChartAsPng(chartId, wrapper, resolutionMultiplier = 2) {
+            if (!chartId) {
+                throw new Error('Missing chartId for export');
+            }
+            if (_activeChartExports.has(chartId)) {
+                return { skipped: true, reason: 'Export already in progress' };
+            }
+
+            const exportBtn = wrapper ? wrapper.querySelector('.chart-btn-export-png') : null;
+            const labelSpan = exportBtn ? exportBtn.querySelector('.chart-export-btn-label') : null;
+
+            if (typeof Chart !== 'function') {
+                const err = new Error('Chart.js library is not available');
+                if (labelSpan) {
+                    labelSpan.textContent = 'Offline';
+                    setTimeout(() => { if (labelSpan) labelSpan.textContent = 'Export PNG'; }, 2000);
+                }
+                throw err;
+            }
+
+            const originalConfig = _chartConfigCache.get(chartId);
+            if (!originalConfig) {
+                const err = new Error('Chart configuration not found in cache for ' + chartId);
+                if (labelSpan) {
+                    labelSpan.textContent = 'Error';
+                    setTimeout(() => { if (labelSpan) labelSpan.textContent = 'Export PNG'; }, 2000);
+                }
+                throw err;
+            }
+
+            _activeChartExports.add(chartId);
+            if (exportBtn) {
+                exportBtn.disabled = true;
+                exportBtn.setAttribute('aria-busy', 'true');
+                if (labelSpan) labelSpan.textContent = 'Exporting...';
+            }
+
+            let tempChart = null;
+            let offscreenCanvas = null;
+
+            try {
+                // 1. Deep clone validated original configuration (isolation guarantee)
+                const clonedConfig = JSON.parse(JSON.stringify(originalConfig));
+
+                // 2. Determine theme and solid opaque background color
+                const isDark = (typeof document !== 'undefined') &&
+                    (document.documentElement.classList.contains('dark') || (document.body && document.body.classList.contains('dark')));
+                const themeTokens = getChartThemeTokens(isDark);
+                const backgroundColor = isDark ? '#18181b' : '#ffffff';
+
+                // 3. Build runtime configuration for isolated export
+                const runtimeConfig = buildChartJsRuntimeConfig(clonedConfig, themeTokens);
+                runtimeConfig.options = runtimeConfig.options || {};
+                runtimeConfig.options.responsive = false;
+                runtimeConfig.options.maintainAspectRatio = false;
+                runtimeConfig.options.animation = false;
+                runtimeConfig.options.devicePixelRatio = 1;
+
+                // 4. Preserve active zoom state from the current visible chart (if zoomed)
+                const zoomState = _chartZoomStates.get(chartId);
+                if (zoomState && zoomState.isZoomed && runtimeConfig.options.scales) {
+                    if (zoomState.isScatter) {
+                        if (runtimeConfig.options.scales.x) {
+                            runtimeConfig.options.scales.x.min = zoomState.currentXMin;
+                            runtimeConfig.options.scales.x.max = zoomState.currentXMax;
+                        }
+                        if (runtimeConfig.options.scales.y) {
+                            runtimeConfig.options.scales.y.min = zoomState.currentYMin;
+                            runtimeConfig.options.scales.y.max = zoomState.currentYMax;
+                        }
+                    } else {
+                        if (runtimeConfig.options.scales.x) {
+                            runtimeConfig.options.scales.x.min = zoomState.currentMin;
+                            runtimeConfig.options.scales.x.max = zoomState.currentMax;
+                        }
+                    }
+                }
+
+                // 5. Solid opaque background plugin
+                runtimeConfig.plugins = runtimeConfig.plugins || [];
+                runtimeConfig.plugins.push({
+                    id: 'exportSolidBackground',
+                    beforeDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        ctx.fillStyle = backgroundColor;
+                        ctx.fillRect(0, 0, chart.width, chart.height);
+                        ctx.restore();
+                    }
+                });
+
+                // 6. Compute deterministic high-resolution dimensions preserving aspect ratio
+                const scale = (resolutionMultiplier === 3) ? 3 : 2;
+                const origCanvas = wrapper ? wrapper.querySelector('canvas') : null;
+                let baseWidth = (origCanvas && origCanvas.clientWidth > 0) ? origCanvas.clientWidth : 800;
+                let baseHeight = (origCanvas && origCanvas.clientHeight > 0) ? origCanvas.clientHeight : 450;
+                baseWidth = Math.max(600, baseWidth);
+                baseHeight = Math.max(340, baseHeight);
+                const exportWidth = Math.round(baseWidth * scale);
+                const exportHeight = Math.round(baseHeight * scale);
+
+                // Proportional typography adjustments for crisp high-resolution output
+                if (scale > 1) {
+                    if (runtimeConfig.options.plugins && runtimeConfig.options.plugins.title && runtimeConfig.options.plugins.title.font) {
+                        const origSize = runtimeConfig.options.plugins.title.font.size || 14;
+                        runtimeConfig.options.plugins.title.font.size = Math.round(origSize * (scale === 3 ? 1.5 : 1.3));
+                    }
+                    if (runtimeConfig.options.plugins && runtimeConfig.options.plugins.legend && runtimeConfig.options.plugins.legend.labels && runtimeConfig.options.plugins.legend.labels.font) {
+                        const origSize = runtimeConfig.options.plugins.legend.labels.font.size || 12;
+                        runtimeConfig.options.plugins.legend.labels.font.size = Math.round(origSize * (scale === 3 ? 1.4 : 1.25));
+                    }
+                    if (runtimeConfig.options.scales) {
+                        ['x', 'y'].forEach((axis) => {
+                            if (runtimeConfig.options.scales[axis] && runtimeConfig.options.scales[axis].ticks && runtimeConfig.options.scales[axis].ticks.font) {
+                                const origSize = runtimeConfig.options.scales[axis].ticks.font.size || 11;
+                                runtimeConfig.options.scales[axis].ticks.font.size = Math.round(origSize * (scale === 3 ? 1.35 : 1.2));
+                            }
+                        });
+                    }
+                }
+
+                // 7. Create offscreen canvas
+                offscreenCanvas = document.createElement('canvas');
+                offscreenCanvas.width = exportWidth;
+                offscreenCanvas.height = exportHeight;
+                const offCtx = (typeof offscreenCanvas.getContext === 'function') ? offscreenCanvas.getContext('2d') : null;
+                if (offCtx && typeof offCtx.fillRect === 'function') {
+                    offCtx.fillStyle = backgroundColor;
+                    offCtx.fillRect(0, 0, exportWidth, exportHeight);
+                }
+
+                // 8. Render temporary Chart.js instance (isolated, never registered in _chartInstances)
+                tempChart = new Chart(offscreenCanvas, runtimeConfig);
+
+                // 9. Generate sanitized filename
+                const titleText = (clonedConfig.options && clonedConfig.options.plugins && clonedConfig.options.plugins.title && clonedConfig.options.plugins.title.text) || '';
+                const filename = sanitizeExportFilename(titleText, clonedConfig.type);
+
+                // 10. Generate PNG Blob / DataURL and trigger browser download
+                let exportedDataUrl = '';
+                if (typeof offscreenCanvas.toDataURL === 'function') {
+                    exportedDataUrl = offscreenCanvas.toDataURL('image/png');
+                }
+
+                if (typeof offscreenCanvas.toBlob === 'function') {
+                    await new Promise((resolve, reject) => {
+                        offscreenCanvas.toBlob((blob) => {
+                            if (!blob) {
+                                reject(new Error('Canvas toBlob produced null'));
+                                return;
+                            }
+                            try {
+                                const blobUrl = (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function')
+                                    ? URL.createObjectURL(blob)
+                                    : '';
+                                const a = document.createElement('a');
+                                a.style.display = 'none';
+                                a.href = blobUrl || exportedDataUrl;
+                                a.download = filename;
+                                document.body.appendChild(a);
+                                a.click();
+                                setTimeout(() => {
+                                    try {
+                                        document.body.removeChild(a);
+                                        if (blobUrl && typeof URL.revokeObjectURL === 'function') {
+                                            URL.revokeObjectURL(blobUrl);
+                                        }
+                                    } catch (e) {}
+                                    resolve();
+                                }, 100);
+                            } catch (dlErr) {
+                                reject(dlErr);
+                            }
+                        }, 'image/png');
+                    });
+                } else if (exportedDataUrl) {
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = exportedDataUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        try { document.body.removeChild(a); } catch (e) {}
+                    }, 100);
+                } else {
+                    throw new Error('Canvas PNG serialization unavailable');
+                }
+
+                return {
+                    success: true,
+                    filename: filename,
+                    width: exportWidth,
+                    height: exportHeight,
+                    isDark: isDark,
+                    dataUrl: exportedDataUrl
+                };
+            } catch (err) {
+                console.warn('[Chart Export Error] for ' + chartId + ':', err);
+                if (labelSpan) {
+                    labelSpan.textContent = 'Export Failed';
+                    setTimeout(() => {
+                        if (labelSpan && !_activeChartExports.has(chartId)) {
+                            labelSpan.textContent = 'Export PNG';
+                        }
+                    }, 2500);
+                }
+                throw err;
+            } finally {
+                if (tempChart) {
+                    try { tempChart.destroy(); } catch (e) {}
+                    tempChart = null;
+                }
+                if (offscreenCanvas) {
+                    try {
+                        offscreenCanvas.width = 0;
+                        offscreenCanvas.height = 0;
+                    } catch (e) {}
+                    offscreenCanvas = null;
+                }
+                _activeChartExports.delete(chartId);
+                if (exportBtn) {
+                    exportBtn.disabled = false;
+                    exportBtn.removeAttribute('aria-busy');
+                    if (labelSpan && labelSpan.textContent !== 'Export Failed') {
+                        labelSpan.textContent = 'Export PNG';
+                    }
+                }
+            }
+        }
+
+        function teardownChartsInContainer(container) {
+            if (!container || !container.querySelectorAll) return;
+            const chartWrappers = container.querySelectorAll('.chart-visualization-wrapper');
+            chartWrappers.forEach((wrapper) => {
+                const chartId = wrapper.getAttribute('data-chart-id') || wrapper.id;
+                if (chartId) {
+                    destroyChartInstance(chartId);
+                }
+            });
+        }
+
+        function getChartThemeTokens(isDark) {
+            return {
+                isDark: isDark,
+                textColor: isDark ? '#a1a1aa' : '#71717a',
+                titleColor: isDark ? '#f4f4f5' : '#18181b',
+                gridColor: isDark ? 'rgba(255, 255, 255, 0.08)' : '#ececec',
+                borderColor: isDark ? 'rgba(63, 63, 70, 0.5)' : '#ececec',
+                tooltipBg: isDark ? '#18181b' : '#ffffff',
+                tooltipText: isDark ? '#f4f4f5' : '#18181b',
+                tooltipBorder: isDark ? 'rgba(63, 63, 70, 0.8)' : 'rgba(228, 228, 231, 0.9)',
+                palette: [
+                    '#3b82f6',
+                    '#10b981',
+                    '#f59e0b',
+                    '#8b5cf6',
+                    '#ec4899',
+                    '#06b6d4',
+                    '#f97316',
+                    '#64748b'
+                ]
+            };
+        }
+
+        function generateAccessibleChartTableHtml(config) {
+            if (!config || !config.data) return '';
+            const type = config.type;
+            const labels = config.data.labels || [];
+            const datasets = config.data.datasets || [];
+            const titleText = config.options?.plugins?.title?.text || (datasets[0]?.label || 'Data visualization');
+
+            let totalPoints = 0;
+            datasets.forEach((ds) => { totalPoints += (ds.data ? ds.data.length : 0); });
+
+            let tableContent = '';
+
+            if (type === 'scatter') {
+                tableContent = `
+                    <table class="chart-accessible-table w-full text-left text-xs border-collapse">
+                        <caption class="sr-only">${escapeHtml(titleText)} Coordinate Data</caption>
+                        <thead class="bg-zinc-50 dark:bg-zinc-800/60 font-semibold text-zinc-700 dark:text-zinc-300">
+                            <tr>
+                                <th scope="col" class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Series</th>
+                                <th scope="col" class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Point</th>
+                                <th scope="col" class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">X</th>
+                                <th scope="col" class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Y</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800 text-zinc-600 dark:text-zinc-400">
+                `;
+                datasets.forEach((ds) => {
+                    const dsLabel = ds.label || 'Dataset';
+                    (ds.data || []).forEach((pt, idx) => {
+                        tableContent += `
+                            <tr>
+                                <td class="px-3 py-1.5 font-medium text-zinc-900 dark:text-zinc-100">${escapeHtml(dsLabel)}</td>
+                                <th scope="row" class="px-3 py-1.5 font-normal">#${idx + 1}</th>
+                                <td class="px-3 py-1.5">${pt.x}</td>
+                                <td class="px-3 py-1.5">${pt.y}</td>
+                            </tr>
+                        `;
+                    });
+                });
+                tableContent += `</tbody></table>`;
+            } else {
+                tableContent = `
+                    <table class="chart-accessible-table w-full text-left text-xs border-collapse">
+                        <caption class="sr-only">${escapeHtml(titleText)} Tabular Data</caption>
+                        <thead class="bg-zinc-50 dark:bg-zinc-800/60 font-semibold text-zinc-700 dark:text-zinc-300">
+                            <tr>
+                                <th scope="col" class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">Category</th>
+                                ${datasets.map((ds) => `<th scope="col" class="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">${escapeHtml(ds.label || 'Value')}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800 text-zinc-600 dark:text-zinc-400">
+                `;
+                labels.forEach((lbl, idx) => {
+                    tableContent += `
+                        <tr>
+                            <th scope="row" class="px-3 py-1.5 font-medium text-zinc-900 dark:text-zinc-100">${escapeHtml(lbl)}</th>
+                            ${datasets.map((ds) => `<td class="px-3 py-1.5">${ds.data[idx] !== undefined ? ds.data[idx] : '-'}</td>`).join('')}
+                        </tr>
+                    `;
+                });
+                tableContent += `</tbody></table>`;
+            }
+
+            return `
+                <details class="chart-table-accordion mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-left select-none">
+                    <summary class="text-xs font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 rounded flex items-center justify-between">
+                        <span>📊 View Tabular Data (${datasets.length} series, ${totalPoints} points)</span>
+                        <span class="text-[10px] text-zinc-400">Accessible View</span>
+                    </summary>
+                    <div class="overflow-x-auto w-full max-w-full mt-2 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                        ${tableContent}
+                    </div>
+                </details>
+            `;
+        }
+
+        function buildChartJsRuntimeConfig(sanitizedConfig, themeTokens) {
+            let clonedData;
+            try {
+                clonedData = structuredClone(sanitizedConfig.data);
+            } catch (e) {
+                clonedData = JSON.parse(JSON.stringify(sanitizedConfig.data));
+            }
+
+            let clonedOptions;
+            try {
+                clonedOptions = structuredClone(sanitizedConfig.options);
+            } catch (e) {
+                clonedOptions = JSON.parse(JSON.stringify(sanitizedConfig.options));
+            }
+
+            if (clonedOptions.plugins) {
+                if (clonedOptions.plugins.title) {
+                    clonedOptions.plugins.title.color = themeTokens.titleColor;
+                    clonedOptions.plugins.title.font = {
+                        family: 'Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif',
+                        weight: '600',
+                        size: 13
+                    };
+                }
+                if (clonedOptions.plugins.legend) {
+                    clonedOptions.plugins.legend.position = clonedOptions.plugins.legend.position || 'bottom';
+                    clonedOptions.plugins.legend.labels = {
+                        color: themeTokens.textColor,
+                        font: {
+                            family: 'Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif',
+                            size: 12,
+                            weight: '500'
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        padding: 16
+                    };
+                }
+                if (clonedOptions.plugins.tooltip) {
+                    clonedOptions.plugins.tooltip.backgroundColor = themeTokens.tooltipBg;
+                    clonedOptions.plugins.tooltip.titleColor = themeTokens.tooltipText;
+                    clonedOptions.plugins.tooltip.bodyColor = themeTokens.tooltipText;
+                    clonedOptions.plugins.tooltip.borderColor = themeTokens.tooltipBorder;
+                    clonedOptions.plugins.tooltip.borderWidth = 1;
+                    clonedOptions.plugins.tooltip.padding = 8;
+                    clonedOptions.plugins.tooltip.cornerRadius = 8;
+                }
+            }
+
+            if (clonedOptions.scales) {
+                ['x', 'y'].forEach((axis) => {
+                    if (clonedOptions.scales[axis]) {
+                        clonedOptions.scales[axis].ticks = clonedOptions.scales[axis].ticks || {};
+                        clonedOptions.scales[axis].ticks.color = themeTokens.textColor;
+                        clonedOptions.scales[axis].ticks.font = {
+                            family: 'Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif',
+                            size: 11
+                        };
+                        clonedOptions.scales[axis].border = axis === 'y'
+                            ? { display: false, dash: [4, 4] }
+                            : { display: false };
+                        clonedOptions.scales[axis].grid = clonedOptions.scales[axis].grid || {};
+                        clonedOptions.scales[axis].grid.color = themeTokens.gridColor;
+                        if (axis === 'y') {
+                            clonedOptions.scales[axis].grid.tickLength = 0;
+                        }
+
+                        if (clonedOptions.scales[axis].title) {
+                            clonedOptions.scales[axis].title.color = themeTokens.textColor;
+                        }
+                    }
+                });
+            }
+
+            if (sanitizedConfig.type === 'bar') {
+                clonedData.datasets.forEach((ds) => {
+                    ds.borderRadius = { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 };
+                    ds.borderSkipped = 'bottom';
+                    if (ds.borderWidth === undefined) {
+                        ds.borderWidth = 0;
+                    }
+                });
+            }
+
+            if (sanitizedConfig.type === 'line') {
+                clonedData.datasets.forEach((ds, idx) => {
+                    if (ds.fill === 'origin') {
+                        const baseCol = Array.isArray(ds.backgroundColor) ? ds.backgroundColor[0] : (ds.backgroundColor || themeTokens.palette[idx % themeTokens.palette.length]);
+                        if (typeof baseCol === 'string' && baseCol.startsWith('#') && baseCol.length >= 7) {
+                            const r = parseInt(baseCol.slice(1, 3), 16) || 59;
+                            const g = parseInt(baseCol.slice(3, 5), 16) || 130;
+                            const b = parseInt(baseCol.slice(5, 7), 16) || 246;
+                            ds.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.18)`;
+                        }
+                    }
+                });
+            }
+
+            return {
+                type: sanitizedConfig.type,
+                data: clonedData,
+                options: clonedOptions
+            };
+        }
+
+        function renderChartDataVisualizations(rootElement, forceThemeUpdate = false) {
+            const container = rootElement || document;
+            if (!container || !container.querySelectorAll) return;
+
+            const isDark = (typeof document !== 'undefined') &&
+                (document.documentElement.classList.contains('dark') || (document.body && document.body.classList.contains('dark')));
+            const themeKey = isDark ? 'dark' : 'default';
+            const themeTokens = getChartThemeTokens(isDark);
+
+            if (forceThemeUpdate) {
+                const renderedWrappers = container.querySelectorAll('.chart-visualization-wrapper[data-chart-rendered="true"]');
+                renderedWrappers.forEach((wrapper) => {
+                    if (wrapper.getAttribute('data-chart-theme') !== themeKey) {
+                        const chartId = wrapper.getAttribute('data-chart-id') || wrapper.id;
+                        destroyChartInstance(chartId, true);
+                        wrapper.setAttribute('data-chart-pending', 'true');
+                        wrapper.setAttribute('data-chart-theme-update', 'true');
+                        wrapper.removeAttribute('data-chart-rendered');
+                    }
+                });
+            }
+
+            const pendingWrappers = container.querySelectorAll('.chart-visualization-wrapper[data-chart-pending="true"]');
+            if (!pendingWrappers || pendingWrappers.length === 0) return;
+
+            const isChartJsAvailable = (typeof Chart === 'function');
+
+            pendingWrappers.forEach((wrapper) => {
+                const chartId = wrapper.getAttribute('data-chart-id') || wrapper.id;
+                if (!chartId) return;
+
+                const isThemeRehydration = wrapper.getAttribute('data-chart-theme-update') === 'true';
+                wrapper.removeAttribute('data-chart-theme-update');
+
+                let sanitizedConfig = _chartConfigCache.get(chartId);
+                const rawEl = wrapper.querySelector('.chart-raw');
+                const rawText = rawEl ? rawEl.textContent : (wrapper.getAttribute('data-chart-raw') || '');
+                if (!sanitizedConfig) {
+                    const valResult = validateAndSanitizeChartConfig(rawText);
+                    if (valResult.valid) {
+                        sanitizedConfig = valResult.config;
+                        _chartConfigCache.set(chartId, sanitizedConfig);
+                    } else {
+                        wrapper.removeAttribute('data-chart-pending');
+                        wrapper.setAttribute('data-chart-rendered', 'error');
+                        return;
+                    }
+                }
+
+                destroyChartInstance(chartId, isThemeRehydration);
+
+                const tableHtml = generateAccessibleChartTableHtml(sanitizedConfig);
+
+                if (!isChartJsAvailable) {
+                    wrapper.innerHTML = `
+                        <div class="chart-fallback-container p-3.5 text-left rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">📊 Data Table View</span>
+                                <span class="text-[11px] text-zinc-400">Visualization library offline</span>
+                            </div>
+                            ${tableHtml.replace('class="chart-table-accordion mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-left select-none"', 'class="chart-table-accordion open" open')}
+                        </div>
+                        <pre class="chart-raw hidden" style="display:none">${escapeHtml(rawText || JSON.stringify(sanitizedConfig))}</pre>
+                    `;
+                    wrapper.removeAttribute('data-chart-pending');
+                    wrapper.setAttribute('data-chart-rendered', 'fallback');
+                    return;
+                }
+
+                try {
+                    wrapper.innerHTML = '';
+
+                    const isArea = sanitizedConfig.type === 'line' && sanitizedConfig.data.datasets.some((ds) => ds.fill === 'origin');
+                    const isScatter = (sanitizedConfig.type === 'scatter');
+                    const isCartesian = ['bar', 'line', 'scatter'].includes(sanitizedConfig.type);
+
+                    let dataPointsCount = 0;
+                    if (isScatter) {
+                        sanitizedConfig.data.datasets.forEach((ds) => { dataPointsCount += (ds.data ? ds.data.length : 0); });
+                    } else {
+                        dataPointsCount = sanitizedConfig.data.labels ? sanitizedConfig.data.labels.length : (sanitizedConfig.data.datasets[0]?.data?.length || 0);
+                    }
+
+                    const hasZoomControls = isCartesian && (dataPointsCount > 6);
+                    const badgeLabel = getChartTypeBadgeLabel(sanitizedConfig.type, isArea);
+                    const titleText = sanitizedConfig.options?.plugins?.title?.text || 'Data visualization';
+
+                    // 1. Chart Action Toolbar Header
+                    const toolbar = document.createElement('div');
+                    toolbar.className = 'chart-action-header flex items-center justify-between flex-wrap sm:flex-nowrap gap-1.5 mb-2.5 pb-2 border-b border-zinc-100 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400 select-none';
+                    toolbar.innerHTML = `
+                        <div class="flex items-center gap-2 min-w-0 pr-2">
+                            <span class="chart-type-badge font-mono text-[10.5px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60 shrink-0">${badgeLabel}</span>
+                            <span class="chart-title-text font-medium text-xs text-zinc-700 dark:text-zinc-300 truncate text-left" title="${escapeHtml(titleText)}">${escapeHtml(titleText)}</span>
+                        </div>
+                        <div class="chart-actions-right flex items-center gap-1 sm:gap-1.5 shrink-0">
+                            ${hasZoomControls ? `
+                            <div class="chart-zoom-controls flex items-center gap-1 shrink-0" role="group" aria-label="Chart zoom controls">
+                                <button type="button" class="chart-btn-zoom-in p-1.5 rounded-md text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer" aria-label="Zoom in" title="Zoom In">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                                </button>
+                                <button type="button" class="chart-btn-zoom-out p-1.5 rounded-md text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent" aria-label="Zoom out" title="Zoom Out" disabled>
+                                    <svg class="w-3.5 h-3.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                                </button>
+                                <button type="button" class="chart-btn-reset-zoom px-2 py-1 rounded-md text-[11px] font-medium text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-transparent" aria-label="Reset zoom view" title="Reset Zoom" disabled>
+                                    Reset
+                                </button>
+                            </div>` : ''}
+                            <button type="button" class="chart-btn-export-png flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Export chart as high-resolution PNG" title="Export High-Resolution PNG">
+                                <svg class="w-3.5 h-3.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                <span class="chart-export-btn-label">Export PNG</span>
+                            </button>
+                        </div>
+                    `;
+
+                    if (toolbar && typeof toolbar.addEventListener === 'function') {
+                        toolbar.addEventListener('click', (e) => {
+                            const btn = (e.target && typeof e.target.closest === 'function') ? e.target.closest('button') : null;
+                            if (!btn || btn.disabled) return;
+                            if (btn.classList && btn.classList.contains('chart-btn-zoom-in')) {
+                                handleChartZoom(chartId, 'in', wrapper);
+                            } else if (btn.classList && btn.classList.contains('chart-btn-zoom-out')) {
+                                handleChartZoom(chartId, 'out', wrapper);
+                            } else if (btn.classList && btn.classList.contains('chart-btn-reset-zoom')) {
+                                handleChartZoom(chartId, 'reset', wrapper);
+                            } else if (btn.classList && btn.classList.contains('chart-btn-export-png')) {
+                                exportChartAsPng(chartId, wrapper).catch(() => {});
+                            }
+                        });
+                    }
+
+                    wrapper.appendChild(toolbar);
+
+                    const canvasWrapper = document.createElement('div');
+                    canvasWrapper.className = 'chart-canvas-container relative w-full h-[280px] sm:h-[320px] max-w-full';
+
+                    const canvas = document.createElement('canvas');
+                    canvas.id = 'canvas_' + chartId;
+                    canvas.className = 'chartjs-canvas block w-full h-full';
+                    canvas.setAttribute('role', 'img');
+                    canvas.setAttribute('aria-label', `${titleText}. ${sanitizedConfig.type} chart.`);
+                    canvas.setAttribute('tabindex', '0');
+
+                    canvasWrapper.appendChild(canvas);
+                    wrapper.appendChild(canvasWrapper);
+
+                    const tableContainer = document.createElement('div');
+                    tableContainer.innerHTML = tableHtml;
+                    wrapper.appendChild(tableContainer.firstElementChild || tableContainer);
+
+                    const rawPre = document.createElement('pre');
+                    rawPre.className = 'chart-raw hidden';
+                    rawPre.setAttribute('style', 'display:none');
+                    rawPre.textContent = rawText || JSON.stringify(sanitizedConfig);
+                    wrapper.appendChild(rawPre);
+
+                    // Initialize or restore zoom state
+                    let zoomState = _chartZoomStates.get(chartId);
+                    if (!zoomState) {
+                        if (isScatter) {
+                            let allX = [];
+                            let allY = [];
+                            sanitizedConfig.data.datasets.forEach((ds) => {
+                                (ds.data || []).forEach((pt) => {
+                                    if (typeof pt.x === 'number' && Number.isFinite(pt.x)) allX.push(pt.x);
+                                    if (typeof pt.y === 'number' && Number.isFinite(pt.y)) allY.push(pt.y);
+                                });
+                            });
+                            const origXMin = allX.length > 0 ? Math.min(...allX) : 0;
+                            const origXMax = allX.length > 0 ? Math.max(...allX) : 10;
+                            const origYMin = allY.length > 0 ? Math.min(...allY) : 0;
+                            const origYMax = allY.length > 0 ? Math.max(...allY) : 10;
+                            zoomState = {
+                                isScatter: true,
+                                isZoomed: false,
+                                origXMin, origXMax, origYMin, origYMax,
+                                currentXMin: origXMin, currentXMax: origXMax,
+                                currentYMin: origYMin, currentYMax: origYMax
+                            };
+                        } else {
+                            const totalLabels = sanitizedConfig.data.labels ? sanitizedConfig.data.labels.length : 0;
+                            zoomState = {
+                                isScatter: false,
+                                isZoomed: false,
+                                origMin: 0,
+                                origMax: Math.max(0, totalLabels - 1),
+                                currentMin: 0,
+                                currentMax: Math.max(0, totalLabels - 1)
+                            };
+                        }
+                        _chartZoomStates.set(chartId, zoomState);
+                    }
+
+                    const runtimeConfig = buildChartJsRuntimeConfig(sanitizedConfig, themeTokens);
+
+                    if (zoomState.isZoomed && runtimeConfig.options && runtimeConfig.options.scales) {
+                        if (zoomState.isScatter) {
+                            if (runtimeConfig.options.scales.x) {
+                                runtimeConfig.options.scales.x.min = zoomState.currentXMin;
+                                runtimeConfig.options.scales.x.max = zoomState.currentXMax;
+                            }
+                            if (runtimeConfig.options.scales.y) {
+                                runtimeConfig.options.scales.y.min = zoomState.currentYMin;
+                                runtimeConfig.options.scales.y.max = zoomState.currentYMax;
+                            }
+                        } else if (runtimeConfig.options.scales.x) {
+                            runtimeConfig.options.scales.x.min = zoomState.currentMin;
+                            runtimeConfig.options.scales.x.max = zoomState.currentMax;
+                        }
+                    }
+
+                    const chartInstance = new Chart(canvas, runtimeConfig);
+                    _chartInstances.set(chartId, chartInstance);
+
+                    if (hasZoomControls) {
+                        updateZoomButtonStates(wrapper, zoomState);
+                    }
+
+                    wrapper.removeAttribute('data-chart-pending');
+                    wrapper.setAttribute('data-chart-rendered', 'true');
+                    wrapper.setAttribute('data-chart-theme', themeKey);
+                } catch (renderErr) {
+                    console.warn('[Chart.js] Render error for ' + chartId + ':', renderErr);
+                    destroyChartInstance(chartId);
+                    wrapper.innerHTML = `
+                        <div class="chart-fallback-container p-3.5 text-left rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">📊 Tabular Data</span>
+                                <span class="text-[11px] text-amber-600 dark:text-amber-400">Rendering fallback active</span>
+                            </div>
+                            ${tableHtml.replace('class="chart-table-accordion mt-3 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-left select-none"', 'class="chart-table-accordion open" open')}
+                        </div>
+                        <pre class="chart-raw hidden" style="display:none">${escapeHtml(rawText || JSON.stringify(sanitizedConfig))}</pre>
+                    `;
+                    wrapper.removeAttribute('data-chart-pending');
+                    wrapper.setAttribute('data-chart-rendered', 'error');
+                }
+            });
+        }
+
+        window._chartInstances = _chartInstances;
+        window._chartConfigCache = _chartConfigCache;
+        window._chartZoomStates = _chartZoomStates;
+        window._activeChartExports = _activeChartExports;
+        window.renderChartDataVisualizations = renderChartDataVisualizations;
+        window.teardownChartsInContainer = teardownChartsInContainer;
+        window.destroyChartInstance = destroyChartInstance;
+        window.generateAccessibleChartTableHtml = generateAccessibleChartTableHtml;
+        window.handleChartZoom = handleChartZoom;
+        window.getChartTypeBadgeLabel = getChartTypeBadgeLabel;
+        window.sanitizeExportFilename = sanitizeExportFilename;
+        window.exportChartAsPng = exportChartAsPng;
 
         function getCachedOrCompute(cache, key, computeFn) {
             if (cache.has(key)) return cache.get(key);
@@ -15328,6 +16623,14 @@
                         return renderMermaidPlaceholder(rawCode);
                     }
 
+                    // Phase 3.1: Chart.js data visualization rendering
+                    if (lang === 'chart') {
+                        return renderChartPlaceholder(rawCode);
+                    }
+                    if (lang === 'chart-streaming') {
+                        return `<div class="chart-streaming-wrapper my-3.5 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/30 p-6 text-center"><div class="inline-flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400"><svg class="w-4 h-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Generating data visualization...</span></div></div>`;
+                    }
+
                     const canonical = normalizePrismLang(lang);
                     const cacheKey = canonical + ':::' + rawCode;
 
@@ -15344,15 +16647,15 @@
 
                     const langClass = canonical ? `language-${escapeHtml(canonical)}` : '';
                     const langData = canonical ? ` data-lang="${escapeHtml(canonical)}"` : '';
-                    return `<pre class="bg-gray-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-3.5 my-2.5 font-mono text-[13.5px] leading-[1.5] overflow-x-auto text-zinc-800 dark:text-zinc-200"${langData}><code class="${langClass}">${highlighted}</code></pre>`;
+                    return `<pre dir="ltr" class="bg-[#f9f9f9] dark:bg-zinc-900 border border-[#e5e5e5] dark:border-zinc-800 rounded-xl p-3.5 my-5 font-mono text-[13.5px] leading-[1.5] overflow-x-auto text-zinc-800 dark:text-zinc-200"${langData}><code dir="ltr" class="${langClass}">${highlighted}</code></pre>`;
                 };
 
-                // Custom table renderer: wrap in responsive horizontal scroll container
+                // Custom table renderer: clean horizontal scroll wrapper without heavy card chrome
                 renderer.table = function (headerOrToken, body) {
                     if (typeof headerOrToken === 'object' && headerOrToken !== null) {
-                        return `<div class="overflow-x-auto my-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800">${marked.Renderer.prototype.table.call(this, headerOrToken, body)}</div>`;
+                        return `<div class="my-4 w-full overflow-x-auto">${marked.Renderer.prototype.table.call(this, headerOrToken, body)}</div>`;
                     }
-                    return `<div class="overflow-x-auto my-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800"><table class="w-full text-left text-[14.5px] border-collapse"><thead>${headerOrToken}</thead><tbody>${body || ''}</tbody></table></div>`;
+                    return `<div class="my-4 w-full overflow-x-auto"><table dir="auto" class="w-full text-start border-collapse"><thead>${headerOrToken}</thead><tbody>${body || ''}</tbody></table></div>`;
                 };
 
                 marked.use({
@@ -15423,7 +16726,7 @@
             html = `<p>${html.replace(/\n/g, '<br/>')}</p>`;
 
             inlineCodeBlocks.forEach((code, idx) => {
-                html = html.replace(`__FALLBACK_INLINE_CODE_${idx}__`, `<code>${code}</code>`);
+                html = html.replace(`__FALLBACK_INLINE_CODE_${idx}__`, `<code dir="ltr">${code}</code>`);
             });
 
             codeBlocks.forEach((item, idx) => {
@@ -15438,7 +16741,15 @@
                     html = html.replace(placeholder, renderMermaidPlaceholder(item.code));
                     return;
                 }
-                html = html.replace(placeholder, `<pre class="bg-gray-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-3.5 my-2.5 font-mono text-[13.5px] leading-[1.5] overflow-x-auto text-zinc-800 dark:text-zinc-200" data-lang="${escapeHtml(lang)}"><code class="language-${escapeHtml(lang)}">${item.code}</code></pre>`);
+                if (lang === 'chart') {
+                    html = html.replace(placeholder, renderChartPlaceholder(item.code));
+                    return;
+                }
+                if (lang === 'chart-streaming') {
+                    html = html.replace(placeholder, `<div class="chart-streaming-wrapper my-3.5 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/30 p-6 text-center"><div class="inline-flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400"><svg class="w-4 h-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span>Generating data visualization...</span></div></div>`);
+                    return;
+                }
+                html = html.replace(placeholder, `<pre dir="ltr" class="bg-[#f9f9f9] dark:bg-zinc-900 border border-[#e5e5e5] dark:border-zinc-800 rounded-xl p-3.5 my-5 font-mono text-[13.5px] leading-[1.5] overflow-x-auto text-zinc-800 dark:text-zinc-200" data-lang="${escapeHtml(lang)}"><code dir="ltr" class="language-${escapeHtml(lang)}">${item.code}</code></pre>`);
             });
 
             return html;
@@ -15451,22 +16762,58 @@
             _isMarkdownStreaming = isStreaming;
             _hasUnclosedStreamingMermaid = false;
 
-            // 1. Handle unclosed code blocks during streaming for layout stability
+            // 1. Handle unclosed code blocks during streaming for layout stability via stateful fence scanning
             if (isStreaming) {
-                const fenceMatches = str.match(/```/g);
-                if (fenceMatches && fenceMatches.length % 2 !== 0) {
-                    const lastFenceIndex = str.lastIndexOf('```');
-                    const afterFence = str.slice(lastFenceIndex + 3).trim();
-                    if (/^mermaid\b/i.test(afterFence)) {
-                        _hasUnclosedStreamingMermaid = true;
+                const lines = str.split('\n');
+                let currentFence = null;
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    if (!currentFence) {
+                        const openMatch = line.match(/^( {0,3})(`{3,}|~{3,})([^\n]*)$/);
+                        if (openMatch) {
+                            currentFence = {
+                                char: openMatch[2][0],
+                                length: openMatch[2].length,
+                                info: (openMatch[3] || '').trim().toLowerCase(),
+                                lineIndex: i
+                            };
+                        }
+                    } else {
+                        const closeMatch = line.match(/^( {0,3})(`{3,}|~{3,})\s*$/);
+                        if (closeMatch && closeMatch[2][0] === currentFence.char && closeMatch[2].length >= currentFence.length) {
+                            currentFence = null;
+                        }
                     }
-                    str += '\n```';
+                }
+
+                if (currentFence) {
+                    if (currentFence.info === 'mermaid') {
+                        _hasUnclosedStreamingMermaid = true;
+                        str += '\n' + currentFence.char.repeat(currentFence.length);
+                    } else if (currentFence.info === 'chart') {
+                        // Isolate incomplete streaming chart block so invalid partial JSON is never parsed
+                        const splitLines = str.split('\n');
+                        const beforeChart = splitLines.slice(0, currentFence.lineIndex).join('\n');
+                        str = (beforeChart ? beforeChart + '\n' : '') + '```chart-streaming\n```';
+                    } else {
+                        str += '\n' + currentFence.char.repeat(currentFence.length);
+                    }
+                } else {
+                    // Stabilize partial trailing Markdown table delimiter/row during streaming to prevent layout jitter
+                    const tableLines = str.split('\n');
+                    const lastIdx = tableLines.length - 1;
+                    const lastLine = (tableLines[lastIdx] || '').trim();
+                    const prevLine = lastIdx > 0 ? (tableLines[lastIdx - 1] || '').trim() : '';
+                    if (/^\|?[\s:\-|]+$/.test(lastLine) && lastLine.includes('-') && prevLine.includes('|') && !/^\s*\|?(?:\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?\s*$/.test(lastLine)) {
+                        tableLines.pop();
+                        str = tableLines.join('\n');
+                    }
                 }
             }
 
             // 2. Stash code blocks and inline code BEFORE math processing (protects variables like $HOME)
             const rawCodeBlocks = [];
-            str = str.replace(/```(?:[a-zA-Z0-9_\-:]+)?\n[\s\S]*?```/g, function (match) {
+            str = str.replace(/(?:```|~~~)(?:[a-zA-Z0-9_\-:]+)?\n[\s\S]*?(?:```|~~~)/g, function (match) {
                 const idx = rawCodeBlocks.length;
                 rawCodeBlocks.push(match);
                 return `%%%RAW_CODE_BLOCK_${idx}%%%`;
@@ -15528,7 +16875,8 @@
                 rawHtml = fallbackMarkdownRenderer(str);
             }
 
-            // 7. Protect pre and code blocks from citation replacement
+            // 7. Force dir="ltr" on all <pre> and <code> blocks, then protect them from citation replacement
+            rawHtml = rawHtml.replace(/<(pre|code)(?=\s|>)(?![^>]*\bdir\s*=)/gi, '<$1 dir="ltr"');
             const codePreBlocks = [];
             rawHtml = rawHtml.replace(/<pre\b[^>]*>[\s\S]*?<\/pre>/gi, function (match) {
                 const idx = codePreBlocks.length;
@@ -15540,6 +16888,10 @@
                 codePreBlocks.push(match);
                 return `<!--__PROSE_CODE_SPAN_${idx}__-->`;
             });
+
+            // 7b. Apply automatic bidirectional (dir="auto") to rendered Markdown blocks (p, h1-h6, li, blockquote, table)
+            // Executed after pre/code blocks are stashed so literal tags inside code remain untouched.
+            rawHtml = rawHtml.replace(/<(p|h[1-6]|li|blockquote|table)(?=\s|>)(?![^>]*\bdir\s*=)/gi, '<$1 dir="auto"');
 
             // 8. Modern ChatGPT-Style Inline Citations: replace [1], [2], [1, 2] with rich pills
             rawHtml = rawHtml.replace(/\[(\d+(?:\s*,\s*\d+)*)\](?!\()/g, function (match, group) {
@@ -15598,6 +16950,9 @@
                 rawHtml = rawHtml.replace(`<!--__PROSE_PRE_BLOCK_${idx}__-->`, block);
                 rawHtml = rawHtml.replace(`<!--__PROSE_CODE_SPAN_${idx}__-->`, block);
             });
+
+            // Collapse excessive blank paragraphs produced by markdown
+            rawHtml = rawHtml.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, '');
 
             // 11. Sanitize untrusted content via DOMPurify
             if (typeof DOMPurify !== 'undefined' && typeof DOMPurify.sanitize === 'function') {
@@ -15906,8 +17261,48 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 mermaid.initialize({
                     startOnLoad: false,
                     securityLevel: 'strict',
-                    theme: themeKey,
+                    theme: 'base',
                     fontFamily: 'Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif',
+                    flowchart: {
+                        curve: 'basis',
+                        padding: 16,
+                        nodeSpacing: 36,
+                        rankSpacing: 44,
+                        useMaxWidth: true
+                    },
+                    themeVariables: isDark ? {
+                        darkMode: true,
+                        background: 'transparent',
+                        primaryColor: '#1e293b',
+                        primaryTextColor: '#f1f5f9',
+                        primaryBorderColor: '#334155',
+                        secondaryColor: '#1e1b4b',
+                        secondaryTextColor: '#e0e7ff',
+                        secondaryBorderColor: '#3730a3',
+                        tertiaryColor: '#064e3b',
+                        tertiaryTextColor: '#d1fae5',
+                        tertiaryBorderColor: '#065f46',
+                        lineColor: '#64748b',
+                        textColor: '#e2e8f0',
+                        fontSize: '13px',
+                        fontFamily: 'Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif'
+                    } : {
+                        darkMode: false,
+                        background: 'transparent',
+                        primaryColor: '#eff6ff',
+                        primaryTextColor: '#1e3a8a',
+                        primaryBorderColor: '#bfdbfe',
+                        secondaryColor: '#f5f3ff',
+                        secondaryTextColor: '#4c1d95',
+                        secondaryBorderColor: '#ddd6fe',
+                        tertiaryColor: '#ecfdf5',
+                        tertiaryTextColor: '#064e3b',
+                        tertiaryBorderColor: '#a7f3d0',
+                        lineColor: '#94a3b8',
+                        textColor: '#1e293b',
+                        fontSize: '13px',
+                        fontFamily: 'Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif'
+                    },
                     suppressErrorRendering: true
                 });
             } catch (e) {
@@ -16003,6 +17398,11 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 renderMermaidDiagrams(container);
             }
 
+            // Phase 3.1: Render any pending Chart.js data visualizations in this container (hydrates only on completed responses)
+            if (typeof renderChartDataVisualizations === 'function' && !_isMarkdownStreaming) {
+                renderChartDataVisualizations(container);
+            }
+
             const codeElements = container.querySelectorAll('pre > code');
 
             codeElements.forEach((codeEl) => {
@@ -16040,18 +17440,19 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     }
                 }
 
-                // Dual-theme responsive container wrapper
+                // Dual-theme responsive container wrapper (Always LTR)
                 const wrapper = document.createElement('div');
-                wrapper.className = 'code-block-wrapper my-3 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-[#f8fafc] dark:bg-[#181825] shadow-sm';
+                wrapper.setAttribute('dir', 'ltr');
+                wrapper.className = 'code-block-wrapper my-5 rounded-xl border border-[#e5e5e5] dark:border-zinc-800 overflow-hidden bg-[#f9f9f9] dark:bg-[#181825]';
 
                 // Top Header
                 const header = document.createElement('div');
-                header.className = 'code-block-header flex items-center justify-between px-3.5 py-1.5 bg-slate-100 dark:bg-[#11111b] border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-400 select-none';
+                header.className = 'code-block-header bg-[#efefef] dark:bg-[#11111b] px-4 py-2 flex items-center justify-between border-b border-[#e5e5e5] dark:border-zinc-800 select-none';
 
-                // Left: Detected programming language/type
+                // Left: Detected programming language/type (lowercase)
                 const langLabel = document.createElement('span');
-                langLabel.className = 'lang-badge font-mono text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider';
-                langLabel.textContent = (lang || 'code').toUpperCase();
+                langLabel.className = 'lang-badge text-[12px] font-mono text-[#5e5e5e] dark:text-zinc-400';
+                langLabel.textContent = (lang || 'code').toLowerCase();
 
                 // Right: Functional Copy button
                 const copyBtn = document.createElement('button');
@@ -16087,7 +17488,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                             <svg class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"/>
                             </svg>
-                            <span class="copy-label text-emerald-600 dark:text-emerald-400 font-medium">Copied!</span>
+                            <span class="copy-label text-emerald-600 dark:text-emerald-400 font-medium">Copied</span>
                         `;
                         if (typeof showStudioToast === 'function') showStudioToast('Code copied to clipboard');
                         setTimeout(() => {
@@ -16107,7 +17508,9 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 header.appendChild(langLabel);
                 header.appendChild(copyBtn);
 
-                // Clean pre element background so wrapper handles background & border
+                // Clean pre element background so wrapper handles background & border (always LTR)
+                preEl.setAttribute('dir', 'ltr');
+                codeEl.setAttribute('dir', 'ltr');
                 preEl.className = 'font-mono text-[13.5px] leading-[1.5] p-3.5 overflow-x-auto m-0 border-none rounded-none bg-transparent';
 
                 preEl.parentNode.insertBefore(wrapper, preEl);
@@ -16127,6 +17530,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                             if (typeof renderMermaidDiagrams === 'function') {
                                 renderMermaidDiagrams(document.getElementById('messages-container'));
                                 renderMermaidDiagrams(document.getElementById('project-chat-messages'));
+                            }
+                            if (typeof renderChartDataVisualizations === 'function') {
+                                renderChartDataVisualizations(document.getElementById('messages-container'), true);
+                                renderChartDataVisualizations(document.getElementById('project-chat-messages'), true);
                             }
                         }
                     }
@@ -16160,7 +17567,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     <svg class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 shrink-0 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"/>
                     </svg>
-                    <span class="copy-label text-emerald-600 dark:text-emerald-400 font-medium">Copied!</span>
+                    <span class="copy-label text-emerald-600 dark:text-emerald-400 font-medium">Copied</span>
                 `;
                 if (typeof showStudioToast === 'function') showStudioToast('Code copied to clipboard');
                 setTimeout(() => {
@@ -17283,24 +18690,24 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             }
 
             if (report.keyFindings && report.keyFindings.length > 0) {
-                html += `<h3 class="text-[18px] font-semibold text-zinc-900 dark:text-zinc-50 mt-4 mb-2 leading-[1.4]">Key Findings</h3>`;
-                html += `<ul class="space-y-1.5 mb-3 pl-5 list-disc text-zinc-800 dark:text-zinc-200">`;
+                html += `<h3 dir="auto" class="text-[16px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-1.5 leading-[1.45]">Key Findings</h3>`;
+                html += `<ul class="space-y-1.5 mb-3 ps-6 list-disc marker:text-[#0d0d0d] dark:marker:text-zinc-100 text-[#0d0d0d] dark:text-zinc-100">`;
                 report.keyFindings.forEach(kf => {
-                    html += `<li class="leading-[1.65] text-[16px] pl-0.5">${formatAssistantMarkdown(kf, sources)}</li>`;
+                    html += `<li dir="auto" class="leading-[1.72] text-[15.5px] text-[#0d0d0d] dark:text-zinc-100 ps-0.5">${formatAssistantMarkdown(kf, sources)}</li>`;
                 });
                 html += `</ul>`;
             }
 
             if (report.sections && report.sections.length > 0) {
                 report.sections.forEach(sec => {
-                    html += `<h3 class="text-[18px] font-semibold text-zinc-900 dark:text-zinc-50 mt-4 mb-2 leading-[1.4]">${escapeHtml(sec.title)}</h3>`;
-                    html += `<div class="mb-3 text-[16px] text-zinc-800 dark:text-zinc-100 leading-[1.65]">${formatAssistantMarkdown(sec.content, sources)}</div>`;
+                    html += `<h3 dir="auto" class="text-[16px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-1.5 leading-[1.45]">${escapeHtml(sec.title)}</h3>`;
+                    html += `<div class="mb-3 text-[15.5px] text-[#1f1f1f] dark:text-zinc-100 leading-[1.72] tracking-[-0.005em] antialiased">${formatAssistantMarkdown(sec.content, sources)}</div>`;
                 });
             }
 
             if (report.conclusion) {
-                html += `<h3 class="text-[18px] font-semibold text-zinc-900 dark:text-zinc-50 mt-4 mb-2 leading-[1.4]">Conclusion</h3>`;
-                html += `<div class="mb-3 text-[16px] text-zinc-800 dark:text-zinc-100 leading-[1.65]">${formatAssistantMarkdown(report.conclusion, sources)}</div>`;
+                html += `<h3 dir="auto" class="text-[16px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-1.5 leading-[1.45]">Conclusion</h3>`;
+                html += `<div class="mb-3 text-[15.5px] text-[#1f1f1f] dark:text-zinc-100 leading-[1.72] tracking-[-0.005em] antialiased">${formatAssistantMarkdown(report.conclusion, sources)}</div>`;
             }
 
             return html;
@@ -17445,10 +18852,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
 
         function createMessageActionBar({ msg, msgRow, textToCopy, sources, onRegenerate, extraButtons = [] }) {
             const toolbar = document.createElement('div');
-            toolbar.className = 'flex items-center gap-1.5 pt-2 text-zinc-400 dark:text-zinc-500 select-none self-start';
+            toolbar.className = 'w-full flex items-center gap-1.5 mt-3 pt-0.5 clear-both shrink-0 text-zinc-400 dark:text-zinc-500 select-none opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 sm:group-last:opacity-100 transition-opacity duration-150';
 
-            const defaultBtnClass = 'p-1 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md transition-colors flex items-center justify-center cursor-pointer';
-            const activeBtnClass = 'p-1 text-zinc-800 dark:text-zinc-100 bg-gray-100 dark:bg-zinc-800 rounded-md transition-colors flex items-center justify-center cursor-pointer';
+            const defaultBtnClass = 'p-1.5 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md transition-colors flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500';
+            const activeBtnClass = 'p-1.5 text-zinc-800 dark:text-zinc-100 bg-gray-100 dark:bg-zinc-800 rounded-md transition-colors flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500';
 
             // Copy Icon Button
             const copyBtn = document.createElement('button');
@@ -17625,6 +19032,20 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 extraButtons.forEach(btn => toolbar.appendChild(btn));
             }
 
+            // Subtle resolved model label & fallback notice inside action bar
+            if (msg && (msg.resolvedModel || msg.model)) {
+                const rawModel = msg.resolvedModel || msg.model;
+                const matchedModel = (typeof AVAILABLE_MODELS !== 'undefined' && Array.isArray(AVAILABLE_MODELS))
+                    ? AVAILABLE_MODELS.find(m => m.id === rawModel || m.openRouterModel === rawModel)
+                    : null;
+                const modelLabel = matchedModel ? matchedModel.name : rawModel;
+                const modelBadge = document.createElement('span');
+                modelBadge.className = 'ms-auto text-[11px] font-medium text-zinc-400 dark:text-zinc-500 select-none truncate max-w-[220px]';
+                modelBadge.title = msg.fallbackNotice ? msg.fallbackNotice : `Model: ${rawModel}`;
+                modelBadge.textContent = msg.fallbackNotice ? `${modelLabel} (fallback)` : modelLabel;
+                toolbar.appendChild(modelBadge);
+            }
+
             return toolbar;
         }
         window.createMessageActionBar = createMessageActionBar;
@@ -17791,7 +19212,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             let contentContainer = null;
             if (hasTextToDisplay) {
                 contentContainer = document.createElement('div');
-                contentContainer.className = 'w-full max-w-2xl text-zinc-800 dark:text-zinc-100 text-[15px] leading-relaxed select-text text-left prose-chat chat-response-prose';
+                contentContainer.className = 'w-full text-[15.5px] leading-[1.72] tracking-[-0.005em] text-[#1f1f1f] dark:text-zinc-100 antialiased select-text text-start prose-chat chat-response-prose';
                 if (msg.content && msg.content.trim()) {
                     contentContainer.innerHTML = formatAssistantMarkdown(msg.content, deepSources, Boolean(msg.isStreaming));
                 } else if (report) {
@@ -17983,19 +19404,85 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             }
         }
 
+        const _convSyncTimers = new Map();
+
+        function getAuthHeadersForSync() {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = window.mestrioAuthToken || localStorage.getItem('mestrio_auth_token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return headers;
+        }
+
         async function syncConversationToServer(conv) {
-            // Chat history is maintained purely locally in localStorage
-            return;
+            if (!conv || !conv.id || conv.isIncognito) return;
+            if (_convSyncTimers.has(conv.id)) {
+                clearTimeout(_convSyncTimers.get(conv.id));
+            }
+            const timer = setTimeout(async () => {
+                _convSyncTimers.delete(conv.id);
+                try {
+                    await fetch(`${getApiBaseUrl()}/api/history/conversations`, {
+                        method: 'POST',
+                        headers: getAuthHeadersForSync(),
+                        body: JSON.stringify({
+                            id: conv.id,
+                            title: conv.title || 'New Chat',
+                            modelId: conv.model || chatState.selectedModel || 'mahi-engine',
+                            mode: conv.mode || 'chat',
+                            projectId: conv.projectId || null,
+                            created_at: conv.createdAt || new Date().toISOString()
+                        })
+                    });
+                } catch (_) {
+                    // Offline cache in localStorage remains intact
+                }
+            }, 250);
+            _convSyncTimers.set(conv.id, timer);
         }
 
         async function syncMessageToServer(conversationId, msg) {
-            // Chat history is maintained purely locally in localStorage
-            return;
+            if (!conversationId || !msg || !msg.id) return;
+            const conv = (chatState.conversations || []).find(c => c.id === conversationId);
+            if (conv && conv.isIncognito) return;
+            setTimeout(async () => {
+                try {
+                    await fetch(`${getApiBaseUrl()}/api/history/conversations/${encodeURIComponent(conversationId)}/messages`, {
+                        method: 'POST',
+                        headers: getAuthHeadersForSync(),
+                        body: JSON.stringify({
+                            id: msg.id,
+                            role: msg.role || 'user',
+                            content: msg.content || '',
+                            type: msg.imageUrl ? 'image' : 'text',
+                            metadata: {
+                                model: msg.model || null,
+                                resolvedModel: msg.resolvedModel || null,
+                                imageUrl: msg.imageUrl || null,
+                                sources: Array.isArray(msg.sources) ? msg.sources : undefined
+                            }
+                        })
+                    });
+                } catch (_) {
+                    // Offline cache in localStorage remains intact
+                }
+            }, 300);
         }
 
         async function fetchAndRestoreConversation(id) {
-            // Chat history is restored purely from local storage state
-            return;
+            if (!id) return null;
+            try {
+                const res = await fetch(`${getApiBaseUrl()}/api/history/conversations/${encodeURIComponent(id)}`, {
+                    headers: getAuthHeadersForSync()
+                });
+                if (!res.ok) return null;
+                const json = await res.json();
+                if (json?.success && json.data) {
+                    return json.data;
+                }
+            } catch (_) { }
+            return null;
         }
 
         async function deleteConversationById(id) {
@@ -18017,6 +19504,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             saveToLocalStorage();
             renderRecentChats();
             renderCurrentConversation();
+            fetch(`${getApiBaseUrl()}/api/history/conversations/${encodeURIComponent(id)}`, {
+                method: 'DELETE',
+                headers: getAuthHeadersForSync()
+            }).catch(() => {});
             if (typeof showStudioToast === 'function') {
                 showStudioToast('Conversation deleted');
             }
@@ -18024,8 +19515,48 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
         window.deleteConversationById = deleteConversationById;
 
         async function syncHistoryFromServer() {
-            // Chat history is maintained purely locally in localStorage
-            return;
+            const hasToken = Boolean(window.mestrioAuthToken || localStorage.getItem('mestrio_auth_token'));
+            if (!hasToken) return;
+            try {
+                const res = await fetch(`${getApiBaseUrl()}/api/history/conversations?limit=50`, {
+                    headers: getAuthHeadersForSync()
+                });
+                if (!res.ok) return;
+                const json = await res.json();
+                if (!json?.success || !Array.isArray(json.data) || json.data.length === 0) return;
+
+                let changed = false;
+                for (const srvConv of json.data) {
+                    const existing = chatState.conversations.find(c => c.id === srvConv.id);
+                    if (!existing) {
+                        const detail = await fetchAndRestoreConversation(srvConv.id);
+                        chatState.conversations.push({
+                            id: srvConv.id,
+                            title: srvConv.title || 'New conversation',
+                            projectId: srvConv.project_id || null,
+                            createdAt: srvConv.created_at || new Date().toISOString(),
+                            messages: Array.isArray(detail?.messages) ? detail.messages.map(m => ({
+                                id: m.id,
+                                role: m.role,
+                                content: m.content,
+                                model: m.metadata?.model || srvConv.model_id,
+                                resolvedModel: m.metadata?.resolvedModel || null,
+                                imageUrl: m.metadata?.imageUrl || null,
+                                sources: m.metadata?.sources || [],
+                                createdAt: m.created_at
+                            })) : [],
+                            pendingCount: 0
+                        });
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    saveToLocalStorage();
+                    renderRecentChats();
+                }
+            } catch (_) {
+                // Keep localStorage offline cache on network error
+            }
         }
         window.syncHistoryFromServer = syncHistoryFromServer;
 
@@ -18133,6 +19664,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             }
 
             stopSpeechRecognition();
+            if (typeof teardownChartsInContainer === 'function') {
+                teardownChartsInContainer(document.getElementById('messages-container'));
+                teardownChartsInContainer(document.getElementById('project-chat-messages'));
+            }
             chatState.currentConversationId = id;
             chatState.isIncognito = Boolean(conv.isIncognito);
 
@@ -18154,6 +19689,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             fetchAndRestoreConversation(id);
 
             stopSpeechRecognition();
+            if (typeof teardownChartsInContainer === 'function') {
+                teardownChartsInContainer(document.getElementById('messages-container'));
+                teardownChartsInContainer(document.getElementById('project-chat-messages'));
+            }
             chatState.currentConversationId = id;
             chatState.isIncognito = Boolean(conv.isIncognito);
 
@@ -20103,6 +21642,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
 
             const targetIdx = currentConv.messages.findIndex(m => m.id === msgId);
             if (targetIdx === -1) return;
+            const targetMsg = currentConv.messages[targetIdx];
 
             let userPrompt = 'Please continue';
             for (let i = targetIdx - 1; i >= 0; i--) {
@@ -20441,6 +21981,9 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
 
         function renderConversationMessages(container, currentConv) {
             if (!container || !currentConv) return;
+            if (typeof teardownChartsInContainer === 'function') {
+                teardownChartsInContainer(container);
+            }
             container.innerHTML = '';
 
             if ((!currentConv.messages || currentConv.messages.length === 0) && (!currentConv.pendingCount || currentConv.pendingCount <= 0)) {
@@ -20460,15 +22003,11 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
             }
 
             // Full width scroll area on container matching exact architecture:
-            if (container.id === 'project-chat-messages') {
-                container.className = 'w-full flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-6 min-h-0';
-            } else {
-                container.className = 'w-full flex-1 overflow-y-auto px-4 md:px-8 py-6 flex flex-col gap-6 min-h-0';
-            }
+            container.className = 'w-full flex-1 overflow-y-auto py-6 flex flex-col min-h-0';
 
             const contentWrapper = document.createElement('div');
             contentWrapper.id = container.id === 'project-chat-messages' ? 'project-messages-content-wrapper' : 'messages-content-wrapper';
-            contentWrapper.className = 'w-full flex-1 flex flex-col gap-6 min-h-0';
+            contentWrapper.className = 'w-full flex-1 flex flex-col space-y-6 min-h-0';
             container.appendChild(contentWrapper);
 
             // Render conversation messages into contentWrapper with decoupled row widths
@@ -20482,9 +22021,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     const stableUserKey = msg.id || (`msg_user_${currentConv.id || 'conv'}_${msgIndex}`);
                     msgRow.setAttribute('data-msg-id', stableUserKey);
                     msgRow.setAttribute('key', stableUserKey);
+                    const newTurnSpacing = msgIndex > 0 ? ' !mt-8' : '';
                     msgRow.className = isPrecedingCompare
-                        ? 'w-full max-w-[1400px] mx-auto flex flex-col items-end pr-2 space-y-1.5 group relative'
-                        : 'w-full max-w-3xl mx-auto flex flex-col items-end space-y-1.5 group relative';
+                        ? `w-full max-w-[1400px] mx-auto px-4 sm:px-6 flex flex-col items-end pe-2 space-y-1.5 group relative${newTurnSpacing}`
+                        : `w-full max-w-[768px] mx-auto px-4 sm:px-6 flex flex-col items-end space-y-1.5 group relative${newTurnSpacing}`;
 
                     if (msg.attachments && msg.attachments.length > 0) {
                         const attContainer = document.createElement('div');
@@ -20505,10 +22045,11 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     if (msg.content) {
                         const isWebSearch = Boolean(msg.badge === 'Web Search' || msg.webSearch);
                         const bubble = document.createElement('div');
+                        bubble.setAttribute('dir', 'auto');
                         if (isWebSearch) {
-                            bubble.className = 'user-message-bubble bg-gray-100/90 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 rounded-2xl rounded-br-sm px-4 py-2 text-[15px] leading-6 break-words shadow-xs select-text';
+                            bubble.className = 'user-message-bubble bg-gray-100/90 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 rounded-2xl rounded-br-sm px-4 py-2 text-[15px] leading-6 break-words shadow-xs select-text text-start';
                             bubble.innerHTML = `
-                                <span class="inline-flex items-center gap-1.5 font-medium text-zinc-800 dark:text-zinc-200 mr-1 select-none">
+                                <span class="inline-flex items-center gap-1.5 font-medium text-zinc-800 dark:text-zinc-200 me-1 select-none">
                                     <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10"/>
                                         <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
@@ -20519,7 +22060,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                                 <span class="whitespace-pre-wrap">${escapeHtml(msg.content)}</span>
                             `;
                         } else {
-                            bubble.className = 'user-message-bubble bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 rounded-2xl rounded-br-sm px-4 py-2 max-w-[80%] text-[15px] leading-6 break-words whitespace-pre-wrap shadow-xs select-text';
+                            bubble.className = 'user-message-bubble bg-[var(--chat-user-bubble-bg)] text-[var(--chat-user-bubble-text)] rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[85%] sm:max-w-[70%] text-[15px] leading-6 break-words whitespace-pre-wrap shadow-xs select-text text-start';
                             bubble.textContent = msg.content;
                         }
                         displayWrapper.appendChild(bubble);
@@ -20604,6 +22145,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     editWrapper.className = 'user-prompt-edit-container hidden w-full max-w-xl flex flex-col items-end gap-2 self-end';
 
                     const editTextarea = document.createElement('textarea');
+                    editTextarea.setAttribute('dir', 'auto');
                     editTextarea.className = 'user-prompt-edit-textarea bg-gray-100 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-100 rounded-2xl p-3 border-none focus:ring-1 focus:ring-blue-500 outline-none w-full max-w-xl resize-none leading-relaxed';
                     editTextarea.value = msg.content || '';
                     editTextarea.placeholder = 'Edit prompt...';
@@ -20686,7 +22228,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     contentWrapper.appendChild(msgRow);
                 } else if (msg.isDeepResearch) {
                     const researchRow = renderDeepResearchMessage(msg);
-                    researchRow.className = 'w-full max-w-3xl mx-auto py-3 flex flex-col items-start text-left group';
+                    researchRow.className = 'w-full max-w-[768px] mx-auto px-4 sm:px-6 py-3 flex flex-col items-stretch text-start group';
                     contentWrapper.appendChild(researchRow);
                 } else if (msg.isCompare || msg.type === 'compare') {
                     const compareRow = renderCompareMessage(msg);
@@ -20700,7 +22242,7 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     const stableAiKey = msg.id || (`msg_ai_${currentConv.id || 'conv'}_${msgIndex}`);
                     msgRow.setAttribute('data-msg-id', stableAiKey);
                     msgRow.setAttribute('key', stableAiKey);
-                    msgRow.className = 'w-full max-w-3xl mx-auto py-2 flex flex-col items-start text-left group';
+                    msgRow.className = 'chat-assistant-row w-full max-w-[768px] mx-auto px-4 sm:px-6 py-1 flex flex-col items-stretch text-start group';
 
                     let cleanContent = (msg.content || '')
                         .replace(/\[Web Search Active\][^\n]*\n*/gi, '')
@@ -20738,7 +22280,11 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                     // Response text directly on plain page background with clean, natural typography matching Perplexity scale
                     if (!msg.imageUrl && (cleanContent || msg.isStreaming)) {
                         const textEl = document.createElement('div');
-                        textEl.className = 'w-full text-zinc-800 dark:text-zinc-100 text-[16px] leading-[1.65] select-text text-left prose-chat chat-response-prose';
+                        textEl.className = 'w-full text-[15.5px] leading-[1.72] tracking-[-0.005em] text-[#1f1f1f] dark:text-zinc-100 antialiased select-text text-start prose-chat chat-response-prose';
+                        if (msg.isStreaming) {
+                            textEl.setAttribute('data-streaming', 'true');
+                            textEl.setAttribute('aria-live', 'polite');
+                        }
                         textEl.innerHTML = formatAssistantMarkdown(cleanContent, msg.sources, Boolean(msg.isStreaming));
                         msgRow.appendChild(textEl);
 
@@ -20932,32 +22478,24 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                         msgRow.appendChild(imageCard);
                     }
 
-                    // 2. Model Attribution (When non-default model is used, suppressed for image generation)
-                    const effectiveModelId = msg.model ||
-                        (typeof getProjectActiveSelectedModel === 'function' ? getProjectActiveSelectedModel() : null) ||
-                        (typeof currentActiveProjectId !== 'undefined' && currentActiveProjectId && typeof getProjectSelectedModel === 'function' ? getProjectSelectedModel(currentActiveProjectId) : null) ||
-                        (chatState && chatState.selectedModel) ||
-                        'mahi-engine';
-                    const modelObj = effectiveModelId && typeof AVAILABLE_MODELS !== 'undefined' ? AVAILABLE_MODELS.find(m =>
-                        m.id === effectiveModelId ||
-                        m.name === effectiveModelId ||
-                        (typeof getCanonicalModelId === 'function' && getCanonicalModelId(m.id) === getCanonicalModelId(effectiveModelId)) ||
-                        ((effectiveModelId === 'mahi-engine' || effectiveModelId === 'Mahi Engine (Standard)') && (m.id === 'mahi-engine' || m.id === 'Mahi Engine (Standard)' || m.isDefault))
-                    ) : null;
-                    const isDefaultEngine = !modelObj || modelObj.id === 'mahi-engine' || modelObj.name === 'Mahi Engine (Standard)' || Boolean(modelObj.isDefault);
-
-                    if (!msg.imageUrl && !isDefaultEngine && modelObj) {
-                        const attribution = document.createElement('div');
-                        attribution.className = 'text-xs text-zinc-500 dark:text-zinc-400 font-medium inline-flex items-center gap-1.5 mt-2 select-none self-start';
-                        attribution.innerHTML = `
-                            <span class="inline-flex items-center justify-center w-3.5 h-3.5 shrink-0">${getProviderIconSvg(modelObj.provider, true, 'w-3.5 h-3.5')}</span>
-                            <span>${escapeHtml(modelObj.name)}</span>
-                        `;
-                        msgRow.appendChild(attribution);
+                    // Inline stream error banner with Retry button (preserves partial text)
+                    if (msg.streamError) {
+                        const errBanner = document.createElement('div');
+                        errBanner.className = 'mt-3 w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 text-xs';
+                        const errMsgSpan = document.createElement('span');
+                        errMsgSpan.textContent = msg.streamError;
+                        const retryErrBtn = document.createElement('button');
+                        retryErrBtn.type = 'button';
+                        retryErrBtn.className = 'shrink-0 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500';
+                        retryErrBtn.textContent = 'Retry';
+                        retryErrBtn.onclick = () => handleRegenerateResponse(msg.id);
+                        errBanner.appendChild(errMsgSpan);
+                        errBanner.appendChild(retryErrBtn);
+                        msgRow.appendChild(errBanner);
                     }
 
                     // Unified Action Toolbar Below Response (shown immediately when completed, latest or older)
-                    const hasMessageContent = Boolean((cleanContent && cleanContent.trim()) || (msg.content && String(msg.content).trim()) || msg.imageUrl);
+                    const hasMessageContent = Boolean((cleanContent && cleanContent.trim()) || (msg.content && String(msg.content).trim()) || msg.imageUrl || msg.streamError);
                     const isStreamFinished = !msg.isStreaming || msg.status === 'complete' || msg.status === 'completed' || !window.isGeneratingChatResponse || (msgIndex < currentConv.messages.length - 1);
                     const isCompletedResponse = hasMessageContent && isStreamFinished;
                     if (isCompletedResponse) {
@@ -20975,28 +22513,24 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 }
             });
 
-            // Seamless loading state when assistant is "thinking" (Brain Icon + Shimmering "Thinking...")
+            // Subtle 3-dot thinking indicator between send and first token
             if (currentConv.pendingCount && currentConv.pendingCount > 0) {
                 const loadingRow = document.createElement('div');
-                loadingRow.className = 'w-full max-w-3xl mx-auto py-2 flex items-center select-none';
+                loadingRow.className = 'w-full max-w-[768px] mx-auto px-4 sm:px-6 py-2 flex items-center select-none';
+                loadingRow.setAttribute('aria-label', 'Assistant is thinking');
                 loadingRow.innerHTML = `
-                    <svg class="w-4 h-4 text-black dark:text-white mr-2 shrink-0 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
-                        <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
-                        <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
-                        <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
-                        <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
-                        <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
-                        <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
-                        <path d="M6 18a4 4 0 0 1-1.967-.516"/>
-                        <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
-                    </svg>
-                    <span class="thinking-shimmer">Thinking...</span>
+                    <div class="thinking-dots" role="status">
+                        <span></span><span></span><span></span>
+                    </div>
                 `;
                 contentWrapper.appendChild(loadingRow);
             }
 
-            container.scrollTop = container.scrollHeight;
+            if (typeof smartScrollToBottom === 'function') {
+                smartScrollToBottom(container, false);
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
             if (typeof enhanceCodeBlocks === 'function') {
                 enhanceCodeBlocks(container);
             }
@@ -21053,11 +22587,21 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                         heroTitle.textContent = "You're incognito";
                         heroTitle.className = 'text-3xl font-medium tracking-tight text-zinc-900 dark:text-zinc-100 text-center mb-6';
                     } else {
-                        heroTitle.setAttribute('data-i18n', 'chat.greeting');
-                        heroTitle.textContent = "What would you like to do today?";
+                        const storedUserName = (typeof window.currentUserName === 'string' && window.currentUserName.trim())
+                            ? window.currentUserName.trim()
+                            : (localStorage.getItem('mestrio_user_name') || '').trim();
+                        if (storedUserName) {
+                            heroTitle.removeAttribute('data-i18n');
+                            heroTitle.textContent = `What can I help with, ${storedUserName}?`;
+                        } else {
+                            heroTitle.setAttribute('data-i18n', 'chat.greeting');
+                            heroTitle.textContent = "What would you like to do today?";
+                        }
                         heroTitle.className = 'text-3xl md:text-4xl font-normal tracking-tight text-zinc-800 dark:text-zinc-100 font-serif';
                     }
                 }
+                const _quickPrompts = document.getElementById('hero-quick-prompts');
+                if (_quickPrompts) _quickPrompts.classList.remove('hidden');
                 if (incognitoFootnote) {
                     if (isIncog) {
                         incognitoFootnote.classList.remove('hidden');
@@ -21074,6 +22618,9 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 const _strip = document.getElementById('chat-conv-header-strip');
                 if (_strip) _strip.classList.add('hidden');
                 if (messagesContainer) {
+                    if (typeof teardownChartsInContainer === 'function') {
+                        teardownChartsInContainer(messagesContainer);
+                    }
                     messagesContainer.className = 'hidden w-full flex-1 overflow-y-auto min-h-0';
                     messagesContainer.innerHTML = '';
                 }
@@ -21098,6 +22645,8 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 const _topNavHAct = document.getElementById('top-nav-header');
                 if (_topNavHAct) _topNavHAct.classList.remove('hidden');
                 if (heroHeader) heroHeader.classList.add('hidden');
+                const _quickPromptsAct = document.getElementById('hero-quick-prompts');
+                if (_quickPromptsAct) _quickPromptsAct.classList.add('hidden');
                 if (actionBadges) actionBadges.classList.add('hidden');
                 if (heroGlow) heroGlow.classList.add('hidden');
                 if (incognitoFootnote) incognitoFootnote.classList.add('hidden');
@@ -21206,14 +22755,24 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                             .replace(/\[Web Search Active\][^\n]*\n*/gi, '')
                             .replace(/All web search queries and simulated real-time data sources are preserved\.?/gi, '')
                             .trim();
-                        activeProse.innerHTML = formatAssistantMarkdown(cleanContent, assistantMessage.sources || [], true);
+                        if (assistantMessage.isStreaming) {
+                            activeProse.setAttribute('data-streaming', 'true');
+                            activeProse.setAttribute('aria-live', 'polite');
+                        } else {
+                            activeProse.removeAttribute('data-streaming');
+                        }
+                        activeProse.innerHTML = formatAssistantMarkdown(cleanContent, assistantMessage.sources || [], Boolean(assistantMessage.isStreaming));
                         if (typeof enhanceCodeBlocks === 'function') {
                             enhanceCodeBlocks(activeProse);
                         }
                         if (typeof bindCitationInteractions === 'function' && activeRow) {
                             bindCitationInteractions(activeRow, activeProse, assistantMessage.sources || []);
                         }
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        if (typeof smartScrollToBottom === 'function') {
+                            smartScrollToBottom(messagesContainer, false);
+                        } else {
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }
                         fastPathHandled = true;
                     }
                 }
@@ -21426,19 +22985,27 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                             const parsed = JSON.parse(dataStr);
                             if (parsed) {
                                 if (parsed.type === 'status') {
-                                    if (!messagePushed) {
-                                        conv.pendingCount = Math.max(0, (conv.pendingCount || 1) - 1);
-                                        conv.messages.push(assistantMessage);
-                                        messagePushed = true;
+                                    if (parsed.resolvedModel) {
+                                        assistantMessage.resolvedModel = parsed.resolvedModel;
                                     }
-                                    assistantMessage.status = parsed.message;
-                                    if (assistantMessage.isDeepResearch) {
-                                        if (parsed.message.includes('Formulating')) assistantMessage.currentStageIndex = 0;
-                                        else if (parsed.message.includes('Gathering')) assistantMessage.currentStageIndex = 1;
-                                        else if (parsed.message.includes('Evaluating')) assistantMessage.currentStageIndex = 2;
-                                        else if (parsed.message.includes('Synthesizing')) assistantMessage.currentStageIndex = 3;
+                                    if (parsed.isFallback && parsed.message) {
+                                        assistantMessage.fallbackNotice = parsed.message;
                                     }
-                                    renderStreamingUpdate();
+                                    if (parsed.message) {
+                                        if (!messagePushed) {
+                                            conv.pendingCount = Math.max(0, (conv.pendingCount || 1) - 1);
+                                            conv.messages.push(assistantMessage);
+                                            messagePushed = true;
+                                        }
+                                        assistantMessage.status = parsed.message;
+                                        if (assistantMessage.isDeepResearch) {
+                                            if (parsed.message.includes('Formulating')) assistantMessage.currentStageIndex = 0;
+                                            else if (parsed.message.includes('Gathering')) assistantMessage.currentStageIndex = 1;
+                                            else if (parsed.message.includes('Evaluating')) assistantMessage.currentStageIndex = 2;
+                                            else if (parsed.message.includes('Synthesizing')) assistantMessage.currentStageIndex = 3;
+                                        }
+                                        renderStreamingUpdate();
+                                    }
                                 } else if (parsed.type === 'sources') {
                                     if (!messagePushed) {
                                         conv.pendingCount = Math.max(0, (conv.pendingCount || 1) - 1);
@@ -21518,12 +23085,10 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
                 if (err.name === 'AbortError') return;
                 console.warn('[Chat Stream Notice]:', err);
                 conv.pendingCount = 0;
+                assistantMessage.streamError = err.message || 'Unable to complete response. Please try again.';
                 if (!messagePushed) {
-                    assistantMessage.content = 'Unable to stream response. Please verify that the backend server is running.';
                     conv.messages.push(assistantMessage);
                     messagePushed = true;
-                } else if (!assistantMessage.content && !assistantMessage.imageUrl) {
-                    assistantMessage.content = 'Unable to stream response. Please verify that the backend server is running.';
                 }
             } finally {
                 assistantMessage.isStreaming = false;
@@ -21889,6 +23454,9 @@ code { font-family: 'Consolas', monospace; font-size: 9.5pt; background: #f3f4f6
         renderRecentChats();
         renderCurrentConversation();
         syncHistoryFromServer();
+        if (typeof loadAvailableModelsFromServer === 'function') {
+            loadAvailableModelsFromServer();
+        }
 
         // Model Selector Click & Dropdown toggling (Requirement 1 & 6)
         const modelSelectBtn = document.getElementById('model-select-btn');
