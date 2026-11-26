@@ -1,0 +1,45 @@
+{
+  "name": "mestrio-chat-next",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^4.0.188",
+    "@assistant-ui/ai-sdk": "^0.0.20",
+    "@assistant-ui/react": "^0.15.38",
+    "@assistant-ui/react-streamdown": "^0.3.23",
+    "@streamdown/code": "^2.0.0",
+    "@streamdown/math": "^1.0.0",
+    "@streamdown/mermaid": "^1.0.0",
+    "ai": "^7.0.183",
+    "clsx": "^2.1.1",
+    "katex": "^0.16.21",
+    "lucide-react": "^0.475.0",
+    "mermaid": "^11.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.15.1",
+    "shiki": "^2.5.0",
+    "streamdown": "^2.8.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
