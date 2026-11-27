@@ -48,8 +48,8 @@ import {
   type ToolCatalogItem,
   type UniversalMessage
 } from '../types/universal';
-import { Sidebar } from './Sidebar';
 import { UniversalMessageRenderer } from './UniversalMessageRenderer';
+import { useChatSession } from '../context/ChatSessionContext';
 
 const MODE_HINTS: Record<ChatMode, string> = {
   general: '',
@@ -58,6 +58,8 @@ const MODE_HINTS: Record<ChatMode, string> = {
 };
 
 interface InnerWorkspaceProps {
+  hideSidebar?: boolean;
+  onOpenMobileSidebar?: () => void;
   runtime: AssistantRuntime;
   setSdkMessages: (messages: UIMessage[]) => void;
   selectedModel: string;
@@ -83,6 +85,8 @@ interface InnerWorkspaceProps {
 }
 
 const InnerChatWorkspace: React.FC<InnerWorkspaceProps> = ({
+  hideSidebar = false,
+  onOpenMobileSidebar,
   runtime,
   setSdkMessages,
   selectedModel,
@@ -109,6 +113,10 @@ const InnerChatWorkspace: React.FC<InnerWorkspaceProps> = ({
   const threadRuntime = runtime.thread;
   const threadMessages = useAuiState((s) => s.thread.messages);
   const isStreaming = useAuiState((s) => s.thread.isRunning);
+  const isEmbedded = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.search.includes('embedded=1') || window.self !== window.top;
+  }, []);
 
   const [input, setInput] = useState('');
   const [tokenInput, setTokenInput] = useState('');
@@ -229,6 +237,67 @@ const InnerChatWorkspace: React.FC<InnerWorkspaceProps> = ({
     },
     [activeConvId, handleNewChat, setConversations, setWorkspaceError]
   );
+
+  useEffect(() => {
+    if (!isEmbedded || typeof window === 'undefined') return;
+    window.parent.postMessage(
+      {
+        type: 'mestrio:conversations-sync',
+        conversations,
+        activeId: activeConvId
+      },
+      '*'
+    );
+  }, [isEmbedded, conversations, activeConvId]);
+
+  useEffect(() => {
+    if (!isEmbedded || typeof window === 'undefined') return;
+    const onParentMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== 'object') return;
+      if (data.type === 'mestrio:new-chat') {
+        handleNewChat();
+      } else if (data.type === 'mestrio:select-conversation' && typeof data.id === 'string') {
+        handleSelectConversation(data.id);
+      } else if (data.type === 'mestrio:delete-conversation' && typeof data.id === 'string') {
+        handleDeleteConversation(data.id);
+      }
+    };
+    window.addEventListener('message', onParentMessage);
+    return () => window.removeEventListener('message', onParentMessage);
+  }, [isEmbedded, handleNewChat, handleSelectConversation, handleDeleteConversation]);
+
+  const sessionCtx = (() => {
+    try {
+      return useChatSession();
+    } catch {
+      return null;
+    }
+  })();
+
+  useEffect(() => {
+    if (!sessionCtx) return;
+    sessionCtx.setConversations(conversations);
+  }, [conversations]);
+
+  useEffect(() => {
+    if (!sessionCtx) return;
+    sessionCtx.setActiveConvId(activeConvId);
+  }, [activeConvId]);
+
+  useEffect(() => {
+    if (!sessionCtx) return;
+    sessionCtx.setIsLoadingHistory(isLoadingHistory);
+  }, [isLoadingHistory]);
+
+  useEffect(() => {
+    if (!sessionCtx) return;
+    sessionCtx.registerHandlers({
+      onSelectConversation: handleSelectConversation,
+      onNewChat: handleNewChat,
+      onDeleteConversation: handleDeleteConversation
+    });
+  }, [sessionCtx, handleSelectConversation, handleNewChat, handleDeleteConversation]);
 
   const handleSend = useCallback(async () => {
     const trimmed = input.trim();
@@ -418,30 +487,22 @@ const InnerChatWorkspace: React.FC<InnerWorkspaceProps> = ({
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
-      <Sidebar
-        conversations={conversations}
-        activeId={activeConvId}
-        isLoading={isLoadingHistory}
-        isOpenMobile={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        onSelect={(id) => {
-          setIsMobileSidebarOpen(false);
-          handleSelectConversation(id);
-        }}
-        onNewChat={() => {
-          setIsMobileSidebarOpen(false);
-          handleNewChat();
-        }}
-        onDelete={handleDeleteConversation}
-      />
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
 
       <main className="flex min-w-0 flex-1 flex-col">
         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3 md:gap-3 md:px-5">
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <button
               type="button"
-              onClick={() => setIsMobileSidebarOpen(true)}
+              onClick={() => {
+                if (isEmbedded && window.parent) {
+                  window.parent.postMessage({ type: 'mestrio:toggle-mobile-sidebar' }, '*');
+                } else if (hideSidebar && onOpenMobileSidebar) {
+                  onOpenMobileSidebar();
+                } else {
+                  setIsMobileSidebarOpen(true);
+                }
+              }}
               className="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
               aria-label="Open sidebar"
             >
@@ -523,7 +584,9 @@ const InnerChatWorkspace: React.FC<InnerWorkspaceProps> = ({
                   </div>
                 )}
                 <div className="max-h-60 space-y-1.5 overflow-y-auto">
-                  {toolsCatalog.map((toolItem) => {
+                  {toolsCatalog
+                    .filter((toolItem) => toolItem.implemented && toolItem.status === 'active')
+                    .map((toolItem) => {
                     const checked = selectedTools.includes(toolItem.name);
                     const disabled = !toolItem.implemented || toolItem.status !== 'active' || !modelSupportsTools;
                     return (
@@ -831,7 +894,15 @@ const InnerChatWorkspace: React.FC<InnerWorkspaceProps> = ({
   );
 };
 
-export const ChatWorkspace: React.FC = () => {
+export interface ChatWorkspaceProps {
+  hideSidebar?: boolean;
+  onOpenMobileSidebar?: () => void;
+}
+
+export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
+  hideSidebar = false,
+  onOpenMobileSidebar
+}) => {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [models, setModels] = useState<ModelCatalogItem[]>([]);
@@ -921,6 +992,8 @@ export const ChatWorkspace: React.FC = () => {
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <InnerChatWorkspace
+        hideSidebar={hideSidebar}
+        onOpenMobileSidebar={onOpenMobileSidebar}
         runtime={runtime}
         setSdkMessages={chatHelpers.setMessages}
         selectedModel={selectedModel}

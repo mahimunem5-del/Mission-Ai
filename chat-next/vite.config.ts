@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  base: '/chat-next/',
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -14,6 +14,14 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
+        target: 'http://127.0.0.1:5001',
+        changeOrigin: true
+      },
+      '/public': {
+        target: 'http://127.0.0.1:5001',
+        changeOrigin: true
+      },
+      '/i18n.js': {
         target: 'http://127.0.0.1:5001',
         changeOrigin: true
       }

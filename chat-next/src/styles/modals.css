@@ -1,0 +1,117 @@
+/* Shared Modals Dark Mode & RTL Rules (Extracted from index.html) */
+html.dark #settings-modal > div,
+html.dark #plan-selection-modal > div,
+html.dark #delete-account-modal > div,
+html.dark #chatgpt-feedback-modal > div {
+  background-color: #222222 !important;
+  border-color: #2e2e2e !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark #settings-modal .md\:border-r {
+  border-color: #2e2e2e !important;
+}
+
+html.dark #settings-modal .bg-slate-50\/80,
+html.dark #settings-modal .bg-slate-50\/70,
+html.dark #settings-modal .bg-slate-50\/50,
+html.dark #settings-modal .bg-slate-50 {
+  background-color: #202020 !important;
+  border-color: #2e2e2e !important;
+}
+
+html.dark #settings-modal .bg-white,
+html.dark #plan-selection-modal .bg-white {
+  background-color: #222222 !important;
+}
+
+html.dark #settings-modal .border-slate-100,
+html.dark #settings-modal .border-slate-200 {
+  border-color: #2e2e2e !important;
+}
+
+html.dark #settings-modal h2,
+html.dark #settings-modal h3,
+html.dark #settings-modal label,
+html.dark #settings-modal .text-slate-900,
+html.dark #settings-modal .text-slate-800,
+html.dark #plan-selection-modal .text-slate-900 {
+  color: #f3f3f3 !important;
+}
+
+html.dark #settings-modal p,
+html.dark #settings-modal .text-slate-500,
+html.dark #settings-modal .text-slate-400,
+html.dark #plan-selection-modal .text-slate-500,
+html.dark #plan-selection-modal .text-slate-400 {
+  color: #a3a3a3 !important;
+}
+
+html.dark .settings-nav-tab {
+  color: #a3a3a3 !important;
+}
+
+html.dark .settings-nav-tab:hover {
+  background-color: #2a2a2a !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark .settings-nav-tab.bg-white {
+  background-color: #2a2a2a !important;
+  color: #f3f3f3 !important;
+  border-color: #383838 !important;
+}
+
+html.dark .settings-appearance-card,
+html.dark .settings-lang-card {
+  background-color: #222222 !important;
+  border-color: #2e2e2e !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark .settings-appearance-card:hover,
+html.dark .settings-lang-card:hover {
+  background-color: #2a2a2a !important;
+  border-color: #383838 !important;
+}
+
+html.dark .settings-appearance-card.border-blue-600,
+html.dark .settings-lang-card.border-blue-600 {
+  background-color: rgba(37, 99, 235, 0.12) !important;
+  border-color: #3b82f6 !important;
+  color: #93c5fd !important;
+}
+
+html.dark #delete-account-modal h3 {
+  color: #f3f3f3 !important;
+}
+
+html.dark #delete-account-modal p {
+  color: #a3a3a3 !important;
+}
+
+html.dark #delete-account-cancel-btn {
+  background-color: #2a2a2a !important;
+  border-color: #383838 !important;
+  color: #d4d4d4 !important;
+}
+
+html.dark #delete-account-cancel-btn:hover {
+  background-color: #333333 !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark #settings-account-delete-btn {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #f87171 !important;
+}
+
+html.dark #settings-account-delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.12) !important;
+}
+
+html[dir='rtl'] #close-settings-modal-btn,
+html[dir='rtl'] #close-upgrade-modal-btn {
+  right: auto !important;
+  left: 1rem !important;
+}

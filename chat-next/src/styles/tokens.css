@@ -1,0 +1,86 @@
+/* Mestrio AI Design Tokens & Typography (Extracted from legacy shell) */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans Arabic', 'Noto Sans Bengali',
+    'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+  --chat-text: #1f1f1f;
+  --chat-heading: #18181b;
+  --chat-muted: #71717a;
+  --chat-border: #e4e4e7;
+  --chat-inline-code-bg: rgba(113, 113, 122, 0.12);
+  --chat-table-head-bg: #f4f4f5;
+  --chat-accent: #2563eb;
+  --chat-user-bubble-bg: #f4f4f5;
+  --chat-user-bubble-text: #18181b;
+}
+
+:root:not(.light) {
+  --chat-text: #e4e4e7;
+  --chat-heading: #fafafa;
+  --chat-muted: #a1a1aa;
+  --chat-border: #27272a;
+  --chat-inline-code-bg: rgba(255, 255, 255, 0.1);
+  --chat-table-head-bg: #27272a;
+  --chat-accent: #60a5fa;
+  --chat-user-bubble-bg: #27272a;
+  --chat-user-bubble-text: #f4f4f5;
+}
+
+html.dark {
+  --background: 0 0% 9.8%;
+  --foreground: 0 0% 95.3%;
+  --card: 0 0% 12.5%;
+  --card-foreground: 0 0% 95.3%;
+  --primary: 0 0% 95.3%;
+  --primary-foreground: 0 0% 9.8%;
+  --muted: 0 0% 16.5%;
+  --muted-foreground: 0 0% 63.9%;
+  --border: 0 0% 18%;
+
+  --chat-text: #e4e4e7;
+  --chat-heading: #fafafa;
+  --chat-muted: #a1a1aa;
+  --chat-border: #27272a;
+  --chat-inline-code-bg: rgba(255, 255, 255, 0.1);
+  --chat-table-head-bg: #27272a;
+  --chat-accent: #60a5fa;
+  --chat-user-bubble-bg: #27272a;
+  --chat-user-bubble-text: #f4f4f5;
+}
+
+html.dark,
+html.dark body {
+  background-color: #191919 !important;
+  color: #f3f3f3 !important;
+}
+
+main {
+  background-color: #ffffff;
+}
+
+html.dark main {
+  background-color: #191919 !important;
+}
+
+/* RTL Layout Mirroring */
+html[dir='rtl'] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Sleek Minimal Scrollbar */
+.perplexity-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.perplexity-scrollbar:hover {
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+html.dark .perplexity-scrollbar:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}

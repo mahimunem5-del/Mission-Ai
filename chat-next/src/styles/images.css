@@ -1,0 +1,259 @@
+/* Image Studio & Home Workspace CSS (Extracted 1:1 from git HEAD index.html) */
+
+@keyframes fadeInImage {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-image {
+  animation: fadeInImage 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Image Card Floating Action Buttons (Share, Copy, Download) */
+.image-card-container .image-overlay-actions {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.image-card-container:hover .image-overlay-actions,
+.image-card-container:focus-within .image-overlay-actions {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+@media (max-width: 640px), (hover: none) {
+  .image-card-container .image-overlay-actions {
+    opacity: 0.95 !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* Complete Removal of Horizontal Scrollbar / Seekbar for Workflows Carousel */
+#creative-workflows-carousel,
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+#creative-workflows-carousel::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+/* Diagonal Split-Slice 1:1 Image Component & Constant-Gap Motion */
+.split-slice-top {
+  clip-path: polygon(0% 0%, calc(100% - 0.75px) 0%, 0% calc(100% - 0.75px));
+  -webkit-clip-path: polygon(0% 0%, calc(100% - 0.75px) 0%, 0% calc(100% - 0.75px));
+  transform: translate(3.5px, -3.5px);
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.group:hover .split-slice-top,
+.workflow-carousel-card:hover .split-slice-top {
+  transform: translate(0px, 0px);
+}
+
+.split-slice-bottom {
+  clip-path: polygon(100% 0.75px, 100% 100%, 0.75px 100%);
+  -webkit-clip-path: polygon(100% 0.75px, 100% 100%, 0.75px 100%);
+  transform: translate(-3.5px, 3.5px);
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.group:hover .split-slice-bottom,
+.workflow-carousel-card:hover .split-slice-bottom {
+  transform: translate(0px, 0px);
+}
+
+#image-studio-workspace .ideogram-custom-scroll::-webkit-scrollbar,
+#image-home-view.ideogram-custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+#image-studio-workspace .ideogram-custom-scroll::-webkit-scrollbar-track,
+#image-home-view.ideogram-custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#image-studio-workspace .ideogram-custom-scroll::-webkit-scrollbar-thumb,
+#image-home-view.ideogram-custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+}
+
+#image-studio-workspace .ideogram-custom-scroll::-webkit-scrollbar-thumb:hover,
+#image-home-view.ideogram-custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+.dark #image-studio-workspace .ideogram-custom-scroll::-webkit-scrollbar-thumb,
+.dark #image-home-view.ideogram-custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark #image-studio-workspace .ideogram-custom-scroll::-webkit-scrollbar-thumb:hover,
+.dark #image-home-view.ideogram-custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+#image-studio-workspace .ideogram-ratio-card.active,
+#image-studio-workspace .ideogram-count-card.active {
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  color: #2563eb !important;
+}
+
+.dark #image-studio-workspace .ideogram-ratio-card.active,
+.dark #image-studio-workspace .ideogram-count-card.active {
+  border-color: #60a5fa !important;
+  background-color: rgba(59, 130, 246, 0.18) !important;
+  color: #93c5fd !important;
+}
+
+#image-studio-workspace .ideogram-style-tag.active {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #1e293b !important;
+}
+
+.dark #image-studio-workspace .ideogram-style-tag.active {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #ffffff !important;
+}
+
+#vector-canvas-viewport.vector-canvas-dotted-grid,
+#vector-canvas-area.vector-canvas-dotted-grid,
+.vector-canvas-dotted-grid {
+  background-image: radial-gradient(circle, rgba(59, 130, 246, 0.35) 1.5px, transparent 1.5px) !important;
+  background-size: 16px 16px !important;
+}
+
+#image-studio-workspace .ideogram-density-btn.active {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+#ideogram-sidebar-resizer {
+  display: flex !important;
+}
+
+@media (max-width: 767px) {
+  #ideogram-sidebar-resizer {
+    display: none !important;
+  }
+}
+
+/* Ideogram-Grade Seamless Transparency Checkerboard Grid */
+.transparent-checkerboard-bg {
+  background-color: #ffffff;
+  background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+    linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+    linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+html.dark .transparent-checkerboard-bg {
+  background-color: #141414;
+  background-image: linear-gradient(45deg, #242424 25%, transparent 25%),
+    linear-gradient(-45deg, #242424 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #242424 75%),
+    linear-gradient(-45deg, transparent 75%, #242424 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+@keyframes removeBgShimmerSweep {
+  0% {
+    transform: translateX(-150%);
+  }
+  60% {
+    transform: translateX(150%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
+}
+
+.remove-bg-placeholder-wrapper {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: transparent;
+}
+
+.remove-bg-placeholder-wrapper::before {
+  display: none;
+}
+
+.remove-bg-placeholder-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(0.75rem - 1.5px);
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.dark .remove-bg-placeholder-inner,
+html.dark .remove-bg-placeholder-inner {
+  background-color: #151c24;
+}
+
+.remove-bg-placeholder-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.remove-bg-placeholder-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(0, 0, 0, 0.04) 55%,
+    transparent 100%
+  );
+  animation: removeBgShimmerSweep 2.5s ease-in-out infinite;
+}
+
+.dark .remove-bg-placeholder-shimmer::after,
+html.dark .remove-bg-placeholder-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.02) 30%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.02) 70%,
+    transparent 100%
+  );
+}
+
+html.dark #image-home-view,
+html.dark #image-studio-workspace {
+  background-color: #191919 !important;
+}

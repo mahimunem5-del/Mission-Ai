@@ -1,0 +1,295 @@
+/* Master Sidebar, Collapsed Rail, Mobile Drawer, RTL & Dark Theme Rules */
+#sidebar {
+  transition: width 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 200ms ease;
+  overflow: hidden;
+  position: relative !important;
+  z-index: 50 !important;
+  pointer-events: auto !important;
+}
+
+#sidebar.sidebar-collapsed {
+  width: 56px;
+  border-right: 1px solid transparent !important;
+  border-right-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.sidebar-header-area {
+  position: relative;
+  transition: padding 200ms ease;
+}
+
+#sidebar.sidebar-collapsed .sidebar-header-area {
+  padding: 0.75rem 0.5rem !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 56px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+#sidebar.sidebar-collapsed #sidebar-brand-logo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 auto !important;
+  cursor: pointer !important;
+  transition: opacity 150ms ease;
+}
+
+#sidebar.sidebar-collapsed #sidebar-search-btn {
+  display: none !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 150ms ease;
+  background: inherit !important;
+  border-radius: 0.75rem !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-header-area:hover .sidebar-header-actions,
+#sidebar.sidebar-collapsed #sidebar-brand-logo:hover ~ .sidebar-header-actions,
+#sidebar.sidebar-collapsed .sidebar-header-actions:hover {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-header-area:hover #sidebar-brand-logo {
+  opacity: 0 !important;
+}
+
+#sidebar.sidebar-collapsed #sidebar-toggle-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border-radius: 0.75rem !important;
+  cursor: pointer !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-hide-on-collapse {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-nav-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+}
+
+.sidebar-label {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#sidebar.sidebar-collapsed .sidebar-label {
+  display: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
+}
+
+#sidebar.sidebar-collapsed #recent-chats-list,
+#sidebar.sidebar-collapsed .sidebar-upgrade-card,
+#sidebar.sidebar-collapsed .sidebar-profile-name,
+#sidebar.sidebar-collapsed .sidebar-section-header {
+  display: none;
+}
+
+#sidebar.sidebar-collapsed .sidebar-nav-item {
+  justify-content: flex-start !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-profile-area {
+  justify-content: center;
+}
+
+/* Recent Chats Minimal Scrollbar */
+#recent-chats-list {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+#recent-chats-list:hover {
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+html.dark #recent-chats-list:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+/* Mobile Drawer (< 768px) */
+@media (max-width: 767px) {
+  #sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100% !important;
+    width: 256px !important;
+    z-index: 50 !important;
+    transform: translateX(-100%) !important;
+    box-shadow: none;
+  }
+
+  #sidebar.mobile-open {
+    transform: translateX(0) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  #sidebar.sidebar-collapsed {
+    width: 256px !important;
+  }
+
+  #sidebar.sidebar-collapsed .sidebar-hide-on-collapse,
+  #sidebar.sidebar-collapsed .sidebar-label,
+  #sidebar.sidebar-collapsed #recent-chats-list,
+  #sidebar.sidebar-collapsed .sidebar-upgrade-card,
+  #sidebar.sidebar-collapsed .sidebar-profile-name,
+  #sidebar.sidebar-collapsed .sidebar-section-header {
+    display: revert;
+    opacity: 1;
+    pointer-events: auto;
+    width: auto;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  #sidebar.sidebar-collapsed .sidebar-nav-item {
+    justify-content: flex-start;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+#sidebar-overlay {
+  transition: opacity 250ms ease;
+}
+
+/* RTL Mirroring for Sidebar */
+html[dir='rtl'] #sidebar {
+  border-right: none !important;
+  border-left: none !important;
+  border-left-color: transparent !important;
+}
+
+@media (max-width: 767px) {
+  html[dir='rtl'] #sidebar {
+    left: auto !important;
+    right: 0 !important;
+    transform: translateX(100%) !important;
+  }
+
+  html[dir='rtl'] #sidebar.mobile-open {
+    transform: translateX(0) !important;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.10) !important;
+  }
+}
+
+/* Dark Mode Sidebar Overrides */
+html.dark #sidebar {
+  background-color: #191919 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+html.dark #sidebar.sidebar-collapsed {
+  border-right: 1px solid transparent !important;
+  border-right-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.dark #sidebar .bg-white {
+  background-color: #191919 !important;
+}
+
+html.dark #sidebar .border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark #sidebar .shadow-lg,
+html.dark #sidebar .shadow-xl {
+  background-color: #202020 !important;
+  border-color: #2e2e2e !important;
+}
+
+html.dark #sidebar-user-name,
+html.dark .chat-title-text {
+  color: #f3f3f3 !important;
+}
+
+html.dark #sidebar-user-plan-label {
+  color: #a3a3a3 !important;
+}
+
+html.dark .sidebar-nav-item {
+  color: #a3a3a3 !important;
+}
+
+html.dark .sidebar-nav-item:hover {
+  background-color: #2a2a2a !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark .sidebar-nav-item.bg-neutral-200\/70,
+html.dark .sidebar-nav-item[aria-current='page'] {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+html.dark .sidebar-profile-area:hover {
+  background-color: #2a2a2a !important;
+}
+
+html.dark .chat-item:hover {
+  background-color: #2a2a2a !important;
+}
+
+html.dark .chat-item.bg-slate-100,
+html.dark .chat-item.bg-slate-200\/70 {
+  background-color: #2a2a2a !important;
+}
+
+html.dark #account-dropdown-menu,
+html.dark #chat-item-context-menu,
+html.dark #chat-search-modal,
+html.dark #recent-chat-delete-modal > div {
+  background-color: #202020 !important;
+  border-color: #2e2e2e !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark #account-dropdown-menu button:hover,
+html.dark #chat-item-context-menu button:hover {
+  background-color: #2a2a2a !important;
+}

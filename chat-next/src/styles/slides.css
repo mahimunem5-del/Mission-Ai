@@ -1,0 +1,47 @@
+/* Slides Studio Workspace CSS (Extracted from index.html) */
+#slides-generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+  box-shadow: none !important;
+}
+
+html.dark #slides-studio-workspace {
+  background-color: #191919 !important;
+}
+
+html.dark #slides-studio-workspace h1,
+html.dark #slides-studio-workspace h2,
+html.dark #slides-studio-workspace h3 {
+  color: #f3f3f3 !important;
+}
+
+html.dark #slides-studio-workspace .bg-white,
+html.dark #slides-studio-workspace [class*="bg-white"] {
+  background-color: #202020 !important;
+}
+
+html.dark #slides-studio-workspace [class*="bg-slate"],
+html.dark #slides-studio-workspace [class*="bg-gray"] {
+  background-color: #222222 !important;
+}
+
+html.dark #slides-studio-workspace [class*="border-slate"],
+html.dark #slides-studio-workspace [class*="border-gray"] {
+  border-color: #2e2e2e !important;
+}
+
+html.dark #slides-studio-workspace p,
+html.dark #slides-studio-workspace .text-slate-500,
+html.dark #slides-studio-workspace .text-slate-400 {
+  color: #a3a3a3 !important;
+}
+
+html.dark #slides-studio-workspace textarea {
+  color: #f3f3f3 !important;
+}
+
+html.dark #slides-template-modal-dialog {
+  background-color: #202020 !important;
+  border-color: #2e2e2e !important;
+}

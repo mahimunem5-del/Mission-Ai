@@ -37,7 +37,7 @@ Defined in `index.html`:
 ```javascript
 window.MESTRIO_WORKSPACES = {
   chat:     { locked: false, hideInSidebar: false },
-  images:   { locked: true,  hideInSidebar: true  }, // Completed & Frozen
+  images:   { locked: false, hideInSidebar: false }, // Unlocked and visible in Master Sidebar
   slides:   { locked: false, hideInSidebar: false },
   projects: { locked: false, hideInSidebar: false },
   library:  { locked: false, hideInSidebar: false }
@@ -48,7 +48,8 @@ window.MESTRIO_WORKSPACES = {
 
 ## 3. Exact File Ownership Map by Workspace
 
-### A. images (CURRENT STATUS: LOCKED = true):
+### A. images (CURRENT STATUS: UNLOCKED on 2026-11-27 for Unified React Migration):
+> **Owner Authorization:** Officially unlocked by Munem Mahi on 2026-11-27 for migration into `chat-next/`. Backend AI/image controllers (`server/src/routes/image.js`, `server/src/controllers/imageController.js`, `server/src/services/image*`) remain protected and unmodified.
 - `src/components/ImageWorkspace.tsx`
 - `src/utils/imagePreprocessing.ts`
 - `server/src/routes/image.js`
