@@ -82,9 +82,16 @@ async function run() {
     assert(!JSON.stringify(json).includes('sk-'), 'No API secrets leaked in health response');
   });
 
-  // Test 3 & 4 & 5: OpenRouter model streaming
-  await test('3, 4, 5. Normal OpenRouter model chat via POST /api/chat/stream emits SSE chunks and [DONE]', async () => {
-    const res = await fetch(`${baseUrl}/api/chat/stream`, {
+  // Test 3 & 4 & 5: OpenRouter model streaming via authoritative /api/chat/ui-stream (and confirm legacy /api/chat/stream stays 404)
+  await test('3, 4, 5. OpenRouter chat via POST /api/chat/ui-stream emits AI SDK v7 SSE chunks and legacy /api/chat/stream stays 404', async () => {
+    const legacyRes = await fetch(`${baseUrl}/api/chat/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'openai/gpt-4o-mini', messages: [{ role: 'user', content: 'hi' }] })
+    });
+    assert.strictEqual(legacyRes.status, 404, 'Removed legacy /api/chat/stream must remain 404');
+
+    const res = await fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -96,6 +103,7 @@ async function run() {
 
     assert.strictEqual(res.status, 200);
     assert(res.headers.get('content-type').includes('text/event-stream'), 'Content-Type is text/event-stream');
+    assert.strictEqual(res.headers.get('x-vercel-ai-ui-message-stream'), 'v1', 'AI SDK v7 UI stream header present');
 
     const text = await res.text();
     assert(text.includes('data:'), 'Contains SSE data events');
@@ -103,8 +111,8 @@ async function run() {
   });
 
   // Test 6: Web search execution when searchMode=web-search
-  await test('6. Web search mode integrates and does not crash when API key is missing or present', async () => {
-    const res = await fetch(`${baseUrl}/api/chat/stream`, {
+  await test('6. Web search mode integrates on POST /api/chat/ui-stream without crashing', async () => {
+    const res = await fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -119,8 +127,8 @@ async function run() {
   });
 
   // Test 7: Deep research execution when searchMode=deep-research
-  await test('7. Deep research pipeline executes multi-vector queries and streams status', async () => {
-    const res = await fetch(`${baseUrl}/api/chat/stream`, {
+  await test('7. Deep research pipeline executes multi-vector queries on POST /api/chat/ui-stream', async () => {
+    const res = await fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -134,20 +142,21 @@ async function run() {
     assert(text.includes('[DONE]'), 'Deep research stream completes cleanly');
   });
 
-  // Test 8: Image generation intent triggers FLUX pipeline
-  await test('8. Image generation intent (/image) routes to image provider', async () => {
-    const res = await fetch(`${baseUrl}/api/chat/stream`, {
+  // Test 8: Tool execution on /api/chat/ui-stream (calculate_math)
+  await test('8. Unified tool execution (calculate_math) works on POST /api/chat/ui-stream', async () => {
+    const res = await fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'mahi-engine',
-        messages: [{ role: 'user', content: '/image a futuristic cyberpunk skyline with neon rain' }]
+        model: 'openai/gpt-4o-mini',
+        enabledTools: ['math-reasoning'],
+        messages: [{ role: 'user', content: 'Use calculate_math to compute 12 * 15 and return the number.' }]
       })
     });
     assert.strictEqual(res.status, 200);
     const text = await res.text();
-    assert(text.includes('image') || text.includes('FLUX.1 Schnell'), 'Image pipeline was triggered');
-    assert(text.includes('[DONE]'), 'Image stream completed with [DONE]');
+    assert(text.includes('calculate_math') || text.includes('180'), 'Tool execution or result present in stream');
+    assert(text.includes('[DONE]'), 'Tool stream completed with [DONE]');
   });
 
   // Test 9: Multi-model compare mode works
@@ -219,8 +228,8 @@ async function run() {
   });
 
   // Test 12: Invalid payloads are rejected with 400 ValidationError
-  await test('12. Malformed requests are rejected with 400 Bad Request', async () => {
-    const badBodyRes = await fetch(`${baseUrl}/api/chat/stream`, {
+  await test('12. Malformed requests are rejected with 400 Bad Request on /api/chat/ui-stream', async () => {
+    const badBodyRes = await fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -308,9 +317,9 @@ async function run() {
   });
 
   // Test 20: Client disconnect handling
-  await test('20. Client disconnect triggers AbortSignal without uncaught exceptions', async () => {
+  await test('20. Client disconnect triggers AbortSignal without uncaught exceptions on /api/chat/ui-stream', async () => {
     const controller = new AbortController();
-    const fetchPromise = fetch(`${baseUrl}/api/chat/stream`, {
+    const fetchPromise = fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -430,9 +439,9 @@ async function run() {
     assert.strictEqual(mahiLookup, 'Response from Mahi Engine API', 'Mahi Engine retrieves its own cached response');
   });
 
-  // Test 29: Mahi Engine Chat Streaming via POST /api/chat/stream
-  await test('29. Mahi Engine chat stream succeeds via dedicated System B pipeline', async () => {
-    const res = await fetch(`${baseUrl}/api/chat/stream`, {
+  // Test 29: Mahi Engine Chat Streaming via POST /api/chat/ui-stream
+  await test('29. Mahi Engine chat stream succeeds via POST /api/chat/ui-stream', async () => {
+    const res = await fetch(`${baseUrl}/api/chat/ui-stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

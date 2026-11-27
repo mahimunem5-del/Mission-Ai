@@ -101,22 +101,31 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '../../');
 
-const VALID_SPA_ROUTES = new Set([
+const REACT_SPA_ROUTES = new Set([
   '/',
-  '/index.html',
-  '/create/svg/vectorize',
-  '/vectorize'
+  '/slides',
+  '/projects',
+  '/library',
+  '/images',
+  '/chat-embed'
 ]);
 
 const chatNextDistDir = path.join(rootDir, 'chat-next', 'dist');
-app.use('/chat-next', express.static(chatNextDistDir));
-app.get('/chat-next*', (req, res, next) => {
+app.use(express.static(chatNextDistDir, { index: false }));
+
+// Unified React + TypeScript application routes
+app.get(['/', '/slides', '/projects', '/library', '/images', '/chat-embed'], (req, res, next) => {
   return res.sendFile(path.join(chatNextDistDir, 'index.html'), (err) => {
     if (err) next(err);
   });
 });
 
-app.use(express.static(rootDir));
+// Prevent direct /index.html access from bypassing '/'
+app.get('/index.html', (req, res) => {
+  return res.redirect(302, '/');
+});
+
+app.use(express.static(rootDir, { index: false }));
 app.use('/public', express.static(path.join(rootDir, 'public')));
 app.use(express.static(path.join(rootDir, 'public')));
 
@@ -125,8 +134,8 @@ app.get('*', (req, res, next) => {
     return next();
   }
   const cleanPath = req.path.replace(/\/+$/, '') || '/';
-  if (VALID_SPA_ROUTES.has(cleanPath)) {
-    return res.sendFile(path.join(rootDir, 'index.html'), (err) => {
+  if (REACT_SPA_ROUTES.has(cleanPath)) {
+    return res.sendFile(path.join(chatNextDistDir, 'index.html'), (err) => {
       if (err) next(err);
     });
   }
