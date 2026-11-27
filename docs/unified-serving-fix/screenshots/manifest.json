@@ -1,0 +1,77 @@
+{
+  "env": "Local Development (http://127.0.0.1:5003)",
+  "records": [
+    {
+      "filename": "01_main_homepage.png",
+      "requestedUrl": "http://127.0.0.1:5003/",
+      "actualUrl": "http://127.0.0.1:5003/",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "Main homepage serving chat-next at /"
+    },
+    {
+      "filename": "02_new_chat_after_click.png",
+      "requestedUrl": "http://127.0.0.1:5003/ (via #new-chat-btn on /slides)",
+      "actualUrl": "http://127.0.0.1:5003/",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "New Chat opened after clicking New Chat from Slides Studio"
+    },
+    {
+      "filename": "03_new_chat_after_refresh.png",
+      "requestedUrl": "http://127.0.0.1:5003/ (refreshed)",
+      "actualUrl": "http://127.0.0.1:5003/",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "New Chat preserved after browser refresh"
+    },
+    {
+      "filename": "04_slides_studio.png",
+      "requestedUrl": "http://127.0.0.1:5003/slides",
+      "actualUrl": "http://127.0.0.1:5003/slides",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "Slides Studio workspace preserved"
+    },
+    {
+      "filename": "05_projects.png",
+      "requestedUrl": "http://127.0.0.1:5003/projects",
+      "actualUrl": "http://127.0.0.1:5003/projects",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "Projects workspace preserved"
+    },
+    {
+      "filename": "06_library.png",
+      "requestedUrl": "http://127.0.0.1:5003/library",
+      "actualUrl": "http://127.0.0.1:5003/library",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "Library workspace preserved"
+    },
+    {
+      "filename": "07_vectorizer_route.png",
+      "requestedUrl": "http://127.0.0.1:5003/vectorize",
+      "actualUrl": "http://127.0.0.1:5003/",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "Locked images/vectorize workspace cleanly blocked per WORKSPACE_LOCK.md and redirected to /"
+    },
+    {
+      "filename": "08_image_workspace_route.png",
+      "requestedUrl": "http://127.0.0.1:5003/create/svg/vectorize",
+      "actualUrl": "http://127.0.0.1:5003/",
+      "viewport": "1440x900",
+      "consoleErrors": [],
+      "failedApi": [],
+      "notes": "Locked Image Workspace deep-link cleanly blocked per WORKSPACE_LOCK.md and redirected to /"
+    }
+  ]
+}

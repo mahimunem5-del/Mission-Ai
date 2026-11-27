@@ -1,0 +1,47 @@
+{
+  "env": "Local Development (http://127.0.0.1:5003)",
+  "records": [
+    {
+      "filename": "01_desktop_new_chat.png",
+      "url": "http://127.0.0.1:5003/",
+      "errs": 0,
+      "apiErrs": 0,
+      "desc": "Desktop New Chat at /"
+    },
+    {
+      "filename": "02_new_chat_streaming_and_math.png",
+      "url": "http://127.0.0.1:5003/",
+      "errs": 0,
+      "apiErrs": 0,
+      "desc": "New Chat real response with calculate_math (210)"
+    },
+    {
+      "filename": "03_slides_studio.png",
+      "url": "http://127.0.0.1:5003/slides",
+      "errs": 0,
+      "apiErrs": 0,
+      "desc": "Slides Studio at /slides"
+    },
+    {
+      "filename": "04_projects.png",
+      "url": "http://127.0.0.1:5003/projects",
+      "errs": 0,
+      "apiErrs": 0,
+      "desc": "Projects at /projects"
+    },
+    {
+      "filename": "05_library.png",
+      "url": "http://127.0.0.1:5003/library",
+      "errs": 0,
+      "apiErrs": 0,
+      "desc": "Library at /library"
+    },
+    {
+      "filename": "06_mobile_new_chat.png",
+      "url": "http://127.0.0.1:5003/",
+      "errs": 0,
+      "apiErrs": 0,
+      "desc": "Mobile New Chat (375x812)"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "records": [
+    {
+      "filename": "01_homepage_desktop.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Actual main website homepage at /",
+      "result": "PASS"
+    },
+    {
+      "filename": "02_new_chat_workspace.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "New Chat Workspace & active Unified Tools menu",
+      "result": "PASS"
+    },
+    {
+      "filename": "03_model_selector.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Model selector focused (openai/gpt-4o-mini)",
+      "result": "PASS"
+    },
+    {
+      "filename": "04_new_chat_input.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "New Chat composer input populated",
+      "result": "PASS"
+    },
+    {
+      "filename": "10_streaming_state.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Active SSE streaming state with Stop button",
+      "result": "PASS"
+    },
+    {
+      "filename": "05_real_ai_response.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Real GPT-4o-mini response with calculate_math",
+      "result": "PASS"
+    },
+    {
+      "filename": "06_markdown_and_table_response.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Markdown & table rendering",
+      "result": "PASS"
+    },
+    {
+      "filename": "07_code_response.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Dark code block with Copy button",
+      "result": "PASS"
+    },
+    {
+      "filename": "08_web_search_execution.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Web Search execution & source cards",
+      "result": "PASS"
+    },
+    {
+      "filename": "09_deep_research_execution.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Deep Research execution & citations",
+      "result": "PASS"
+    },
+    {
+      "filename": "14_mobile_interface.png",
+      "url": "http://127.0.0.1:5003/",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "375x812",
+      "testName": "Mobile responsive / interface (zero overflow)",
+      "result": "PASS"
+    },
+    {
+      "filename": "11_image_workspace_vectorizer.png",
+      "url": "http://127.0.0.1:5003/vectorize",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Frozen Image Workspace /vectorize",
+      "result": "PASS"
+    },
+    {
+      "filename": "12_slides_studio.png",
+      "url": "http://127.0.0.1:5003/slides",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Slides Studio workspace at /slides",
+      "result": "PASS"
+    },
+    {
+      "filename": "13_projects_and_library.png",
+      "url": "http://127.0.0.1:5003/projects",
+      "env": "Local Development (127.0.0.1:5003)",
+      "viewport": "1440x900",
+      "testName": "Projects workspace at /projects",
+      "result": "PASS"
+    }
+  ],
+  "consoleErrors": [],
+  "pageExceptions": []
+}
